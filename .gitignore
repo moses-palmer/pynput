@@ -1,0 +1,8 @@
+*.egg-info/
+*.eggs/
+*.pyc
+*.sublime-*
+
+build/*
+dist/*
+
