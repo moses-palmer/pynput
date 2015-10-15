@@ -15,25 +15,12 @@
 # You should have received a copy of the GNU General Public License along with
 # this program. If not, see <http://www.gnu.org/licenses/>.
 
-import sys
-
-Controller = None
-Listener = None
+from . import _base
 
 
-if sys.platform == 'darwin':
-    from ._darwin import Controller, Listener
-
-elif sys.platform == 'win32':
-    from ._win32 import Controller, Listener
-
-else:
-    if not Controller:
-        try:
-            from ._xorg import Controller, Listener
-        except:
-            pass
+class Controller(_base.Controller):
+    pass
 
 
-if not Controller or not Listener:
-    raise ImportError('this platform is not supported')
+class Listener(_base.Listener):
+    pass
