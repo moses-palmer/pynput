@@ -3,6 +3,7 @@
 
 import os
 import setuptools
+import sys
 
 
 #: The name of the package on PyPi
@@ -20,8 +21,11 @@ AUTHOR_EMAIL = 'moses.palmer@gmail.com'
 #: The runtime requirements
 RUNTIME_PACKAGES = []
 
+if sys.version_info.major < 3:
+    RUNTIME_PACKAGES.append('enum34')
+
 #: Additional requirements used during setup
-SETUP_PACKAGES = []
+SETUP_PACKAGES = RUNTIME_PACKAGES
 
 
 # Read globals from ._info without loading it
