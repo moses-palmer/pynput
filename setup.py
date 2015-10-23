@@ -90,4 +90,15 @@ setuptools.setup(
 
     license='GPLv3',
     keywords='control mouse, mouse input',
-    classifiers=[])
+    classifiers=[
+        'Development Status :: 3 - Alpha',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+        'Operating System :: MacOS :: MacOS X',
+        'Operating System :: Microsoft :: Windows :: Windows NT/2000',
+        'Operating System :: POSIX',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.4',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+        'Topic :: System :: Monitoring'])
