@@ -68,7 +68,7 @@ except IOError:
 setuptools.setup(
     name=PYPI_PACKAGE_NAME,
     version='.'.join(str(i) for i in INFO['version']),
-    description='Sends virtual input commands',
+    description='Monitor and control user input devices',
     long_description=README + '\n\n' + CHANGES,
 
     install_requires=RUNTIME_PACKAGES,
