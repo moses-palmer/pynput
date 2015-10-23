@@ -89,4 +89,5 @@ setuptools.setup(
     test_suite='tests',
 
     license='GPLv3',
+    keywords='control mouse, mouse input',
     classifiers=[])
