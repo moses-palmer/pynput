@@ -15,4 +15,25 @@
 # You should have received a copy of the GNU General Public License along with
 # this program. If not, see <http://www.gnu.org/licenses/>.
 
-from . import mouse
+import sys
+
+Controller = None
+Listener = None
+
+
+if sys.platform == 'darwin':
+    from ._darwin import Controller, Listener
+
+elif sys.platform == 'win32':
+    from ._win32 import Controller, Listener
+
+else:
+    if not Controller:
+        try:
+            from ._xorg import Controller, Listener
+        except:
+            pass
+
+
+if not Controller or not Listener:
+    raise ImportError('this platform is not supported')
