@@ -90,7 +90,7 @@ class Controller(object):
     def click(self, button, count=1):
         """Emits a button click event at the current position.
 
-        The default implementation sends a series a press and release events.
+        The default implementation sends a series of press and release events.
 
         :param Button button: The button to click.
 
