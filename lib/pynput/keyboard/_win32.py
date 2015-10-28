@@ -15,5 +15,19 @@
 # You should have received a copy of the GNU General Public License along with
 # this program. If not, see <http://www.gnu.org/licenses/>.
 
-from . import keyboard
-from . import mouse
+import enum
+
+from . import _base
+
+
+class KeyCode(_base.KeyCode):
+    pass
+
+
+class Key(enum.Enum):
+    # Default keys
+    pass
+
+
+class Controller(_base.Controller):
+    pass

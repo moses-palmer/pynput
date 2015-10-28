@@ -15,5 +15,8 @@
 # You should have received a copy of the GNU General Public License along with
 # this program. If not, see <http://www.gnu.org/licenses/>.
 
-from . import keyboard
-from . import mouse
+
+class Controller(object):
+    """A controller for sending virtual keyboard events to the system.
+    """
+    pass
