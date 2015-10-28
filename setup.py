@@ -51,6 +51,11 @@ try:
             os.path.dirname(__file__),
             'README.rst')) as f:
         README = f.read()
+
+    with open(os.path.join(
+            os.path.dirname(__file__),
+            'mouse-usage.rst')) as f:
+        README += '\n\n' + f.read()
 except IOError:
     README = ''
 
