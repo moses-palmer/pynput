@@ -15,20 +15,26 @@
 # You should have received a copy of the GNU General Public License along with
 # this program. If not, see <http://www.gnu.org/licenses/>.
 
+import os
 import sys
 
-Controller = None
-Listener = None
+if os.environ.get('__PYNPUT_GENERATE_DOCUMENTATION') == 'yes':
+    from ._base import Controller, Listener
+else:
+    Controller = None
+    Listener = None
 
 
 if sys.platform == 'darwin':
-    from ._darwin import Controller, Listener
+    if Controller is None and Listener is None:
+        from ._darwin import Controller, Listener
 
 elif sys.platform == 'win32':
-    from ._win32 import Controller, Listener
+    if Controller is None and Listener is None:
+        from ._win32 import Controller, Listener
 
 else:
-    if not Controller:
+    if Controller is None and Listener is None:
         try:
             from ._xorg import Controller, Listener
         except:

@@ -25,9 +25,18 @@ class Controller(object):
     """
     class Button(enum.Enum):
         """The various buttons.
+
+        The actual values for these items differ between platforms. Some
+        platforms may have additional buttons, but these are guaranteed to be
+        present everywhere.
         """
+        #: The left button
         left = 1
+
+        #: The middle button
         middle = 2
+
+        #: The right button
         right = 3
 
     @property
@@ -144,6 +153,44 @@ class Controller(object):
 
 
 class Listener(threading.Thread):
+    """A listener for mouse events.
+
+    Instances of this class can be used as context managers. This is equivalent
+    to the following code::
+
+        listener.start()
+        try:
+            with_statements()
+        finally:
+            listener.stop()
+
+    :param callable on_move: The callback to call when mouse move events occur.
+
+        It will be called with the arguments ``(x, y)``, which is the new
+        pointer position. If this callback raises :class:`StopException` or
+        returns ``False``, the listener is stopped.
+
+    :param callable on_click: The callback to call when a mouse button is
+        clicked.
+
+        It will be called with the arguments ``(x, y, button, pressed)``,
+        where ``(x, y)`` is the new pointer position, ``button`` is one of the
+        :class:`Controller.Button` values and ``pressed`` is whether the button
+        was pressed.
+
+        If this callback raises :class:`StopException` or returns ``False``,
+        the listener is stopped.
+
+    :param callable on_scroll: The callback to call when mouse scroll
+        events occur.
+
+        It will be called with the arguments ``(x, y, dx, dy)``, where
+        ``(x, y)`` is the new pointer position, and ``(dx, dy)`` is the scroll
+        vector.
+
+        If this callback raises :class:`StopException` or returns ``False``,
+        the listener is stopped.
+    """
     class StopException(Exception):
         """If an event listener callback raises this exception, the current
         listener is stopped.
@@ -153,38 +200,6 @@ class Listener(threading.Thread):
         pass
 
     def __init__(self, on_move=None, on_click=None, on_scroll=None):
-        """A listener for mouse events.
-
-        Instances of this class can be used as context managers. This is
-        equivalent to the following code:
-
-            listener.start()
-            try:
-                with_statements()
-            finally:
-                listener.stop()
-
-        :param callable on_move: The callback to call when mouse move events
-            occur. It will be called with the arguments ``(x, y)``, which is
-            the new pointer position. If this callback raises
-            :class:`StopException` or returns ``False``, the listener is
-            stopped.
-
-        :param callable on_click: The callback to call when a mouse button is
-            clicked. It will be called with the arguments
-            ``(x, y, button, pressed)``, where ``(x, y)`` is the new pointer
-            position, ``button`` is one of the :class:`Controller.Button`
-            values and ``pressed`` is whether the button was pressed. If this
-            callback raises :class:`StopException` or returns ``False``, the
-            listener is stopped.
-
-        :param callable on_scroll: The callback to call when mouse scroll
-            events occur. It will be called with the arguments
-            ``(x, y, dx, dy)``, where ``(x, y)`` is the new pointer position,
-            and ``(dx, dy)`` is the scroll vector. If this callback raises
-            :class:`StopException` or returns ``False``, the listener is
-            stopped.
-        """
         super(Listener, self).__init__()
 
         def wrapper(f):
