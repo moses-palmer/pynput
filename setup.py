@@ -51,6 +51,11 @@ try:
             os.path.dirname(__file__),
             'README.rst')) as f:
         README = f.read()
+
+    with open(os.path.join(
+            os.path.dirname(__file__),
+            'mouse-usage.rst')) as f:
+        README += '\n\n' + f.read()
 except IOError:
     README = ''
 
@@ -68,7 +73,7 @@ except IOError:
 setuptools.setup(
     name=PYPI_PACKAGE_NAME,
     version='.'.join(str(i) for i in INFO['version']),
-    description='Sends virtual input commands',
+    description='Monitor and control user input devices',
     long_description=README + '\n\n' + CHANGES,
 
     install_requires=RUNTIME_PACKAGES,
@@ -89,4 +94,16 @@ setuptools.setup(
     test_suite='tests',
 
     license='GPLv3',
-    classifiers=[])
+    keywords='control mouse, mouse input',
+    classifiers=[
+        'Development Status :: 3 - Alpha',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+        'Operating System :: MacOS :: MacOS X',
+        'Operating System :: Microsoft :: Windows :: Windows NT/2000',
+        'Operating System :: POSIX',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.4',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+        'Topic :: System :: Monitoring'])
