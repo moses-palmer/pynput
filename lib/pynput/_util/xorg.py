@@ -15,6 +15,14 @@
 # You should have received a copy of the GNU General Public License along with
 # this program. If not, see <http://www.gnu.org/licenses/>.
 
+import Xlib.display
+
+
+# Create a display to verify that we have an X connection
+display = Xlib.display.Display()
+display.close()
+del display
+
 
 class X11Error(Exception):
     """An error that is thrown at the end of a code block managed by a

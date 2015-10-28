@@ -26,12 +26,6 @@ from pynput._util.xorg import *
 from . import _base
 
 
-# Create a display to verify that we have an X connection
-display = Xlib.display.Display()
-display.close()
-del display
-
-
 class Controller(_base.Controller):
     class Button(enum.Enum):
         """The various buttons.
