@@ -19,7 +19,8 @@ PACKAGE_URL = 'https://github.com/moses-palmer/pynput'
 AUTHOR_EMAIL = 'moses.palmer@gmail.com'
 
 #: The runtime requirements
-RUNTIME_PACKAGES = []
+RUNTIME_PACKAGES = [
+    'six']
 
 if sys.version_info.major < 3:
     RUNTIME_PACKAGES.append('enum34')
