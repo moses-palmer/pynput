@@ -67,7 +67,8 @@ class Controller(_base.Controller):
                 ctypes.sizeof(INPUT))
 
         if dx or dy:
-            self._notify('on_scroll', dx, dy)
+            x, y = self._position_get()
+            self._notify('on_scroll', x, y, dx, dy)
 
     def _press(self, button):
         SendInput(
