@@ -17,17 +17,100 @@
 
 import enum
 
+from pynput._util.win32 import *
 from . import _base
 
 
 class KeyCode(_base.KeyCode):
-    pass
+    @property
+    def dwFlags(self):
+        if self.char is not None:
+            return KEYBDINPUT.UNICODE
+        else:
+            return 0
+
+    @property
+    def wScan(self):
+        if self.char is not None:
+            return ord(self.char)
+        else:
+            return 0
+
+    @property
+    def wVk(self):
+        return self.vk
 
 
 class Key(enum.Enum):
-    # Default keys
-    pass
+    alt = KeyCode.from_vk(0x12)
+    alt_l = KeyCode.from_vk(0xA4)
+    alt_r = KeyCode.from_vk(0xA5)
+    alt_gr = KeyCode.from_vk(0xA5)
+    backspace = KeyCode.from_vk(0x08)
+    caps_lock = KeyCode.from_vk(0x14)
+    cmd_l = KeyCode.from_vk(0x5B)
+    cmd_r = KeyCode.from_vk(0xA4)
+    ctrl = KeyCode.from_vk(0xA2)
+    ctrl_l = KeyCode.from_vk(0xA4)
+    ctrl_r = KeyCode.from_vk(0xA3)
+    delete = KeyCode.from_vk(0x2E)
+    down = KeyCode.from_vk(0x28)
+    end = KeyCode.from_vk(0x23)
+    enter = KeyCode.from_vk(0x0D)
+    esc = KeyCode.from_vk(0x1B)
+    f1 = KeyCode.from_vk(0x70)
+    f2 = KeyCode.from_vk(0x71)
+    f3 = KeyCode.from_vk(0x72)
+    f4 = KeyCode.from_vk(0x73)
+    f5 = KeyCode.from_vk(0x74)
+    f6 = KeyCode.from_vk(0x75)
+    f7 = KeyCode.from_vk(0x76)
+    f8 = KeyCode.from_vk(0x77)
+    f9 = KeyCode.from_vk(0x78)
+    f10 = KeyCode.from_vk(0x79)
+    f11 = KeyCode.from_vk(0x7A)
+    f12 = KeyCode.from_vk(0x7B)
+    f13 = KeyCode.from_vk(0x7C)
+    f14 = KeyCode.from_vk(0x7D)
+    f15 = KeyCode.from_vk(0x7E)
+    f16 = KeyCode.from_vk(0x7F)
+    f17 = KeyCode.from_vk(0x80)
+    f18 = KeyCode.from_vk(0x81)
+    f19 = KeyCode.from_vk(0x82)
+    f20 = KeyCode.from_vk(0x83)
+    home = KeyCode.from_vk(0x24)
+    left = KeyCode.from_vk(0x25)
+    page_down = KeyCode.from_vk(0x22)
+    page_up = KeyCode.from_vk(0x21)
+    right = KeyCode.from_vk(0x27)
+    shift = KeyCode.from_vk(0xA0)
+    shift_l = KeyCode.from_vk(0xA0)
+    shift_r = KeyCode.from_vk(0xA1)
+    space = KeyCode(vk=0x20, char=' ')
+    tab = KeyCode.from_vk(0x09)
+    up = KeyCode.from_vk(0x26)
+
+    insert = KeyCode.from_vk(0x2D)
+    menu = KeyCode.from_vk(0x5D)
+    num_lock = KeyCode.from_vk(0x90)
+    pause = KeyCode.from_vk(0x13)
+    print_screen = KeyCode.from_vk(0x2C)
+    scroll_lock = KeyCode.from_vk(0x91)
 
 
 class Controller(_base.Controller):
-    pass
+    _KeyCode = KeyCode
+    _Key = Key
+
+    def _handle(self, key, is_press):
+        SendInput(
+            1,
+            ctypes.byref(INPUT(
+                type=INPUT.KEYBOARD,
+                value=INPUT_union(
+                    ki=KEYBDINPUT(
+                        dwFlags=key.dwFlags | (
+                            0 if is_press else KEYBDINPUT.KEYUP),
+                        wVk=key.wVk,
+                        wScan=key.wScan)))),
+            ctypes.sizeof(INPUT))
