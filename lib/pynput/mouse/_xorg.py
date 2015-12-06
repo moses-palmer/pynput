@@ -47,6 +47,10 @@ class Controller(_base.Controller):
     def __init__(self):
         self._display = Xlib.display.Display()
 
+    def __del__(self):
+        if hasattr(self, '_display'):
+            self._display.close()
+
     def _position_get(self):
         with display_manager(self._display) as d:
             data = d.screen().root.query_pointer()._data
@@ -107,6 +111,12 @@ class Listener(_base.Listener):
                     'errors': (0, 0),
                     'client_started': False,
                     'client_died': False}])
+
+    def __del__(self):
+        if hasattr(self, '_display_stop'):
+            self._display_stop.close()
+        if hasattr(self, '_display_record'):
+            self._display_record.close()
 
     def _run(self):
         with display_manager(self._display_record) as d:
