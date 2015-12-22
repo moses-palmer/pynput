@@ -9,5 +9,7 @@ This library allows you to control and monitor input devices.
 
    mouse
 
+   keyboard
+
 
 * :ref:`genindex`
