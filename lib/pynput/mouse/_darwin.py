@@ -17,9 +17,8 @@
 
 import enum
 import Quartz
-import threading
 
-from AppKit import NSEvent, NSScreen
+from AppKit import NSEvent
 
 from . import _base
 
