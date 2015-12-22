@@ -141,15 +141,14 @@ class Controller(_base.Controller):
 class Listener(_base.Listener):
     #: The events that we listen to
     _TAP_EVENTS = (
-        0
-        | Quartz.CGEventMaskBit(Quartz.kCGEventMouseMoved)
-        | Quartz.CGEventMaskBit(Quartz.kCGEventLeftMouseDown)
-        | Quartz.CGEventMaskBit(Quartz.kCGEventLeftMouseUp)
-        | Quartz.CGEventMaskBit(Quartz.kCGEventRightMouseDown)
-        | Quartz.CGEventMaskBit(Quartz.kCGEventRightMouseUp)
-        | Quartz.CGEventMaskBit(Quartz.kCGEventOtherMouseDown)
-        | Quartz.CGEventMaskBit(Quartz.kCGEventOtherMouseUp)
-        | Quartz.CGEventMaskBit(Quartz.kCGEventScrollWheel))
+        Quartz.CGEventMaskBit(Quartz.kCGEventMouseMoved) |
+        Quartz.CGEventMaskBit(Quartz.kCGEventLeftMouseDown) |
+        Quartz.CGEventMaskBit(Quartz.kCGEventLeftMouseUp) |
+        Quartz.CGEventMaskBit(Quartz.kCGEventRightMouseDown) |
+        Quartz.CGEventMaskBit(Quartz.kCGEventRightMouseUp) |
+        Quartz.CGEventMaskBit(Quartz.kCGEventOtherMouseDown) |
+        Quartz.CGEventMaskBit(Quartz.kCGEventOtherMouseUp) |
+        Quartz.CGEventMaskBit(Quartz.kCGEventScrollWheel))
 
     def __init__(self, *args, **kwargs):
         super(Listener, self).__init__(*args, **kwargs)
