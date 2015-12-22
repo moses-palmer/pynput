@@ -17,17 +17,77 @@
 
 import enum
 
+import Quartz
+
 from . import _base
 
 
 class KeyCode(_base.KeyCode):
-    pass
+    def event(self, is_pressed):
+        result = Quartz.CGEventCreateKeyboardEvent(None, self.vk, is_pressed)
+        if self.char is not None:
+            Quartz.CGEventKeyboardSetUnicodeString(
+                result, len(self.char), self.char)
+
+        return result
 
 
 class Key(enum.Enum):
     # Default keys
-    pass
+    alt = KeyCode.from_vk(0x3A)
+    alt_l = KeyCode.from_vk(0x3A)
+    alt_r = KeyCode.from_vk(0x3D)
+    alt_gr = KeyCode.from_vk(0x3D)
+    backspace = KeyCode.from_vk(0x33)
+    caps_lock = KeyCode.from_vk(0x39)
+    cmd_l = KeyCode.from_vk(0x37)
+    cmd_r = KeyCode.from_vk(0x37)
+    ctrl = KeyCode.from_vk(0x3B)
+    ctrl_l = KeyCode.from_vk(0x3B)
+    ctrl_r = KeyCode.from_vk(0x3E)
+    delete = KeyCode.from_vk(0x35)
+    down = KeyCode.from_vk(0x7D)
+    end = KeyCode.from_vk(0x77)
+    enter = KeyCode.from_vk(0x24)
+    esc = KeyCode.from_vk(0x35)
+    f1 = KeyCode.from_vk(0x7A)
+    f2 = KeyCode.from_vk(0x78)
+    f3 = KeyCode.from_vk(0x63)
+    f4 = KeyCode.from_vk(0x76)
+    f5 = KeyCode.from_vk(0x60)
+    f6 = KeyCode.from_vk(0x61)
+    f7 = KeyCode.from_vk(0x62)
+    f8 = KeyCode.from_vk(0x64)
+    f9 = KeyCode.from_vk(0x65)
+    f10 = KeyCode.from_vk(0x6D)
+    f11 = KeyCode.from_vk(0x67)
+    f12 = KeyCode.from_vk(0x6F)
+    f13 = KeyCode.from_vk(0x69)
+    f14 = KeyCode.from_vk(0x6B)
+    f15 = KeyCode.from_vk(0x71)
+    f16 = KeyCode.from_vk(0x6A)
+    f17 = KeyCode.from_vk(0x40)
+    f18 = KeyCode.from_vk(0x4F)
+    f19 = KeyCode.from_vk(0x50)
+    f20 = KeyCode.from_vk(0x5A)
+    home = KeyCode.from_vk(0x73)
+    left = KeyCode.from_vk(0x7B)
+    page_down = KeyCode.from_vk(0x79)
+    page_up = KeyCode.from_vk(0x74)
+    right = KeyCode.from_vk(0x7C)
+    shift = KeyCode.from_vk(0x38)
+    shift_l = KeyCode.from_vk(0x38)
+    shift_r = KeyCode.from_vk(0x3C)
+    space = KeyCode(vk=0x31, char=' ')
+    tab = KeyCode.from_vk(0x31)
+    up = KeyCode.from_vk(0x7E)
 
 
 class Controller(_base.Controller):
-    pass
+    _KeyCode = KeyCode
+    _Key = Key
+
+    def _handle(self, key, is_press):
+        Quartz.CGEventPost(
+            Quartz.kCGHIDEventTap,
+            (key if key not in Key else key.value).event(is_press))
