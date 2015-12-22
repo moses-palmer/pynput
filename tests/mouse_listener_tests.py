@@ -132,7 +132,7 @@ class MouseListenerTest(unittest.TestCase):
             'Click left mouse button',
             'No left click registered',
             on_click=lambda x, y, button, pressed: not (
-                pressed and button == pynput.mouse.Controller.Button.left))
+                pressed and button == pynput.mouse.Button.left))
 
     def test_click_right(self):
         """Tests that right click events are emitted"""
@@ -140,7 +140,7 @@ class MouseListenerTest(unittest.TestCase):
             'Click right mouse button',
             'No right click registered',
             on_click=lambda x, y, button, pressed: not (
-                pressed and button == pynput.mouse.Controller.Button.right))
+                pressed and button == pynput.mouse.Button.right))
 
     def test_scroll_up(self):
         """Tests that scroll up events are emitted"""

@@ -19,27 +19,28 @@ import os
 import sys
 
 if os.environ.get('__PYNPUT_GENERATE_DOCUMENTATION') == 'yes':
-    from ._base import Controller, Listener
+    from ._base import Button, Controller, Listener
 else:
+    Button = None
     Controller = None
     Listener = None
 
 
 if sys.platform == 'darwin':
     if Controller is None and Listener is None:
-        from ._darwin import Controller, Listener
+        from ._darwin import Button, Controller, Listener
 
 elif sys.platform == 'win32':
     if Controller is None and Listener is None:
-        from ._win32 import Controller, Listener
+        from ._win32 import Button, Controller, Listener
 
 else:
     if Controller is None and Listener is None:
         try:
-            from ._xorg import Controller, Listener
+            from ._xorg import Button, Controller, Listener
         except:
             pass
 
 
-if not Controller or not Listener:
+if not Button or not Controller or not Listener:
     raise ImportError('this platform is not supported')

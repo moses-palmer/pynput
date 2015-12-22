@@ -24,7 +24,7 @@ from . import _base
 
 
 def _button_value(base_name, mouse_button):
-    """Generates the value tuple for a :class:`Controller.Button` value.
+    """Generates the value tuple for a :class:`Button` value.
 
     :param str base_name: The base name for the button. This shuld be a string
         like ``'kCGEventLeftMouse'``.
@@ -40,14 +40,15 @@ def _button_value(base_name, mouse_button):
         mouse_button)
 
 
-class Controller(_base.Controller):
-    class Button(enum.Enum):
-        """The various buttons.
-        """
-        left = _button_value('kCGEventLeft', 0)
-        middle = _button_value('kCGEventOther', 2)
-        right = _button_value('kCGEventRight', 1)
+class Button(enum.Enum):
+    """The various buttons.
+    """
+    left = _button_value('kCGEventLeft', 0)
+    middle = _button_value('kCGEventOther', 2)
+    right = _button_value('kCGEventRight', 1)
 
+
+class Controller(_base.Controller):
     def __init__(self, *args, **kwargs):
         super(Controller, self).__init__(*args, **kwargs)
         self._click = None
@@ -210,7 +211,7 @@ class Listener(_base.Listener):
                 self.on_scroll(x, y, dx, dy)
 
             else:
-                for button in Controller.Button:
+                for button in Button:
                     (press, release, drag), mouse_button = button.value
 
                     # Press and release generate click events, and drag
