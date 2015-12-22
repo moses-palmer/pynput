@@ -20,25 +20,26 @@ import functools
 import threading
 
 
+class Button(enum.Enum):
+    """The various buttons.
+
+    The actual values for these items differ between platforms. Some
+    platforms may have additional buttons, but these are guaranteed to be
+    present everywhere.
+    """
+    #: The left button
+    left = 1
+
+    #: The middle button
+    middle = 2
+
+    #: The right button
+    right = 3
+
+
 class Controller(object):
     """A controller for sending virtual mouse events to the system.
     """
-    class Button(enum.Enum):
-        """The various buttons.
-
-        The actual values for these items differ between platforms. Some
-        platforms may have additional buttons, but these are guaranteed to be
-        present everywhere.
-        """
-        #: The left button
-        left = 1
-
-        #: The middle button
-        middle = 2
-
-        #: The right button
-        right = 3
-
     @property
     def position(self):
         """The current position of the mouse pointer.
@@ -65,14 +66,14 @@ class Controller(object):
     def press(self, button):
         """Emits a button press event at the current position.
 
-        :param Controller.Button button: The button to press.
+        :param Button button: The button to press.
         """
         self._press(button)
 
     def release(self, button):
         """Emits a button release event at the current position.
 
-        :param Controller.Button button: The button to release.
+        :param Button button: The button to release.
         """
         self._release(button)
 
@@ -91,7 +92,7 @@ class Controller(object):
 
         The default implementation sends a series a press and release events.
 
-        :param Controller.Button button: The button to click.
+        :param Button button: The button to click.
 
         :param int count: The number of clicks to send.
         """
@@ -175,8 +176,8 @@ class Listener(threading.Thread):
 
         It will be called with the arguments ``(x, y, button, pressed)``,
         where ``(x, y)`` is the new pointer position, ``button`` is one of the
-        :class:`Controller.Button` values and ``pressed`` is whether the button
-        was pressed.
+        :class:`Button` values and ``pressed`` is whether the button was
+        pressed.
 
         If this callback raises :class:`StopException` or returns ``False``,
         the listener is stopped.

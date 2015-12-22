@@ -5,22 +5,15 @@ import numbers
 import pynput.mouse
 import time
 
+from . import notify
+
 
 class MouseControllerTest(unittest.TestCase):
     @classmethod
-    def notify(self, message):
-        """Prints a notification on screen.
-        """
-        s = message[:76]
-        print('\n' + '=' * (len(s) + 4))
-        print('| %s |' % s)
-        print('-' * (len(s) + 4))
-
-    @classmethod
     def setUpClass(self):
-        self.notify(
-            'This test case is non-interactive, so you must not use the mouse')
-        time.sleep(2)
+        notify(
+            'This test case is non-interactive, so you must not use the mouse',
+            delay=2)
 
     def setUp(self):
         self.controller = pynput.mouse.Controller()
@@ -107,8 +100,8 @@ class MouseControllerTest(unittest.TestCase):
     def test_press(self):
         """Tests that press works"""
         for b in (
-                self.controller.Button.left,
-                self.controller.Button.right):
+                pynput.mouse.Button.left,
+                pynput.mouse.Button.right):
             with self.assertEvent(
                     'Failed to send press event',
                     on_click=lambda x, y, button, pressed:
@@ -119,8 +112,8 @@ class MouseControllerTest(unittest.TestCase):
     def test_release(self):
         """Tests that release works"""
         for b in (
-                self.controller.Button.left,
-                self.controller.Button.right):
+                pynput.mouse.Button.left,
+                pynput.mouse.Button.right):
             self.controller.press(b)
             with self.assertEvent(
                     'Failed to send release event',
@@ -171,8 +164,8 @@ class MouseControllerTest(unittest.TestCase):
     def test_click(self):
         """Tests that click works"""
         for b in (
-                self.controller.Button.left,
-                self.controller.Button.right):
+                pynput.mouse.Button.left,
+                pynput.mouse.Button.right):
             events = [True, False]
             events.reverse()
 

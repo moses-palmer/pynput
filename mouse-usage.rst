@@ -3,7 +3,7 @@ Controlling the mouse
 
 Use ``pynput.mouse.Controller`` like this::
 
-    from pynput.mouse import Controller, Listener
+    from pynput.mouse import Button, Controller, Listener
 
     d = Controller()
 
@@ -20,12 +20,12 @@ Use ``pynput.mouse.Controller`` like this::
     d.move(5, -5)
 
     # Press and release
-    d.press(d.Button.left)
-    d.release(d.Button.left)
+    d.press(Button.left)
+    d.release(Button.left)
 
     # Double click; this is different from pressing and releasing twice on Mac
     # OSX
-    d.click(d.Button.left, 2)
+    d.click(Button.left, 2)
 
     # Scroll two steps down
     d.scroll(0, 2)

@@ -21,14 +21,15 @@ from pynput._util.win32 import *
 from . import _base
 
 
-class Controller(_base.Controller):
-    class Button(enum.Enum):
-        """The various buttons.
-        """
-        left = (MOUSEINPUT.LEFTUP, MOUSEINPUT.LEFTDOWN)
-        middle = (MOUSEINPUT.MIDDLEUP, MOUSEINPUT.MIDDLEDOWN)
-        right = (MOUSEINPUT.RIGHTUP, MOUSEINPUT.RIGHTDOWN)
+class Button(enum.Enum):
+    """The various buttons.
+    """
+    left = (MOUSEINPUT.LEFTUP, MOUSEINPUT.LEFTDOWN)
+    middle = (MOUSEINPUT.MIDDLEUP, MOUSEINPUT.MIDDLEDOWN)
+    right = (MOUSEINPUT.RIGHTUP, MOUSEINPUT.RIGHTDOWN)
 
+
+class Controller(_base.Controller):
     __GetCursorPos = windll.user32.GetCursorPos
     __SetCursorPos = windll.user32.SetCursorPos
 
@@ -67,7 +68,8 @@ class Controller(_base.Controller):
                 ctypes.sizeof(INPUT))
 
         if dx or dy:
-            self._notify('on_scroll', dx, dy)
+            x, y = self._position_get()
+            self._notify('on_scroll', x, y, dx, dy)
 
     def _press(self, button):
         SendInput(
@@ -131,10 +133,10 @@ class Listener(_base.Listener):
 
     #: A mapping from messages to button events
     CLICK_BUTTONS = {
-        WM_LBUTTONDOWN: (Controller.Button.left, True),
-        WM_LBUTTONUP: (Controller.Button.left, False),
-        WM_RBUTTONDOWN: (Controller.Button.right, True),
-        WM_RBUTTONUP: (Controller.Button.right, False)}
+        WM_LBUTTONDOWN: (Button.left, True),
+        WM_LBUTTONUP: (Button.left, False),
+        WM_RBUTTONDOWN: (Button.right, True),
+        WM_RBUTTONUP: (Button.right, False)}
 
     #: A mapping from messages to scroll vectors
     SCROLL_BUTTONS = {

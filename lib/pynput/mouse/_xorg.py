@@ -26,26 +26,25 @@ from pynput._util.xorg import *
 from . import _base
 
 
-# Create a display to verify that we have an X connection
-display = Xlib.display.Display()
-display.close()
-del display
+class Button(enum.Enum):
+    """The various buttons.
+    """
+    left = 1
+    middle = 2
+    right = 3
+    scroll_up = 4
+    scroll_down = 5
+    scroll_left = 6
+    scroll_right = 7
 
 
 class Controller(_base.Controller):
-    class Button(enum.Enum):
-        """The various buttons.
-        """
-        left = 1
-        middle = 2
-        right = 3
-        scroll_up = 4
-        scroll_down = 5
-        scroll_left = 6
-        scroll_right = 7
-
     def __init__(self):
         self._display = Xlib.display.Display()
+
+    def __del__(self):
+        if hasattr(self, '_display'):
+            self._display.close()
 
     def _position_get(self):
         with display_manager(self._display) as d:
@@ -60,14 +59,14 @@ class Controller(_base.Controller):
     def _scroll(self, dx, dy):
         if dy:
             self.click(
-                button=self.Button.scroll_up if dy > 0
-                else self.Button.scroll_down,
+                button=Button.scroll_up if dy > 0
+                else Button.scroll_down,
                 count=abs(dy))
 
         if dx:
             self.click(
-                button=self.Button.scroll_right if dx > 0
-                else self.Button.scroll_left,
+                button=Button.scroll_right if dx > 0
+                else Button.scroll_left,
                 count=abs(dx))
 
     def _press(self, button):
@@ -82,10 +81,10 @@ class Controller(_base.Controller):
 class Listener(_base.Listener):
     #: A mapping from button values to scroll directions
     SCROLL_BUTTONS = {
-        Controller.Button.scroll_up.value: (0, 1),
-        Controller.Button.scroll_down.value: (0, -1),
-        Controller.Button.scroll_right.value: (1, 0),
-        Controller.Button.scroll_left.value: (-1, 0)}
+        Button.scroll_up.value: (0, 1),
+        Button.scroll_down.value: (0, -1),
+        Button.scroll_right.value: (1, 0),
+        Button.scroll_left.value: (-1, 0)}
 
     def __init__(self, *args, **kwargs):
         super(Listener, self).__init__(*args, **kwargs)
@@ -96,17 +95,23 @@ class Listener(_base.Listener):
                 0,
                 [Xlib.ext.record.AllClients],
                 [{
-                        'core_requests': (0, 0),
-                        'core_replies': (0, 0),
-                        'ext_requests': (0, 0, 0, 0),
-                        'ext_replies': (0, 0, 0, 0),
-                        'delivered_events': (0, 0),
-                        'device_events': (
-                            Xlib.X.ButtonPressMask,
-                            Xlib.X.ButtonReleaseMask),
-                        'errors': (0, 0),
-                        'client_started': False,
-                        'client_died': False}])
+                    'core_requests': (0, 0),
+                    'core_replies': (0, 0),
+                    'ext_requests': (0, 0, 0, 0),
+                    'ext_replies': (0, 0, 0, 0),
+                    'delivered_events': (0, 0),
+                    'device_events': (
+                        Xlib.X.ButtonPressMask,
+                        Xlib.X.ButtonReleaseMask),
+                    'errors': (0, 0),
+                    'client_started': False,
+                    'client_died': False}])
+
+    def __del__(self):
+        if hasattr(self, '_display_stop'):
+            self._display_stop.close()
+        if hasattr(self, '_display_record'):
+            self._display_record.close()
 
     def _run(self):
         with display_manager(self._display_record) as d:
@@ -145,12 +150,12 @@ class Listener(_base.Listener):
                 if scroll:
                     self.on_scroll(x, y, *scroll)
                 else:
-                    self.on_click(x, y, Controller.Button(event.detail), True)
+                    self.on_click(x, y, Button(event.detail), True)
 
             elif event.type == Xlib.X.ButtonRelease:
                 # Send an event only if this was not a scroll event
                 if event.detail not in self.SCROLL_BUTTONS:
-                    self.on_click(x, y, Controller.Button(event.detail), False)
+                    self.on_click(x, y, Button(event.detail), False)
 
             else:
                 self.on_move(x, y)

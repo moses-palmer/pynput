@@ -3,23 +3,16 @@ import unittest
 import pynput.mouse
 import time
 
+from . import notify
+
 
 class MouseListenerTest(unittest.TestCase):
     #: The minimum number of events to accumulate before checking for changes
     CHANGE_MIN_EVENTS = 50
 
     @classmethod
-    def notify(self, message):
-        """Prints a notification on screen.
-        """
-        s = message[:76]
-        print('\n' + '=' * (len(s) + 4))
-        print('| %s |' % s)
-        print('-' * (len(s) + 4))
-
-    @classmethod
     def setUpClass(self):
-        self.notify(
+        notify(
             'This test case is interactive, so you must follow the '
             'instructions on screen')
 
@@ -34,7 +27,7 @@ class MouseListenerTest(unittest.TestCase):
 
         :param kwargs: Arguments to pass to :class:`pynput.mouse.Listener`.
         """
-        self.notify(info_message)
+        notify(info_message)
 
         success = False
         listener = pynput.mouse.Listener(*args, **kwargs)
@@ -83,7 +76,7 @@ class MouseListenerTest(unittest.TestCase):
 
             return inner if callback else None
 
-        self.notify(info_message)
+        notify(info_message)
         with pynput.mouse.Listener(
                 on_move=handler(0, 'on_move'),
                 on_click=handler(1, 'on_click'),
@@ -91,7 +84,7 @@ class MouseListenerTest(unittest.TestCase):
             for _ in range(30):
                 time.sleep(0.1)
                 if not listener.running:
-                    self.notify('Stop')
+                    notify('Stop')
                     time.sleep(1.0)
                     return
 
@@ -139,7 +132,7 @@ class MouseListenerTest(unittest.TestCase):
             'Click left mouse button',
             'No left click registered',
             on_click=lambda x, y, button, pressed: not (
-                pressed and button == pynput.mouse.Controller.Button.left))
+                pressed and button == pynput.mouse.Button.left))
 
     def test_click_right(self):
         """Tests that right click events are emitted"""
@@ -147,7 +140,7 @@ class MouseListenerTest(unittest.TestCase):
             'Click right mouse button',
             'No right click registered',
             on_click=lambda x, y, button, pressed: not (
-                pressed and button == pynput.mouse.Controller.Button.right))
+                pressed and button == pynput.mouse.Button.right))
 
     def test_scroll_up(self):
         """Tests that scroll up events are emitted"""

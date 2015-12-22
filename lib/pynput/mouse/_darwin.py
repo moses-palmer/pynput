@@ -17,15 +17,14 @@
 
 import enum
 import Quartz
-import threading
 
-from AppKit import NSEvent, NSScreen
+from AppKit import NSEvent
 
 from . import _base
 
 
 def _button_value(base_name, mouse_button):
-    """Generates the value tuple for a :class:`Controller.Button` value.
+    """Generates the value tuple for a :class:`Button` value.
 
     :param str base_name: The base name for the button. This shuld be a string
         like ``'kCGEventLeftMouse'``.
@@ -41,14 +40,15 @@ def _button_value(base_name, mouse_button):
         mouse_button)
 
 
-class Controller(_base.Controller):
-    class Button(enum.Enum):
-        """The various buttons.
-        """
-        left = _button_value('kCGEventLeft', 0)
-        middle = _button_value('kCGEventOther', 2)
-        right = _button_value('kCGEventRight', 1)
+class Button(enum.Enum):
+    """The various buttons.
+    """
+    left = _button_value('kCGEventLeft', 0)
+    middle = _button_value('kCGEventOther', 2)
+    right = _button_value('kCGEventRight', 1)
 
+
+class Controller(_base.Controller):
     def __init__(self, *args, **kwargs):
         super(Controller, self).__init__(*args, **kwargs)
         self._click = None
@@ -142,15 +142,14 @@ class Controller(_base.Controller):
 class Listener(_base.Listener):
     #: The events that we listen to
     _TAP_EVENTS = (
-        0
-        | Quartz.CGEventMaskBit(Quartz.kCGEventMouseMoved)
-        | Quartz.CGEventMaskBit(Quartz.kCGEventLeftMouseDown)
-        | Quartz.CGEventMaskBit(Quartz.kCGEventLeftMouseUp)
-        | Quartz.CGEventMaskBit(Quartz.kCGEventRightMouseDown)
-        | Quartz.CGEventMaskBit(Quartz.kCGEventRightMouseUp)
-        | Quartz.CGEventMaskBit(Quartz.kCGEventOtherMouseDown)
-        | Quartz.CGEventMaskBit(Quartz.kCGEventOtherMouseUp)
-        | Quartz.CGEventMaskBit(Quartz.kCGEventScrollWheel))
+        Quartz.CGEventMaskBit(Quartz.kCGEventMouseMoved) |
+        Quartz.CGEventMaskBit(Quartz.kCGEventLeftMouseDown) |
+        Quartz.CGEventMaskBit(Quartz.kCGEventLeftMouseUp) |
+        Quartz.CGEventMaskBit(Quartz.kCGEventRightMouseDown) |
+        Quartz.CGEventMaskBit(Quartz.kCGEventRightMouseUp) |
+        Quartz.CGEventMaskBit(Quartz.kCGEventOtherMouseDown) |
+        Quartz.CGEventMaskBit(Quartz.kCGEventOtherMouseUp) |
+        Quartz.CGEventMaskBit(Quartz.kCGEventScrollWheel))
 
     def __init__(self, *args, **kwargs):
         super(Listener, self).__init__(*args, **kwargs)
@@ -212,7 +211,7 @@ class Listener(_base.Listener):
                 self.on_scroll(x, y, dx, dy)
 
             else:
-                for button in Controller.Button:
+                for button in Button:
                     (press, release, drag), mouse_button = button.value
 
                     # Press and release generate click events, and drag
