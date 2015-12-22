@@ -2,6 +2,11 @@ Release Notes
 =============
 
 
+v0.4 - Keyboard Controller
+--------------------------
+*  Added keyboard controller.
+
+
 v0.3 - Cleanup
 ------------------------------------------------------------
 *  Moved ``pynput.mouse.Controller.Button`` to top-level.
