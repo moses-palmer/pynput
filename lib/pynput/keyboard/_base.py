@@ -322,43 +322,6 @@ class Controller(object):
         else:
             self.release(key)
 
-    @contextlib.contextmanager
-    def pressed(self, *keys):
-        """Executes a block of code with a specified number of keys pressed.
-
-        :param keys: The keys to keep pressed.
-
-        :raises InvalidKeyException: if one of the keys cannot be pressed or
-            afterwards released
-        """
-        try:
-            keys_down = self._local.keys_down
-        except AttributeError:
-            keys_down = []
-            self._local.keys_down = keys_down
-
-        down_count = 0
-        try:
-            for key in keys:
-                self.press(key)
-                keys_down.append(key)
-                down_count += 1
-
-            yield
-
-        finally:
-            failures = []
-            for key in reversed(keys_down[-down_count:]):
-                try:
-                    self.release(key)
-                except Exception as e:
-                    failures.append(e)
-                finally:
-                    keys_down.pop()
-
-            if failures:
-                raise self.InvalidKeyException(*failures)
-
     def type(self, string):
         """Types a string.
 
@@ -377,31 +340,6 @@ class Controller(object):
 
             except ValueError:
                 raise self.InvalidCharacterException(i, character)
-
-    @property
-    def keys_down(self):
-        """The currently pressed keys.
-
-        This value does not reflect the true state of the keyboard; rather, the
-        keys currently being pressed using :meth:`pressed` are returned.
-        """
-        try:
-            return self._local.keys_down[:]
-        except AttributeError:
-            return []
-
-    @property
-    def shift_active(self):
-        """Whether any shift key is pressed, or caps lock is toggled.
-        """
-        if self._caps_lock:
-            return True
-
-        keys_down = self.keys_down
-        return any(
-            shift in keys_down
-            for shift in (
-                self._Key.shift, self._Key.shift_l, self._Key.shift_r))
 
     def _dispatch(self, key, is_press):
         """Dispatches a press or release.
@@ -425,10 +363,6 @@ class Controller(object):
             if len(key) != 1:
                 raise ValueError(key)
             return self._dispatch(self._KeyCode.from_char(key), is_press)
-
-        # Apply shift if any shift keys are active
-        if key.char is not None and self.shift_active:
-            key = self._KeyCode.from_char(key.char.upper())
 
         # Otherwise, let the platform implementation handle it
         if is_press:
