@@ -183,7 +183,7 @@ class Controller(_base.Controller):
             :attr:`shift_state` or'd with this value.
         """
         with display_manager(self._display) as d:
-            window = d.get_input_focus()._data["focus"]
+            window = d.get_input_focus().focus
             window.send_event(event(
                 detail=keycode,
                 state=shift_state,
