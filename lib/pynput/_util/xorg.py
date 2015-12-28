@@ -66,19 +66,31 @@ def display_manager(display):
     return manager()
 
 
-def mode_switch_mask(display):
-    """Returns the *mode switch* mask flags.
+def _find_mask(display, symbol):
+    """Returns the mode flags to use for a modiofier symbol.
     """
-    # Get the key code for the mode switch symbol
-    mode_switch = display.keysym_to_keycode(
-        Xlib.XK.string_to_keysym('Mode_switch'))
+    # Get the key code for the symbol
+    modifier_keycode = display.keysym_to_keycode(
+        Xlib.XK.string_to_keysym(symbol))
 
     for index, keycodes in enumerate(display.get_modifier_mapping()):
         for keycode in keycodes:
-            if keycode == mode_switch:
+            if keycode == modifier_keycode:
                 return 1 << index
 
     return 0
+
+
+def alt_mask(display):
+    """Returns the *alt* mask flags.
+    """
+    return _find_mask(display, 'Alt_L')
+
+
+def alt_gr_mask(display):
+    """Returns the *alt* mask flags.
+    """
+    return _find_mask(display, 'Mode_switch')
 
 
 def keysym_is_latin_upper(keysym):
@@ -199,10 +211,9 @@ def index_to_shift(display, index):
 
     :retur: a shift mask
     """
-    return (
-        0
-        | 1 << 0 if index & 1 else 0
-        | mode_switch_mask(display) if index & 2 else 0)
+    return 0 \
+        | 1 << 0 if index & 1 else 0 \
+        | alt_gr_mask(display) if index & 2 else 0
 
 
 def keyboard_mapping(display):
@@ -217,7 +228,7 @@ def keyboard_mapping(display):
     mapping = {}
 
     shift_mask = 1 << 0
-    group_mask = mode_switch_mask(display)
+    group_mask = alt_gr_mask(display)
 
     # Iterate over all keysym lists in the keyboard mapping
     min_keycode = display.display.info.min_keycode
