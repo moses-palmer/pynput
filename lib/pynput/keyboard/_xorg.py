@@ -61,6 +61,7 @@ class Key(enum.Enum):
     alt_gr = KeyCode.from_symbol('Mode_switch')
     backspace = KeyCode.from_symbol('BackSpace')
     caps_lock = KeyCode.from_symbol('Caps_Lock')
+    cmd = KeyCode.from_symbol('Super_L')
     cmd_l = KeyCode.from_symbol('Super_L')
     cmd_r = KeyCode.from_symbol('Super_R')
     ctrl = KeyCode.from_symbol('Control_L')

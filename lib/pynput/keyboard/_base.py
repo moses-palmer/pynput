@@ -133,6 +133,11 @@ class Key(enum.Enum):
     #: The CapsLock key.
     caps_lock = 0
 
+    #: A generic command button. On *PC* platforms, this corresponds to the
+    #: Super key or Windows key, and on *Mac* it corresponds to the Command
+    #: key.
+    cmd = 0
+
     #: The left command button. On *PC* platforms, this corresponds to the
     #: Super key or Windows key, and on *Mac* it corresponds to the Command
     #: key.

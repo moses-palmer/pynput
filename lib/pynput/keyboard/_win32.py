@@ -48,6 +48,7 @@ class Key(enum.Enum):
     alt_gr = KeyCode.from_vk(0xA5)
     backspace = KeyCode.from_vk(0x08)
     caps_lock = KeyCode.from_vk(0x14)
+    cmd = KeyCode.from_vk(0x5B)
     cmd_l = KeyCode.from_vk(0x5B)
     cmd_r = KeyCode.from_vk(0xA4)
     ctrl = KeyCode.from_vk(0xA2)
