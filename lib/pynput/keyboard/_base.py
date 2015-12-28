@@ -222,22 +222,22 @@ class Key(enum.Enum):
     #: An up arrow key.
     up = 0
 
-    #: The Insert key. This may be udefined for some platforms.
+    #: The Insert key. This may be undefined for some platforms.
     insert = 0
 
     #: The Menu key. This may be udefined for some platforms.
     menu = 0
 
-    #: The NumLock key. This may be udefined for some platforms.
+    #: The NumLock key. This may be undefined for some platforms.
     num_lock = 0
 
-    #: The Pause/Break key. This may be udefined for some platforms.
+    #: The Pause/Break key. This may be undefined for some platforms.
     pause = 0
 
-    #: The PrintScreen key. This may be udefined for some platforms.
+    #: The PrintScreen key. This may be undefined for some platforms.
     print_screen = 0
 
-    #: The ScrollLock key. This may be udefined for some platforms.
+    #: The ScrollLock key. This may be undefined for some platforms.
     scroll_lock = 0
 
 
