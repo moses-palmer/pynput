@@ -22,23 +22,27 @@ from . import _base
 
 
 class KeyCode(_base.KeyCode):
-    @property
-    def dwFlags(self):
-        if self.char is not None:
-            return KEYBDINPUT.UNICODE
+    def parameters(self, is_press):
+        """The parameters to pass to ``SendInput`` to generate this key.
+        """
+        if self.vk:
+            vk = self.vk
+            scan = 0
+            flags = 0
         else:
-            return 0
-
-    @property
-    def wScan(self):
-        if self.char is not None:
-            return ord(self.char)
-        else:
-            return 0
-
-    @property
-    def wVk(self):
-        return self.vk
+            r = VkKeyScan(ord(self.char))
+            if (r >> 8) & 0xFF == 0:
+                vk = r & 0xFF
+                scan = 0
+                flags = 0
+            else:
+                vk = 0
+                scan = ord(self.char)
+                flags = KEYBDINPUT.UNICODE
+        return dict(
+            dwFlags=flags | (KEYBDINPUT.KEYUP if not is_press else 0),
+            wVk=vk,
+            wScan=scan)
 
 
 class Key(enum.Enum):
@@ -109,9 +113,5 @@ class Controller(_base.Controller):
             ctypes.byref(INPUT(
                 type=INPUT.KEYBOARD,
                 value=INPUT_union(
-                    ki=KEYBDINPUT(
-                        dwFlags=key.dwFlags | (
-                            0 if is_press else KEYBDINPUT.KEYUP),
-                        wVk=key.wVk,
-                        wScan=key.wScan)))),
+                    ki=KEYBDINPUT(**key.parameters(is_press))))),
             ctypes.sizeof(INPUT))
