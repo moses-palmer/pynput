@@ -23,8 +23,24 @@ from . import _base
 
 
 class KeyCode(_base.KeyCode):
-    def event(self, is_pressed):
+    def event(self, modifiers, is_pressed):
         result = Quartz.CGEventCreateKeyboardEvent(None, self.vk, is_pressed)
+
+        Quartz.CGEventSetFlags(
+            result,
+            (Quartz.kCGEventFlagMaskAlternate
+                if Key.alt in modifiers else 0) |
+
+            (Quartz.kCGEventFlagMaskCommand
+                if Key.cmd in modifiers else 0) |
+
+            (Quartz.kCGEventFlagMaskControl
+                if Key.ctrl in modifiers else 0) |
+
+            (Quartz.kCGEventFlagMaskShift
+                if Key.shift in modifiers else 0))
+
+
         if self.char is not None:
             Quartz.CGEventKeyboardSetUnicodeString(
                 result, len(self.char), self.char)
@@ -89,6 +105,8 @@ class Controller(_base.Controller):
     _Key = Key
 
     def _handle(self, key, is_press):
-        Quartz.CGEventPost(
-            Quartz.kCGHIDEventTap,
-            (key if key not in Key else key.value).event(is_press))
+        with self.modifiers as modifiers:
+            Quartz.CGEventPost(
+                Quartz.kCGHIDEventTap,
+                (key if key not in Key else key.value).event(
+                    modifiers, is_press))
