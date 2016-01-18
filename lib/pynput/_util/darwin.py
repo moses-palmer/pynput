@@ -18,6 +18,7 @@
 import contextlib
 import ctypes
 import ctypes.util
+import six
 
 import objc
 import CoreFoundation
@@ -102,3 +103,37 @@ class CarbonExtra(object):
 
     UCKeyTranslate = \
         _Carbon.UCKeyTranslate
+
+
+def get_unicode_to_keycode_map():
+    LENGTH = 4
+
+    with _wrapped(CarbonExtra.TISCopyCurrentKeyboardInputSource()) as keyboard:
+        keyboard_type = CarbonExtra.LMGetKbdType()
+        layout = _wrap_value(CarbonExtra.TISGetInputSourceProperty(
+                keyboard,
+                CarbonExtra.kTISPropertyUnicodeKeyLayoutData))
+        data = layout.bytes().tobytes()
+
+        def keycode_to_string(keycode):
+            dead_key_state = ctypes.c_uint32()
+            length = ctypes.c_uint8()
+            unicode_string = (ctypes.c_uint16 * LENGTH)()
+            CarbonExtra.UCKeyTranslate(
+                data,
+                keycode,
+                CarbonExtra.kUCKeyActionDisplay,
+                0,
+                keyboard_type,
+                CarbonExtra.kUCKeyTranslateNoDeadKeysBit,
+                ctypes.byref(dead_key_state),
+                LENGTH,
+                ctypes.byref(length),
+                unicode_string)
+            return u''.join(
+                six.unichr(unicode_string[i])
+                for i in range(length.value))
+
+        return {
+            keycode_to_string(keycode): keycode
+            for keycode in range(128)}
