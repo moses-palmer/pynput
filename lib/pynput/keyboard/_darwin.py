@@ -19,12 +19,14 @@ import enum
 
 import Quartz
 
+from pynput._util.darwin import *
 from . import _base
 
 
 class KeyCode(_base.KeyCode):
-    def event(self, modifiers, is_pressed):
-        result = Quartz.CGEventCreateKeyboardEvent(None, self.vk, is_pressed)
+    def event(self, modifiers, mapping, is_pressed):
+        vk = self.vk or mapping.get(self.char, 0)
+        result = Quartz.CGEventCreateKeyboardEvent(None, vk, is_pressed)
 
         Quartz.CGEventSetFlags(
             result,
@@ -40,8 +42,7 @@ class KeyCode(_base.KeyCode):
             (Quartz.kCGEventFlagMaskShift
                 if Key.shift in modifiers else 0))
 
-
-        if self.char is not None:
+        if not vk and self.char is not None:
             Quartz.CGEventKeyboardSetUnicodeString(
                 result, len(self.char), self.char)
 
@@ -104,9 +105,13 @@ class Controller(_base.Controller):
     _KeyCode = KeyCode
     _Key = Key
 
+    def __init__(self):
+        super(Controller, self).__init__()
+        self._mapping = get_unicode_to_keycode_map()
+
     def _handle(self, key, is_press):
         with self.modifiers as modifiers:
             Quartz.CGEventPost(
                 Quartz.kCGHIDEventTap,
                 (key if key not in Key else key.value).event(
-                    modifiers, is_press))
+                    modifiers, self._mapping, is_press))
