@@ -339,6 +339,21 @@ class Controller(object):
         else:
             self.release(key)
 
+    @contextlib.contextmanager
+    def pressed(self, *args):
+        """Executes a block with some keys pressed.
+
+        :param keys: The keys to keep pressed.
+        """
+        for key in args:
+            self.press(key)
+
+        try:
+            yield
+        finally:
+            for key in reversed(args):
+                self.press(key)
+
     def type(self, string):
         """Types a string.
 

@@ -216,6 +216,24 @@ class KeyboardControllerTest(unittest.TestCase):
             self.controller.shift_pressed,
             'shift_pressed was not deactivated with caps lock toggled')
 
+    def test_pressed_shift(self):
+        """Asserts that pressing and releasing a Latin character while pressing
+        shift causes it to shift to upper case"""
+        with self.capture() as collect:
+            with self.controller.pressed(pynput.keyboard.Key.shift):
+                self.controller.press('a')
+                self.controller.release('a')
+
+                with self.controller.modifiers as modifiers:
+                    self.assertIn(
+                        pynput.keyboard.Key.shift,
+                        modifiers)
+
+        self.assertIn(
+            'A',
+            collect(),
+            'shift+a did not yield "A"')
+
     def test_type_latin(self):
         """Asserts that type works for a Latin string"""
         self.assertInput(
