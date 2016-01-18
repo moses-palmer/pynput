@@ -2,6 +2,11 @@ Release Notes
 =============
 
 
+v0.5 - Keyboard Modifiers
+-------------------------
+*  Added support for modifiers.
+
+
 v0.4 - Keyboard Controller
 --------------------------
 *  Added keyboard controller.
