@@ -115,16 +115,16 @@ class Key(enum.Enum):
     may have additional buttons, but these are guaranteed to be present
     everywhere.
     """
-    #: A generic Alt key.
+    #: A generic Alt key. This is a modifier.
     alt = 0
 
-    #: The left Alt key.
+    #: The left Alt key. This is a modifier.
     alt_l = 0
 
-    #: The right Alt key.
+    #: The right Alt key. This is a modifier.
     alt_r = 0
 
-    #: The AltGr key.
+    #: The AltGr key. This is a modifier.
     alt_gr = 0
 
     #: The Backspace key.
@@ -133,23 +133,28 @@ class Key(enum.Enum):
     #: The CapsLock key.
     caps_lock = 0
 
+    #: A generic command button. On *PC* platforms, this corresponds to the
+    #: Super key or Windows key, and on *Mac* it corresponds to the Command
+    #: key. This may be a modifier.
+    cmd = 0
+
     #: The left command button. On *PC* platforms, this corresponds to the
     #: Super key or Windows key, and on *Mac* it corresponds to the Command
-    #: key.
+    #: key. This may be a modifier.
     cmd_l = 0
 
     #: The right command button. On *PC* platforms, this corresponds to the
     #: Super key or Windows key, and on *Mac* it corresponds to the Command
-    #: key.
+    #: key. This may be a modifier.
     cmd_r = 0
 
-    #: A generic Ctrl key.
+    #: A generic Ctrl key. This is a modifier.
     ctrl = 0
 
-    #: The left Ctrl key.
+    #: The left Ctrl key. This is a modifier.
     ctrl_l = 0
 
-    #: The right Ctrl key.
+    #: The right Ctrl key. This is a modifier.
     ctrl_r = 0
 
     #: The Delete key.
@@ -204,13 +209,13 @@ class Key(enum.Enum):
     #: A right arrow key.
     right = 0
 
-    #: A generic Shift key.
+    #: A generic Shift key. This is a modifier.
     shift = 0
 
-    #: The left Shift key.
+    #: The left Shift key. This is a modifier.
     shift_l = 0
 
-    #: The right Shift key.
+    #: The right Shift key. This is a modifier.
     shift_r = 0
 
     #: The Space key.
@@ -222,22 +227,22 @@ class Key(enum.Enum):
     #: An up arrow key.
     up = 0
 
-    #: The Insert key. This may be udefined for some platforms.
+    #: The Insert key. This may be undefined for some platforms.
     insert = 0
 
     #: The Menu key. This may be udefined for some platforms.
     menu = 0
 
-    #: The NumLock key. This may be udefined for some platforms.
+    #: The NumLock key. This may be undefined for some platforms.
     num_lock = 0
 
-    #: The Pause/Break key. This may be udefined for some platforms.
+    #: The Pause/Break key. This may be undefined for some platforms.
     pause = 0
 
-    #: The PrintScreen key. This may be udefined for some platforms.
+    #: The PrintScreen key. This may be undefined for some platforms.
     print_screen = 0
 
-    #: The ScrollLock key. This may be udefined for some platforms.
+    #: The ScrollLock key. This may be undefined for some platforms.
     scroll_lock = 0
 
 
@@ -268,9 +273,21 @@ class Controller(object):
         pass
 
     def __init__(self):
-        self._local = threading.local()
+        self._modifiers_lock = threading.RLock()
+        self._modifiers = set()
         self._caps_lock = False
         self._dead_key = None
+
+        K = self._Key
+
+        #: The keys used as modifiers; the first value in each tuple is the
+        #: base modifier to use for subsequent modifiers.
+        self._MODIFIER_KEYS = (
+            (K.alt_gr, (K.alt_gr.value,)),
+            (K.alt,    (K.alt.value,   K.alt_l.value,   K.alt_r.value)),
+            (K.cmd,    (K.cmd.value,   K.cmd_l.value,   K.cmd_r.value)),
+            (K.ctrl,   (K.ctrl.value,  K.ctrl_l.value,  K.ctrl_r.value)),
+            (K.shift,  (K.shift.value, K.shift_l.value, K.shift_r.value)))
 
     def press(self, key):
         """Presses a key.
@@ -323,41 +340,19 @@ class Controller(object):
             self.release(key)
 
     @contextlib.contextmanager
-    def pressed(self, *keys):
-        """Executes a block of code with a specified number of keys pressed.
+    def pressed(self, *args):
+        """Executes a block with some keys pressed.
 
         :param keys: The keys to keep pressed.
-
-        :raises InvalidKeyException: if one of the keys cannot be pressed or
-            afterwards released
         """
-        try:
-            keys_down = self._local.keys_down
-        except AttributeError:
-            keys_down = []
-            self._local.keys_down = keys_down
+        for key in args:
+            self.press(key)
 
-        down_count = 0
         try:
-            for key in keys:
-                self.press(key)
-                keys_down.append(key)
-                down_count += 1
-
             yield
-
         finally:
-            failures = []
-            for key in reversed(keys_down[-down_count:]):
-                try:
-                    self.release(key)
-                except Exception as e:
-                    failures.append(e)
-                finally:
-                    keys_down.pop()
-
-            if failures:
-                raise self.InvalidKeyException(*failures)
+            for key in reversed(args):
+                self.press(key)
 
     def type(self, string):
         """Types a string.
@@ -379,29 +374,43 @@ class Controller(object):
                 raise self.InvalidCharacterException(i, character)
 
     @property
-    def keys_down(self):
-        """The currently pressed keys.
-
-        This value does not reflect the true state of the keyboard; rather, the
-        keys currently being pressed using :meth:`pressed` are returned.
+    @contextlib.contextmanager
+    def modifiers(self):
+        """The currently pressed modifier keys.
         """
-        try:
-            return self._local.keys_down[:]
-        except AttributeError:
-            return []
+        with self._modifiers_lock:
+            yield self._modifiers
 
     @property
-    def shift_active(self):
-        """Whether any shift key is pressed, or caps lock is toggled.
+    def alt_pressed(self):
+        """Whether any *alt* key is pressed.
+        """
+        with self.modifiers as modifiers:
+            return self._Key.alt in modifiers
+
+    @property
+    def alt_gr_pressed(self):
+        """Whether *altgr* is pressed.
+        """
+        with self.modifiers as modifiers:
+            return self._Key.alt_gr in modifiers
+
+    @property
+    def ctrl_pressed(self):
+        """Whether any *ctrl* key is pressed.
+        """
+        with self.modifiers as modifiers:
+            return self._Key.ctrl in modifiers
+
+    @property
+    def shift_pressed(self):
+        """Whether any *shift* key is pressed, or *caps lock* is toggled.
         """
         if self._caps_lock:
             return True
 
-        keys_down = self.keys_down
-        return any(
-            shift in keys_down
-            for shift in (
-                self._Key.shift, self._Key.shift_l, self._Key.shift_r))
+        with self.modifiers as modifiers:
+            return self._Key.shift in modifiers
 
     def _dispatch(self, key, is_press):
         """Dispatches a press or release.
@@ -426,8 +435,20 @@ class Controller(object):
                 raise ValueError(key)
             return self._dispatch(self._KeyCode.from_char(key), is_press)
 
+        # Check whether the key is a modifier
+        modifier = self._as_modifier(key)
+        if modifier:
+            with self.modifiers as modifiers:
+                if is_press:
+                    modifiers.add(modifier)
+                else:
+                    try:
+                        modifiers.remove(modifier)
+                    except KeyError:
+                        pass
+
         # Apply shift if any shift keys are active
-        if key.char is not None and self.shift_active:
+        if key.char is not None and self.shift_pressed:
             key = self._KeyCode.from_char(key.char.upper())
 
         # Otherwise, let the platform implementation handle it
@@ -456,6 +477,21 @@ class Controller(object):
                 return
 
         self._handle(key, is_press)
+
+    def _as_modifier(self, key):
+        """Returns a key as the modifier used internally is defined.
+
+        This method will convert values like :attr:`Key.alt_r.value` and
+        :attr:`Key.shift_l.value` to :attr:`Key.alt` and :attr:`Key.shift`.
+
+        :param key: The possible modifier key.
+
+        :return: the base modifier key, or ``None`` if ``key`` is not a
+            modifier
+        """
+        for base, modifiers in self._MODIFIER_KEYS:
+            if key in modifiers:
+                return base
 
     def _handle(self, key, is_press):
         """The platform implementation of the actual emitting of keyboard

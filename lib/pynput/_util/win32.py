@@ -156,6 +156,9 @@ GetCurrentThreadId = windll.kernel32.GetCurrentThreadId
 SendInput = windll.user32.SendInput
 
 
+VkKeyScan = windll.user32.VkKeyScanW
+
+
 class MOUSEINPUT(ctypes.Structure):
     """Contains information about a simulated mouse event.
     """

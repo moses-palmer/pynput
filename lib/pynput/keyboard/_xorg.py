@@ -61,6 +61,7 @@ class Key(enum.Enum):
     alt_gr = KeyCode.from_symbol('Mode_switch')
     backspace = KeyCode.from_symbol('BackSpace')
     caps_lock = KeyCode.from_symbol('Caps_Lock')
+    cmd = KeyCode.from_symbol('Super_L')
     cmd_l = KeyCode.from_symbol('Super_L')
     cmd_r = KeyCode.from_symbol('Super_R')
     ctrl = KeyCode.from_symbol('Control_L')
@@ -115,12 +116,21 @@ class Controller(_base.Controller):
     _KeyCode = KeyCode
     _Key = Key
 
+    #: The shift mask for :attr:`Key.ctrl`
+    CTRL_MASK = Xlib.X.ControlMask
+
+    #: The shift mask for :attr:`Key.shift`
+    SHIFT_MASK = Xlib.X.ShiftMask
+
     def __init__(self):
         super(Controller, self).__init__()
         self._display = Xlib.display.Display()
         self._keyboard_mapping = None
         self._borrows = {}
         self._borrow_lock = threading.RLock()
+
+        self.ALT_MASK = alt_mask(self._display)
+        self.ALT_GR_MASK = alt_gr_mask(self._display)
 
     def __del__(self):
         if self._display:
@@ -182,11 +192,11 @@ class Controller(_base.Controller):
         :param int shift_state: The shift state. The actual value used is
             :attr:`shift_state` or'd with this value.
         """
-        with display_manager(self._display) as d:
-            window = d.get_input_focus()._data["focus"]
+        with display_manager(self._display) as d, self.modifiers as modifiers:
+            window = d.get_input_focus().focus
             window.send_event(event(
                 detail=keycode,
-                state=shift_state,
+                state=shift_state | self._shift_mask(modifiers),
                 time=0,
                 root=d.screen().root,
                 window=window,
@@ -340,6 +350,25 @@ class Controller(_base.Controller):
                 return SYMBOLS[symbol][0]
             except:
                 return None
+
+    def _shift_mask(self, modifiers):
+        """The *X* modifier mask to apply for a set of modifiers.
+
+        :param set modifiers: A set of active modifiers for which to get the
+            shift mask.
+        """
+        return (
+            (self.ALT_MASK
+                if Key.alt in modifiers else 0) |
+
+            (self.ALT_GR_MASK
+                if Key.alt_gr in modifiers else 0) |
+
+            (self.CTRL_MASK
+                if Key.ctrl in modifiers else 0) |
+
+            (self.SHIFT_MASK
+                if Key.shift in modifiers else 0))
 
     def _update_keyboard_mapping(self):
         """Updates the keyboard mapping.
