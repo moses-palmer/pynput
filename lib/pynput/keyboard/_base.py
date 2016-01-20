@@ -21,6 +21,8 @@ import six
 import threading
 import unicodedata
 
+from pynput._util import AbstractListener
+
 
 class KeyCode(object):
     def __init__(self, vk=0, char=None, is_dead=False):
@@ -519,3 +521,30 @@ class Controller(object):
         :param bool is_press: Whether this is a key press event.
         """
         raise NotImplementedError()
+
+
+class Listener(AbstractListener):
+    """A listener for keyboard events.
+
+    Instances of this class can be used as context managers. This is equivalent
+    to the following code::
+
+        listener.start()
+        try:
+            with_statements()
+        finally:
+            listener.stop()
+
+    :param callable on_press: The callback to call when a button is pressed.
+
+        It will be called with the argument ``(key)``, where ``key`` is a
+        :class:`KeyCode`, a :class:`Key` or ``None`` if the key is unknown.
+
+    :param callable on_release: The callback to call when a button is release.
+
+        It will be called with the argument ``(key)``, where ``key`` is a
+        :class:`KeyCode`, a :class:`Key` or ``None`` if the key is unknown.
+    """
+    def __init__(self, on_press=None, on_release=None):
+        super(Listener, self).__init__(
+            on_press=on_press, on_release=on_release)
