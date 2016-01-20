@@ -15,4 +15,4 @@ Reference
     :members:
 
 .. autoclass:: pynput.mouse.Listener
-    :members:
+    :members: __init__, running, start, stop
