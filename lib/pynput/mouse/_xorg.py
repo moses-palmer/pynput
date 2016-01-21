@@ -78,84 +78,35 @@ class Controller(_base.Controller):
             Xlib.ext.xtest.fake_input(d, Xlib.X.ButtonRelease, button.value)
 
 
-class Listener(_base.Listener):
+class Listener(ListenerMixin, _base.Listener):
     #: A mapping from button values to scroll directions
-    SCROLL_BUTTONS = {
+    _SCROLL_BUTTONS = {
         Button.scroll_up.value: (0, 1),
         Button.scroll_down.value: (0, -1),
         Button.scroll_right.value: (1, 0),
         Button.scroll_left.value: (-1, 0)}
 
-    def __init__(self, *args, **kwargs):
-        super(Listener, self).__init__(*args, **kwargs)
-        self._display_stop = Xlib.display.Display()
-        self._display_record = Xlib.display.Display()
-        with display_manager(self._display_record) as d:
-            self._context = d.record_create_context(
-                0,
-                [Xlib.ext.record.AllClients],
-                [{
-                    'core_requests': (0, 0),
-                    'core_replies': (0, 0),
-                    'ext_requests': (0, 0, 0, 0),
-                    'ext_replies': (0, 0, 0, 0),
-                    'delivered_events': (0, 0),
-                    'device_events': (
-                        Xlib.X.ButtonPressMask,
-                        Xlib.X.ButtonReleaseMask),
-                    'errors': (0, 0),
-                    'client_started': False,
-                    'client_died': False}])
+    _EVENTS = (
+        Xlib.X.ButtonPressMask,
+        Xlib.X.ButtonReleaseMask)
 
-    def __del__(self):
-        if hasattr(self, '_display_stop'):
-            self._display_stop.close()
-        if hasattr(self, '_display_record'):
-            self._display_record.close()
+    def _handle(self, display, event):
+        x = event.root_x
+        y = event.root_y
 
-    def _run(self):
-        with display_manager(self._display_record) as d:
-            d.record_enable_context(
-                self._context, self._handler)
-            d.record_free_context(self._context)
-
-    def _stop(self):
-        self._display_stop.sync()
-        with display_manager(self._display_stop) as d:
-            d.record_disable_context(self._context)
-
-    @_base.Listener._emitter
-    def _handler(self, events):
-        """The callback registered with *X* for mouse events.
-
-        This method will parse the response and call the callbacks registered
-        on initialisation.
-        """
-        # We use this instance for parsing the binary data
-        e = Xlib.protocol.rq.EventField(None)
-
-        data = events.data
-
-        while len(data):
-            event, data = e.parse_binary_value(
-                data, self._display_record.display, None, None)
-
-            x = event.root_x
-            y = event.root_y
-
-            if event.type == Xlib.X.ButtonPress:
-                # Scroll events are sent as button presses with the scroll
-                # button codes
-                scroll = self.SCROLL_BUTTONS.get(event.detail, None)
-                if scroll:
-                    self.on_scroll(x, y, *scroll)
-                else:
-                    self.on_click(x, y, Button(event.detail), True)
-
-            elif event.type == Xlib.X.ButtonRelease:
-                # Send an event only if this was not a scroll event
-                if event.detail not in self.SCROLL_BUTTONS:
-                    self.on_click(x, y, Button(event.detail), False)
-
+        if event.type == Xlib.X.ButtonPress:
+            # Scroll events are sent as button presses with the scroll
+            # button codes
+            scroll = self._SCROLL_BUTTONS.get(event.detail, None)
+            if scroll:
+                self.on_scroll(x, y, *scroll)
             else:
-                self.on_move(x, y)
+                self.on_click(x, y, Button(event.detail), True)
+
+        elif event.type == Xlib.X.ButtonRelease:
+            # Send an event only if this was not a scroll event
+            if event.detail not in self._SCROLL_BUTTONS:
+                self.on_click(x, y, Button(event.detail), False)
+
+        else:
+            self.on_move(x, y)

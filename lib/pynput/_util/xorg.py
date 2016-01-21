@@ -19,6 +19,7 @@ import itertools
 import Xlib.display
 import Xlib.XK
 
+from . import AbstractListener
 from .xorg_keysyms import *
 
 
@@ -275,3 +276,90 @@ def symbol_to_keysym(symbol):
             return getattr(Xlib.keysymdef.xkb, 'XK_' + symbol, 0)
         except:
             return SYMBOLS.get(symbol, (0,))[0]
+
+
+class ListenerMixin(object):
+    """A mixin for *X* event listeners.
+
+    Subclasses should set a value for :attr:`_EVENTS` and implement
+    :meth:`_handle`.
+    """
+    #: The events for which to listen
+    _EVENTS = tuple()
+
+    #: We use this instance for parsing the binary data
+    _EVENT_PARSER = Xlib.protocol.rq.EventField(None)
+
+    def __init__(self, *args, **kwargs):
+        super(ListenerMixin, self).__init__(*args, **kwargs)
+        self._display_stop = Xlib.display.Display()
+        self._display_record = Xlib.display.Display()
+        with display_manager(self._display_record) as d:
+            self._context = d.record_create_context(
+                0,
+                [Xlib.ext.record.AllClients],
+                [{
+                    'core_requests': (0, 0),
+                    'core_replies': (0, 0),
+                    'ext_requests': (0, 0, 0, 0),
+                    'ext_replies': (0, 0, 0, 0),
+                    'delivered_events': (0, 0),
+                    'device_events': self._EVENTS,
+                    'errors': (0, 0),
+                    'client_started': False,
+                    'client_died': False}])
+
+    def __del__(self):
+        if hasattr(self, '_display_stop'):
+            self._display_stop.close()
+        if hasattr(self, '_display_record'):
+            self._display_record.close()
+
+    def _run(self):
+        with display_manager(self._display_record) as d:
+            self._initialize(self._display_stop)
+            d.record_enable_context(
+                self._context, self._handler)
+            d.record_free_context(self._context)
+
+    def _stop(self):
+        self._display_stop.sync()
+        with display_manager(self._display_stop) as d:
+            d.record_disable_context(self._context)
+
+    @AbstractListener._emitter
+    def _handler(self, events):
+        """The callback registered with *X* for mouse events.
+
+        This method will parse the response and call the callbacks registered
+        on initialisation.
+        """
+        data = events.data
+
+        while len(data):
+            event, data = self._EVENT_PARSER.parse_binary_value(
+                data, self._display_record.display, None, None)
+            with display_manager(self._display_stop) as d:
+                self._handle(d, event)
+
+    def _initialize(self, display):
+        """Initialises this listener.
+
+        This method is called immediately before the event loop, from the
+        handler thread.
+
+        :param display: The display being used.
+        """
+        pass
+
+    def _handle(self, display, event):
+        """The device specific callback handler.
+
+        This method calls the appropriate callback registered when this
+        listener was created based on the event.
+
+        :param display: The display being used.
+
+        :param event: The event.
+        """
+        raise NotImplementedError()
