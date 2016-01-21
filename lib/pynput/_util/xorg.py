@@ -67,7 +67,7 @@ def display_manager(display):
 
 
 def _find_mask(display, symbol):
-    """Returns the mode flags to use for a modiofier symbol.
+    """Returns the mode flags to use for a modifier symbol.
     """
     # Get the key code for the symbol
     modifier_keycode = display.keysym_to_keycode(
