@@ -86,14 +86,24 @@ def _find_mask(display, symbol):
 
 def alt_mask(display):
     """Returns the *alt* mask flags.
+
+    The first time this function is called for a display, the value is cached.
+    Subsequent calls will return the cached value.
     """
-    return _find_mask(display, 'Alt_L')
+    if not hasattr(display, '__alt_mask'):
+        display.__alt_mask = _find_mask(display, 'Alt_L')
+    return display.__alt_mask
 
 
 def alt_gr_mask(display):
     """Returns the *alt* mask flags.
+
+    The first time this function is called for a display, the value is cached.
+    Subsequent calls will return the cached value.
     """
-    return _find_mask(display, 'Mode_switch')
+    if not hasattr(display, '__altgr_mask'):
+        display.__altgr_mask = _find_mask(display, 'Mode_switch')
+    return display.__altgr_mask
 
 
 def keysym_is_latin_upper(keysym):
