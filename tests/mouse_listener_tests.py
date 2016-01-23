@@ -91,6 +91,16 @@ class MouseListenerTest(unittest.TestCase):
         # Unconditionally fail
         self.assertTrue(False, failure_message)
 
+    def test_stop(self):
+        """Tests that stopping the listener from a different thread works"""
+        listener = pynput.mouse.Listener()
+
+        listener.start()
+        notify('Move mouse, click button or scroll')
+        listener.stop()
+
+        time.sleep(1)
+
     def test_move(self):
         """Tests that move events are emitted at all"""
         self.assertChange(
