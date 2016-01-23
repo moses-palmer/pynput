@@ -49,6 +49,14 @@ class KeyCode(object):
     def __str__(self):
         return repr(self)
 
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return False
+        if self.char is not None and other.char is not None:
+            return self.char == other.char
+        else:
+            return self.vk == other.vk
+
     def join(self, key):
         """Applies this dead key to another key and returns the result.
 
