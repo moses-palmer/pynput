@@ -58,9 +58,11 @@ def display_manager(display):
             errors.append(args)
 
         old_handler = display.set_error_handler(handler)
-        yield display
-        display.sync()
-        display.set_error_handler(old_handler)
+        try:
+            yield display
+            display.sync()
+        finally:
+            display.set_error_handler(old_handler)
         if errors:
             raise X11Error(errors)
 
