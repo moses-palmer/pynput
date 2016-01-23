@@ -302,6 +302,15 @@ class ListenerMixin(object):
     #: We use this instance for parsing the binary data
     _EVENT_PARSER = Xlib.protocol.rq.EventField(None)
 
+    class _WrappedException(Exception):
+        """Raised by the handler wrapper when an exception is raised in the
+        handler, or when the listener is stopped to escape the recording.
+
+        In the former case, the root exception is passed as the first argument
+        to the constructor, and in the latter case no arguments are passed.
+        """
+        pass
+
     def __init__(self, *args, **kwargs):
         super(ListenerMixin, self).__init__(*args, **kwargs)
         self._display_stop = Xlib.display.Display()
@@ -328,16 +337,19 @@ class ListenerMixin(object):
             self._display_record.close()
 
     def _run(self):
-        with display_manager(self._display_record) as d:
-            self._initialize(self._display_stop)
-            d.record_enable_context(
+        self._initialize(self._display_stop)
+        try:
+            self._display_record.record_enable_context(
                 self._context, self._handler)
-            d.record_free_context(self._context)
+        except self._WrappedException as e:
+            if e.args:
+                # TODO: Handle
+                pass
+        finally:
+            self._display_record.record_free_context(self._context)
 
     def _stop(self):
-        self._display_stop.sync()
-        with display_manager(self._display_stop) as d:
-            d.record_disable_context(self._context)
+        self._display_stop.record_disable_context(self._context)
 
     @AbstractListener._emitter
     def _handler(self, events):
@@ -346,13 +358,23 @@ class ListenerMixin(object):
         This method will parse the response and call the callbacks registered
         on initialisation.
         """
-        data = events.data
+        # If
+        if not self.running:
+            raise self._WrappedException()
 
-        while len(data):
-            event, data = self._EVENT_PARSER.parse_binary_value(
-                data, self._display_record.display, None, None)
-            with display_manager(self._display_stop) as d:
-                self._handle(d, event)
+        try:
+            data = events.data
+
+            while len(data):
+                event, data = self._EVENT_PARSER.parse_binary_value(
+                    data, self._display_record.display, None, None)
+                self._handle(self._display_stop, event)
+
+        except self.StopException:
+            raise
+
+        except BaseException as e:
+            raise self._WrappedException(e)
 
     def _initialize(self, display):
         """Initialises this listener.
@@ -374,4 +396,4 @@ class ListenerMixin(object):
 
         :param event: The event.
         """
-        raise NotImplementedError()
+        pass
