@@ -309,7 +309,36 @@ class Controller(object):
 
         :raises ValueError: if ``key`` is a string, but its length is not ``1``
         """
-        self._dispatch(key, True)
+        resolved = self._resolve(key)
+        self._update_modifiers(resolved, True)
+
+        # Update caps lock state
+        if resolved == self._Key.caps_lock.value:
+            self._caps_lock = not self._caps_lock
+
+        # If we currently have a dead key pressed, join it with this key
+        original = resolved
+        if self._dead_key:
+            try:
+                resolved = self._dead_key.join(resolved)
+            except ValueError:
+                self._handle(self._dead_key, True)
+                self._handle(self._dead_key, False)
+
+        # If the key is a dead key, keep it for later
+        if resolved.is_dead:
+            self._dead_key = resolved
+            return
+
+        try:
+            self._handle(resolved, True)
+        except self.InvalidKeyException:
+            if resolved != original:
+                self._handle(self._dead_key, True)
+                self._handle(self._dead_key, False)
+                self._handle(original, True)
+
+        self._dead_key = None
 
     def release(self, key):
         """Releases a key.
@@ -328,7 +357,14 @@ class Controller(object):
 
         :raises ValueError: if ``key`` is a string, but its length is not ``1``
         """
-        self._dispatch(key, False)
+        resolved = self._resolve(key)
+        self._update_modifiers(resolved, False)
+
+        # Ignore released dead keys
+        if resolved.is_dead:
+            return
+
+        self._handle(resolved, False)
 
     def touch(self, key, is_press):
         """Calls either :meth:`press` or :meth:`release` depending on the value
@@ -416,29 +452,37 @@ class Controller(object):
         with self.modifiers as modifiers:
             return self._Key.shift in modifiers
 
-    def _dispatch(self, key, is_press):
-        """Dispatches a press or release.
+    def _resolve(self, key):
+        """Resolves a key to a :class:`KeyCode` instance.
 
-        This method selects the correct platform implementation and translates
-        the ``key`` argument as described in :meth:`press` and :meth:`release`.
-        It also handles any platform indepentent key actions.
+        :param key: The key to resolve.
 
-        :param key: The key.
-
-        :param bool is_press: Whether this is a press event.
-
-        :raises ValueError: if ``key`` is a string, but its length is not ``1``
+        :return: a key code, or ``None`` if it cannot be resolved
         """
         # Use the value for the key constants
         if key in self._Key:
-            return self._dispatch(key.value, is_press)
+            return key.value
 
         # Convert strings to key codes
         if isinstance(key, six.string_types):
             if len(key) != 1:
                 raise ValueError(key)
-            return self._dispatch(self._KeyCode.from_char(key), is_press)
+            return self._KeyCode.from_char(key)
 
+        # Assume this is a proper key
+        if isinstance(key, self._KeyCode):
+            if key.char is not None and self.shift_pressed:
+                return self._KeyCode.from_char(key.char.upper())
+            else:
+                return key
+
+    def _update_modifiers(self, key, is_press):
+        """Updates the current modifier list.
+
+        If ``key`` is not a modifier, no action is taken.
+
+        :param key: The key being pressed or released.
+        """
         # Check whether the key is a modifier
         modifier = self._as_modifier(key)
         if modifier:
@@ -450,37 +494,6 @@ class Controller(object):
                         modifiers.remove(modifier)
                     except KeyError:
                         pass
-
-        # Apply shift if any shift keys are active
-        if key.char is not None and self.shift_pressed:
-            key = self._KeyCode.from_char(key.char.upper())
-
-        # Otherwise, let the platform implementation handle it
-        if is_press:
-            # Update caps lock state
-            if is_press and key == self._Key.caps_lock.value:
-                self._caps_lock = not self._caps_lock
-
-            # If we currently have a dead key pressed, join it with this key
-            if self._dead_key:
-                try:
-                    key = self._dead_key.join(key)
-                except ValueError:
-                    self._handle(self._dead_key, True)
-                    self._handle(self._dead_key, False)
-                self._dead_key = None
-
-            # If the key is a dead key, keep it for later
-            if key.is_dead:
-                self._dead_key = key
-                return
-
-        else:
-            # Ignore released dead keys
-            if key.is_dead:
-                return
-
-        self._handle(key, is_press)
 
     def _as_modifier(self, key):
         """Returns a key as the modifier used internally is defined.
