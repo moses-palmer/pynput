@@ -18,6 +18,13 @@ class MouseControllerTest(unittest.TestCase):
     def setUp(self):
         self.controller = pynput.mouse.Controller()
 
+    def listener(self, *args, **kwargs):
+        """Creates a mouse listener.
+
+        All arguments are passed to the constructor.
+        """
+        return pynput.mouse.Listener(*args, **kwargs)
+
     @contextlib.contextmanager
     def assertEvent(self, failure_message, **kwargs):
         """Asserts that a specific event is emitted.
@@ -38,7 +45,7 @@ class MouseControllerTest(unittest.TestCase):
 
             return inner if callback else None
 
-        with pynput.mouse.Listener(
+        with self.listener(
                 on_move=handler(0, 'on_move'),
                 on_click=handler(1, 'on_click'),
                 on_scroll=handler(2, 'on_scroll')) as listener:
