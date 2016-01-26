@@ -116,40 +116,35 @@ class Controller(_base.Controller):
             listener.stop()
 
 
-class Listener(_base.Listener):
+@ListenerMixin.receiver
+class Listener(ListenerMixin, _base.Listener):
     #: The Windows hook ID for low level mouse events
-    WH_MOUSE_LL = 14
+    _EVENTS = 14
 
-    HC_ACTION = 0
-    WM_LBUTTONDOWN = 0x0201
-    WM_LBUTTONUP = 0x0202
-    WM_MOUSEMOVE = 0x0200
-    WM_MOUSEWHEEL = 0x020A
-    WM_MOUSEHWHEEL = 0x020E
-    WM_RBUTTONDOWN = 0x0204
-    WM_RBUTTONUP = 0x0205
+    _HC_ACTION = 0
+    _WM_LBUTTONDOWN = 0x0201
+    _WM_LBUTTONUP = 0x0202
+    _WM_MOUSEMOVE = 0x0200
+    _WM_MOUSEWHEEL = 0x020A
+    _WM_MOUSEHWHEEL = 0x020E
+    _WM_RBUTTONDOWN = 0x0204
+    _WM_RBUTTONUP = 0x0205
 
-    WHEEL_DELTA = 120
+    _WHEEL_DELTA = 120
 
     #: A mapping from messages to button events
-    CLICK_BUTTONS = {
-        WM_LBUTTONDOWN: (Button.left, True),
-        WM_LBUTTONUP: (Button.left, False),
-        WM_RBUTTONDOWN: (Button.right, True),
-        WM_RBUTTONUP: (Button.right, False)}
+    _CLICK_BUTTONS = {
+        _WM_LBUTTONDOWN: (Button.left, True),
+        _WM_LBUTTONUP: (Button.left, False),
+        _WM_RBUTTONDOWN: (Button.right, True),
+        _WM_RBUTTONUP: (Button.right, False)}
 
     #: A mapping from messages to scroll vectors
-    SCROLL_BUTTONS = {
-        WM_MOUSEWHEEL: (0, 1),
-        WM_MOUSEHWHEEL: (1, 0)}
+    _SCROLL_BUTTONS = {
+        _WM_MOUSEWHEEL: (0, 1),
+        _WM_MOUSEHWHEEL: (1, 0)}
 
-    #: The currently running listeners
-    __listeners = set()
-
-    #: The lock protecting access to the :attr:`_listeners`
-    __listener_lock = threading.Lock()
-
-    class MSLLHOOKSTRUCT(ctypes.Structure):
+    class _MSLLHOOKSTRUCT(ctypes.Structure):
         """Contains information about a mouse event passed to a ``WH_MOUSE_LL``
         hook procedure, ``MouseProc``.
         """
@@ -161,82 +156,22 @@ class Listener(_base.Listener):
             ('dwExtraInfo', ctypes.c_void_p)]
 
     #: A pointer to a :class:`MSLLHOOKSTRUCT`
-    LPMSLLHOOKSTRUCT = ctypes.POINTER(MSLLHOOKSTRUCT)
+    _LPMSLLHOOKSTRUCT = ctypes.POINTER(_MSLLHOOKSTRUCT)
 
-    def __init__(self, *args, **kwargs):
-        super(Listener, self).__init__(*args, **kwargs)
-
-        self._message_loop = MessageLoop()
-
-    def _run(self):
-        self.__add_listener(self)
-        try:
-            self._message_loop.start()
-
-            with SystemHook(self.WH_MOUSE_LL, self._handler):
-                # Just pump messages
-                for msg in self._message_loop:
-                    if not self.running:
-                        break
-
-        finally:
-            self.__remove_listener(self)
-
-    def _stop(self):
-        self._message_loop.stop()
-
-    @_base.Listener._emitter
-    def _handler(self, code, msg, lpdata):
-        """The callback registered with *Windows* for mouse events.
-
-        This method will call the callbacks registered on initialisation.
-        """
-        if code != self.HC_ACTION:
+    def _handle(self, code, msg, lpdata):
+        if code != self._HC_ACTION:
             return
 
-        data = ctypes.cast(lpdata, self.LPMSLLHOOKSTRUCT).contents
+        data = ctypes.cast(lpdata, self._LPMSLLHOOKSTRUCT).contents
 
-        if msg == self.WM_MOUSEMOVE:
+        if msg == self._WM_MOUSEMOVE:
             self.on_move(data.pt.x, data.pt.y)
 
-        elif msg in self.CLICK_BUTTONS:
-            button, pressed = self.CLICK_BUTTONS[msg]
+        elif msg in self._CLICK_BUTTONS:
+            button, pressed = self._CLICK_BUTTONS[msg]
             self.on_click(data.pt.x, data.pt.y, button, pressed)
 
-        elif msg in self.SCROLL_BUTTONS:
-            mx, my = self.SCROLL_BUTTONS[msg]
-            d = wintypes.SHORT(data.mouseData >> 16).value // self.WHEEL_DELTA
+        elif msg in self._SCROLL_BUTTONS:
+            mx, my = self._SCROLL_BUTTONS[msg]
+            d = wintypes.SHORT(data.mouseData >> 16).value // self._WHEEL_DELTA
             self.on_scroll(data.pt.x, data.pt.y, d * mx, d * my)
-
-    @classmethod
-    def __add_listener(self, listener):
-        """Adds a listener to the set of running listeners.
-
-        :param Listener listener: The listener to add.
-        """
-        with self.__listener_lock:
-            self.__listeners.add(listener)
-
-    @classmethod
-    def __remove_listener(self, listener):
-        """Removes a listener from the set of running listeners.
-
-        :param Listener listener: The listener to remove.
-        """
-        with self.__listener_lock:
-            self.__listeners.remove(listener)
-
-    @classmethod
-    def listeners(self):
-        """Iterates over the set of running listeners.
-
-        This method will quit without acquiring the lock if the set is empty,
-        so there is potential for race conditions. This is an optimisation,
-        since :class:`Controller` will need to call this method for every
-        control event.
-        """
-        if not self.__listeners:
-            return
-        with self.__listener_lock:
-            for listener in self.__listeners:
-                yield listener
