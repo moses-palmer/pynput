@@ -20,6 +20,8 @@ import threading
 
 from ctypes import windll, wintypes
 
+from . import AbstractListener
+
 
 class MessageLoop(object):
     """A class representing a message loop.
@@ -233,3 +235,89 @@ class INPUT(ctypes.Structure):
     _fields_ = [
         ('type', wintypes.DWORD),
         ('value', INPUT_union)]
+
+
+class ListenerMixin(object):
+    """A mixin for *win32* event listeners.
+
+    Subclasses should set a value for :attr:`_EVENTS` and implement
+    :meth:`_handle`.
+    """
+    #: The Windows hook ID for the events to capture
+    _EVENTS = None
+
+    def _run(self):
+        self._message_loop = MessageLoop()
+        self._add_listener()
+        try:
+            self._message_loop.start()
+
+            with SystemHook(self._EVENTS, self._handler):
+                # Just pump messages
+                for msg in self._message_loop:
+                    if not self.running:
+                        break
+
+        finally:
+            self._remove_listener()
+
+    def _stop(self):
+        try:
+            self._message_loop.stop()
+        except AttributeError:
+            # The loop may not have been created
+            pass
+
+    @classmethod
+    def receiver(self, cls):
+        """A decorator to make a class able to receive fake events from a
+        controller.
+
+        :param cls: The class whose instances are to receive fake events.
+        """
+        cls._listeners = set()
+        cls._listener_lock = threading.Lock()
+        return cls
+
+    @AbstractListener._emitter
+    def _handler(self, code, msg, lpdata):
+        """The callback registered with *Windows* for events.
+
+        This method will call the callbacks registered on initialisation.
+        """
+        self._handle(code, msg, lpdata)
+
+    def _add_listener(self):
+        """Adds this listener to the set of running listeners.
+        """
+        with self.__class__._listener_lock:
+            self.__class__._listeners.add(self)
+
+    def _remove_listener(self):
+        """Removes this listener from the set of running listeners.
+        """
+        with self.__class__._listener_lock:
+            self.__class__._listeners.remove(self)
+
+    @classmethod
+    def listeners(self):
+        """Iterates over the set of running listeners.
+
+        This method will quit without acquiring the lock if the set is empty,
+        so there is potential for race conditions. This is an optimisation,
+        since :class:`Controller` will need to call this method for every
+        control event.
+        """
+        if not self._listeners:
+            return
+        with self._listener_lock:
+            for listener in self._listeners:
+                yield listener
+
+    def _handle(self, code, msg, lpdata):
+        """The device specific callback handler.
+
+        This method calls the appropriate callback registered when this
+        listener was created based on the event.
+        """
+        raise NotImplementedError()

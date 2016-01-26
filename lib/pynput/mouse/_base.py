@@ -16,8 +16,8 @@
 # this program. If not, see <http://www.gnu.org/licenses/>.
 
 import enum
-import functools
-import threading
+
+from pynput._util import AbstractListener
 
 
 class Button(enum.Enum):
@@ -153,7 +153,7 @@ class Controller(object):
         raise NotImplementedError()
 
 
-class Listener(threading.Thread):
+class Listener(AbstractListener):
     """A listener for mouse events.
 
     Instances of this class can be used as context managers. This is equivalent
@@ -192,86 +192,6 @@ class Listener(threading.Thread):
         If this callback raises :class:`StopException` or returns ``False``,
         the listener is stopped.
     """
-    class StopException(Exception):
-        """If an event listener callback raises this exception, the current
-        listener is stopped.
-
-        Its first argument must be set to the :class:`Listener` to stop.
-        """
-        pass
-
     def __init__(self, on_move=None, on_click=None, on_scroll=None):
-        super(Listener, self).__init__()
-
-        def wrapper(f):
-            def inner(*args):
-                if f(*args) is False:
-                    raise self.StopException(self)
-            return inner
-
-        self._running = False
-        self._thread = threading.current_thread()
-        self.on_move = wrapper(on_move or (lambda *a: None))
-        self.on_click = wrapper(on_click or (lambda *a: None))
-        self.on_scroll = wrapper(on_scroll or (lambda *a: None))
-
-    @property
-    def running(self):
-        """Whether the listener is currently running.
-        """
-        return self._running
-
-    def stop(self):
-        """Stops listening for mouse events.
-
-        When this method returns, the listening thread will have stopped.
-        """
-        if self._running:
-            self._running = False
-            self._stop()
-            if threading.current_thread() != self._thread:
-                self.join()
-
-    def __enter__(self):
-        self.start()
-        return self
-
-    def __exit__(self, type, value, traceback):
-        self.stop()
-
-    def run(self):
-        """The thread runner method.
-        """
-        self._running = True
-        self._thread = threading.current_thread()
-        self._run()
-
-    @classmethod
-    def _emitter(self, f):
-        """A decorator to mark a method as the one emitting the callbacks.
-
-        This decorator will wrap the method and catch :class:`StopException`.
-        If this exception is caught, the listener will be stopped.
-        """
-        @functools.wraps(f)
-        def inner(*args, **kwargs):
-            try:
-                f(*args, **kwargs)
-            except self.StopException as e:
-                e.args[0].stop()
-
-        return inner
-
-    def _run(self):
-        """The implementation of the :meth:`start` method.
-
-        This is a platform dependent implementation.
-        """
-        raise NotImplementedError()
-
-    def _stop(self):
-        """The implementation of the :meth:`stop` method.
-
-        This is a platform dependent implementation.
-        """
-        raise NotImplementedError()
+        super(Listener, self).__init__(
+            on_move=on_move, on_click=on_click, on_scroll=on_scroll)

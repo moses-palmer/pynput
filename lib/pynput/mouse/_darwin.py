@@ -20,6 +20,7 @@ import Quartz
 
 from AppKit import NSEvent
 
+from pynput._util.darwin import *
 from . import _base
 
 
@@ -139,9 +140,9 @@ class Controller(_base.Controller):
         self._click = None
 
 
-class Listener(_base.Listener):
+class Listener(ListenerMixin, _base.Listener):
     #: The events that we listen to
-    _TAP_EVENTS = (
+    _EVENTS = (
         Quartz.CGEventMaskBit(Quartz.kCGEventMouseMoved) |
         Quartz.CGEventMaskBit(Quartz.kCGEventLeftMouseDown) |
         Quartz.CGEventMaskBit(Quartz.kCGEventLeftMouseUp) |
@@ -151,45 +152,7 @@ class Listener(_base.Listener):
         Quartz.CGEventMaskBit(Quartz.kCGEventOtherMouseUp) |
         Quartz.CGEventMaskBit(Quartz.kCGEventScrollWheel))
 
-    def __init__(self, *args, **kwargs):
-        super(Listener, self).__init__(*args, **kwargs)
-
-        self._loop = None
-
-    def _run(self):
-        try:
-            tap = Quartz.CGEventTapCreate(
-                Quartz.kCGSessionEventTap,
-                Quartz.kCGHeadInsertEventTap,
-                Quartz.kCGEventTapOptionDefault,
-                self._TAP_EVENTS,
-                self._handler,
-                None)
-
-            loop_source = Quartz.CFMachPortCreateRunLoopSource(
-                None, tap, 0)
-            self._loop = Quartz.CFRunLoopGetCurrent()
-
-            Quartz.CFRunLoopAddSource(
-                self._loop, loop_source, Quartz.kCFRunLoopDefaultMode)
-            Quartz.CGEventTapEnable(tap, True)
-
-            while True:
-                result = Quartz.CFRunLoopRunInMode(
-                    Quartz.kCFRunLoopDefaultMode, 1, False)
-                if result != Quartz.kCFRunLoopRunTimedOut:
-                    break
-
-        finally:
-            self._loop = None
-
-    def _stop(self):
-        # The base class sets the running flag to False; this will cause the
-        # loop around run loop invocations to terminate and set this event
-        Quartz.CFRunLoopStop(self._loop)
-
-    @_base.Listener._emitter
-    def _handler(self, proxy, event_type, event, refcon):
+    def _handle(self, proxy, event_type, event, refcon):
         """The callback registered with *Mac OSX* for mouse events.
 
         This method will call the callbacks registered on initialisation.

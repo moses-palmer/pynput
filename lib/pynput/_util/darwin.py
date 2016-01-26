@@ -22,6 +22,9 @@ import six
 
 import objc
 import CoreFoundation
+import Quartz
+
+from . import AbstractListener
 
 
 #: The objc module as a library handle
@@ -137,3 +140,65 @@ def get_unicode_to_keycode_map():
         return {
             keycode_to_string(keycode): keycode
             for keycode in range(128)}
+
+
+class ListenerMixin(object):
+    """A mixin for *Quartz* event listeners.
+
+    Subclasses should set a value for :attr:`_EVENTS` and implement
+    :meth:`_handle`.
+    """
+    #: The events that we listen to
+    _EVENTS = tuple()
+
+    def _run(self):
+        try:
+            tap = Quartz.CGEventTapCreate(
+                Quartz.kCGSessionEventTap,
+                Quartz.kCGHeadInsertEventTap,
+                Quartz.kCGEventTapOptionDefault,
+                self._EVENTS,
+                self._handler,
+                None)
+
+            loop_source = Quartz.CFMachPortCreateRunLoopSource(
+                None, tap, 0)
+            self._loop = Quartz.CFRunLoopGetCurrent()
+
+            Quartz.CFRunLoopAddSource(
+                self._loop, loop_source, Quartz.kCFRunLoopDefaultMode)
+            Quartz.CGEventTapEnable(tap, True)
+
+            while True:
+                result = Quartz.CFRunLoopRunInMode(
+                    Quartz.kCFRunLoopDefaultMode, 1, False)
+                if result != Quartz.kCFRunLoopRunTimedOut:
+                    break
+
+        finally:
+            self._loop = None
+
+    def _stop(self):
+        # The base class sets the running flag to False; this will cause the
+        # loop around run loop invocations to terminate and set this event
+        try:
+            Quartz.CFRunLoopStop(self._loop)
+        except AttributeError:
+            # The loop may not have been created
+            pass
+
+    @AbstractListener._emitter
+    def _handler(self, proxy, event_type, event, refcon):
+        """The callback registered with *Mac OSX* for mouse events.
+
+        This method will call the callbacks registered on initialisation.
+        """
+        self._handle(proxy, event_type, event, refcon)
+
+    def _handle(self, proxy, event_type, event, refcon):
+        """The device specific callback handler.
+
+        This method calls the appropriate callback registered when this
+        listener was created based on the event.
+        """
+        raise NotImplementedError()
