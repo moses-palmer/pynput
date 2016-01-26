@@ -309,7 +309,9 @@ class Controller(object):
 
         :raises ValueError: if ``key`` is a string, but its length is not ``1``
         """
-        self._dispatch(self._resolve(key), True)
+        resolved = self._resolve(key)
+        self._update_modifiers(resolved, True)
+        self._dispatch(resolved, True)
 
     def release(self, key):
         """Releases a key.
@@ -328,7 +330,9 @@ class Controller(object):
 
         :raises ValueError: if ``key`` is a string, but its length is not ``1``
         """
-        self._dispatch(self._resolve(key), False)
+        resolved = self._resolve(key)
+        self._update_modifiers(resolved, False)
+        self._dispatch(resolved, False)
 
     def touch(self, key, is_press):
         """Calls either :meth:`press` or :meth:`release` depending on the value
@@ -428,20 +432,7 @@ class Controller(object):
 
         :raises ValueError: if ``key`` is a string, but its length is not ``1``
         """
-
-        # Check whether the key is a modifier
-        modifier = self._as_modifier(key)
-        if modifier:
-            with self.modifiers as modifiers:
-                if is_press:
-                    modifiers.add(modifier)
-                else:
-                    try:
-                        modifiers.remove(modifier)
-                    except KeyError:
-                        pass
-
-        # Otherwise, let the platform implementation handle it
+        # Let the platform implementation handle it
         if is_press:
             # Update caps lock state
             if is_press and key == self._Key.caps_lock.value:
@@ -491,6 +482,25 @@ class Controller(object):
                 return self._KeyCode.from_char(key.char.upper())
             else:
                 return key
+
+    def _update_modifiers(self, key, is_press):
+        """Updates the current modifier list.
+
+        If ``key`` is not a modifier, no action is taken.
+
+        :param key: The key being pressed or released.
+        """
+        # Check whether the key is a modifier
+        modifier = self._as_modifier(key)
+        if modifier:
+            with self.modifiers as modifiers:
+                if is_press:
+                    modifiers.add(modifier)
+                else:
+                    try:
+                        modifiers.remove(modifier)
+                    except KeyError:
+                        pass
 
     def _as_modifier(self, key):
         """Returns a key as the modifier used internally is defined.
