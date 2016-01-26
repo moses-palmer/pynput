@@ -2,6 +2,12 @@ Release Notes
 =============
 
 
+v0.5.1 - Do not die on dead keys
+--------------------------------
+*  Corrected handling of dead keys.
+*  Corrected documentation.
+
+
 v0.5 - Keyboard Modifiers
 -------------------------
 *  Added support for modifiers.
