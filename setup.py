@@ -29,7 +29,7 @@ if sys.platform == 'darwin':
     RUNTIME_PACKAGES.append('pyobjc-framework-Quartz >=3.0')
 
 #: Additional requirements used during setup
-SETUP_PACKAGES = RUNTIME_PACKAGES + [
+SETUP_PACKAGES = [
     'sphinx >=1.3.1']
 
 
