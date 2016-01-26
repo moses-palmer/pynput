@@ -159,6 +159,10 @@ class Controller(_base.Controller):
             else Xlib.display.event.KeyRelease
         keysym = self._keysym(key)
 
+        # Make sure to verify that the key was resolved
+        if keysym is None:
+            raise self.InvalidKeyException(key)
+
         try:
             keycode, shift_state = self.keyboard_mapping[keysym]
             self._send_key(event, keycode, shift_state)
