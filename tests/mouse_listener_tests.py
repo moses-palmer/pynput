@@ -15,13 +15,25 @@ class MouseListenerTest(unittest.TestCase):
         notify(
             'This test case is interactive, so you must follow the '
             'instructions on screen')
+        self.listeners = []
+
+    @classmethod
+    def tearDownClass(self):
+        remaining = [
+            listener
+            for listener in self.listeners
+            if not (listener.join(0.5) or listener.is_alive)]
+        for listener in remaining:
+            listener.join()
 
     def listener(self, *args, **kwargs):
         """Creates a mouse listener.
 
         All arguments are passed to the constructor.
         """
-        return pynput.mouse.Listener(*args, **kwargs)
+        listener = pynput.mouse.Listener(*args, **kwargs)
+        self.listeners.append(listener)
+        return listener
 
     def assertEvent(self, info_message, failure_message, *args, **kwargs):
         """Asserts that a specific event is emitted.
