@@ -309,7 +309,7 @@ class Controller(object):
 
         :raises ValueError: if ``key`` is a string, but its length is not ``1``
         """
-        self._dispatch(key, True)
+        self._dispatch(self._resolve(key), True)
 
     def release(self, key):
         """Releases a key.
@@ -328,7 +328,7 @@ class Controller(object):
 
         :raises ValueError: if ``key`` is a string, but its length is not ``1``
         """
-        self._dispatch(key, False)
+        self._dispatch(self._resolve(key), False)
 
     def touch(self, key, is_press):
         """Calls either :meth:`press` or :meth:`release` depending on the value
@@ -419,9 +419,8 @@ class Controller(object):
     def _dispatch(self, key, is_press):
         """Dispatches a press or release.
 
-        This method selects the correct platform implementation and translates
-        the ``key`` argument as described in :meth:`press` and :meth:`release`.
-        It also handles any platform indepentent key actions.
+        This method selects the correct platform implementation. It also
+        handles any platform indepentent key actions.
 
         :param key: The key.
 
@@ -429,15 +428,6 @@ class Controller(object):
 
         :raises ValueError: if ``key`` is a string, but its length is not ``1``
         """
-        # Use the value for the key constants
-        if key in self._Key:
-            return self._dispatch(key.value, is_press)
-
-        # Convert strings to key codes
-        if isinstance(key, six.string_types):
-            if len(key) != 1:
-                raise ValueError(key)
-            return self._dispatch(self._KeyCode.from_char(key), is_press)
 
         # Check whether the key is a modifier
         modifier = self._as_modifier(key)
@@ -450,10 +440,6 @@ class Controller(object):
                         modifiers.remove(modifier)
                     except KeyError:
                         pass
-
-        # Apply shift if any shift keys are active
-        if key.char is not None and self.shift_pressed:
-            key = self._KeyCode.from_char(key.char.upper())
 
         # Otherwise, let the platform implementation handle it
         if is_press:
@@ -481,6 +467,30 @@ class Controller(object):
                 return
 
         self._handle(key, is_press)
+
+    def _resolve(self, key):
+        """Resolves a key to a :class:`KeyCode` instance.
+
+        :param key: The key to resolve.
+
+        :return: a key code, or ``None`` if it cannot be resolved
+        """
+        # Use the value for the key constants
+        if key in self._Key:
+            return key.value
+
+        # Convert strings to key codes
+        if isinstance(key, six.string_types):
+            if len(key) != 1:
+                raise ValueError(key)
+            return self._KeyCode.from_char(key)
+
+        # Assume this is a proper key
+        if isinstance(key, self._KeyCode):
+            if key.char is not None and self.shift_pressed:
+                return self._KeyCode.from_char(key.char.upper())
+            else:
+                return key
 
     def _as_modifier(self, key):
         """Returns a key as the modifier used internally is defined.
