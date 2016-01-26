@@ -3,7 +3,6 @@
 
 import os
 import setuptools
-import sys
 
 
 #: The name of the package on PyPi
@@ -22,15 +21,16 @@ AUTHOR_EMAIL = 'moses.palmer@gmail.com'
 RUNTIME_PACKAGES = [
     'six']
 
-if sys.version_info.major < 3:
-    RUNTIME_PACKAGES.append('enum34')
-
-if sys.platform == 'darwin':
-    RUNTIME_PACKAGES.append('pyobjc-framework-Quartz >=3.0')
-
 #: Additional requirements used during setup
 SETUP_PACKAGES = [
     'sphinx >=1.3.1']
+
+#: Packages requires for different environments
+EXTRA_PACKAGES = {
+    ':sys_platform == "darwin"': [
+        'pyobjc-framework-Quartz >=3.0'],
+    ':python_version == "2.7"': [
+        'enum34']}
 
 
 # Read globals from ._info without loading it
@@ -82,6 +82,7 @@ setuptools.setup(
 
     install_requires=RUNTIME_PACKAGES,
     setup_requires=RUNTIME_PACKAGES + SETUP_PACKAGES,
+    extras_require=EXTRA_PACKAGES,
 
     author=INFO['author'],
     author_email=AUTHOR_EMAIL,
