@@ -48,8 +48,12 @@ class KeyCode(object):
         return repr(self)
 
     def join(self, key):
-        """Applies this dead key to another key and returns a sequence of key
-        codes.
+        """Applies this dead key to another key and returns the result.
+
+        Joining a dead key with space (``' '``) or itself yields the non-dead
+        version of this key, if one exists; for example,
+        ``KeyCode.from_dead('~').join(KeyCode.from_char(' '))`` equals
+        ``KeyCode.from_char('~')``.
 
         :param KeyCode dead: The dead key to join with another key.
 
