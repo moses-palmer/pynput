@@ -69,13 +69,11 @@ class AbstractListener(threading.Thread):
     def stop(self):
         """Stops listening for mouse events.
 
-        When this method returns, the listening thread will have stopped.
+        When this method returns, no more events will be delivered.
         """
         if self._running:
             self._running = False
             self._stop()
-            if threading.current_thread() != self._thread:
-                self.join()
 
     def __enter__(self):
         self.start()

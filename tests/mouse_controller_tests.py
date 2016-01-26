@@ -14,9 +14,28 @@ class MouseControllerTest(unittest.TestCase):
         notify(
             'This test case is non-interactive, so you must not use the mouse',
             delay=2)
+        self.listeners = []
 
     def setUp(self):
         self.controller = pynput.mouse.Controller()
+
+    @classmethod
+    def tearDownClass(self):
+        remaining = [
+            listener
+            for listener in self.listeners
+            if not (listener.join(0.5) or listener.is_alive)]
+        for listener in remaining:
+            listener.join()
+
+    def listener(self, *args, **kwargs):
+        """Creates a mouse listener.
+
+        All arguments are passed to the constructor.
+        """
+        listener = pynput.mouse.Listener(*args, **kwargs)
+        self.listeners.append(listener)
+        return listener
 
     @contextlib.contextmanager
     def assertEvent(self, failure_message, **kwargs):
@@ -38,7 +57,7 @@ class MouseControllerTest(unittest.TestCase):
 
             return inner if callback else None
 
-        with pynput.mouse.Listener(
+        with self.listener(
                 on_move=handler(0, 'on_move'),
                 on_click=handler(1, 'on_click'),
                 on_scroll=handler(2, 'on_scroll')) as listener:

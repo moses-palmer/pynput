@@ -15,6 +15,25 @@ class MouseListenerTest(unittest.TestCase):
         notify(
             'This test case is interactive, so you must follow the '
             'instructions on screen')
+        self.listeners = []
+
+    @classmethod
+    def tearDownClass(self):
+        remaining = [
+            listener
+            for listener in self.listeners
+            if not (listener.join(0.5) or listener.is_alive)]
+        for listener in remaining:
+            listener.join()
+
+    def listener(self, *args, **kwargs):
+        """Creates a mouse listener.
+
+        All arguments are passed to the constructor.
+        """
+        listener = pynput.mouse.Listener(*args, **kwargs)
+        self.listeners.append(listener)
+        return listener
 
     def assertEvent(self, info_message, failure_message, *args, **kwargs):
         """Asserts that a specific event is emitted.
@@ -30,7 +49,7 @@ class MouseListenerTest(unittest.TestCase):
         notify(info_message)
 
         success = False
-        listener = pynput.mouse.Listener(*args, **kwargs)
+        listener = self.listener(*args, **kwargs)
         with listener:
             for _ in range(30):
                 time.sleep(0.1)
@@ -90,6 +109,16 @@ class MouseListenerTest(unittest.TestCase):
 
         # Unconditionally fail
         self.assertTrue(False, failure_message)
+
+    def test_stop(self):
+        """Tests that stopping the listener from a different thread works"""
+        listener = self.listener()
+
+        listener.start()
+        notify('Move mouse, click button or scroll')
+        listener.stop()
+
+        time.sleep(1)
 
     def test_move(self):
         """Tests that move events are emitted at all"""
