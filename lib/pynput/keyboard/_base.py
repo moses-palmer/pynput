@@ -317,20 +317,28 @@ class Controller(object):
             self._caps_lock = not self._caps_lock
 
         # If we currently have a dead key pressed, join it with this key
+        original = resolved
         if self._dead_key:
             try:
                 resolved = self._dead_key.join(resolved)
             except ValueError:
                 self._handle(self._dead_key, True)
                 self._handle(self._dead_key, False)
-            self._dead_key = None
 
         # If the key is a dead key, keep it for later
         if resolved.is_dead:
             self._dead_key = resolved
             return
 
-        self._handle(resolved, True)
+        try:
+            self._handle(resolved, True)
+        except self.InvalidKeyException:
+            if resolved != original:
+                self._handle(self._dead_key, True)
+                self._handle(self._dead_key, False)
+                self._handle(original, True)
+
+        self._dead_key = None
 
     def release(self, key):
         """Releases a key.
