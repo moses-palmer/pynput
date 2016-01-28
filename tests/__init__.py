@@ -41,7 +41,7 @@ class EventTest(unittest.TestCase):
             self.controller = self.CONTROLLER_CLASS()
 
     @classmethod
-    def notify(self, message, delay=None, columns=40):
+    def notify(self, message, delay=None, columns=50):
         """Prints a notification on screen.
 
         :param str message: The message to display.
