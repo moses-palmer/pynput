@@ -27,6 +27,15 @@ class MouseControllerTest(EventTest):
             tuple(o + n for o, n in zip(pos, d)),
             failure_message)
 
+    def test_buttons(self):
+        """Asserts that all buttons defined for the base mouse interface are
+        defined for the current platform"""
+        from pynput.mouse._base import Button
+        for button in Button:
+            self.assertTrue(
+                hasattr(pynput.mouse.Button, button.name),
+                '%s is not defined for the current platform' % button.name)
+
     def test_position_get(self):
         """Tests that reading the position returns consistent values"""
         position = self.controller.position
