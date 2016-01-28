@@ -24,7 +24,7 @@ class EventTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(self):
-        self.notify(self.NOTIFICATION)
+        self.notify(self.NOTIFICATION, 4)
         self.listeners = []
 
     @classmethod
