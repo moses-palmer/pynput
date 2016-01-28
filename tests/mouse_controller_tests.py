@@ -7,7 +7,9 @@ from . import EventTest
 
 class MouseControllerTest(EventTest):
     NOTIFICATION = (
-        'This test case is non-interactive, so you must not use the mouse')
+        'This test case is non-interactive, so you must not use the mouse.\n'
+        'You may need to keep the mouse pointer away from this window to '
+        'avoid interference.')
     CONTROLLER_CLASS = pynput.mouse.Controller
     LISTENER_CLASS = pynput.mouse.Listener
 

@@ -7,7 +7,8 @@ from . import EventTest
 class MouseListenerTest(EventTest):
     NOTIFICATION = (
         'This test case is interactive, so you must follow the instructions '
-        'on screen')
+        'on screen.\n'
+        'You do not have to perform any actions on this specific window.')
     LISTENER_CLASS = pynput.mouse.Listener
 
     def test_stop(self):

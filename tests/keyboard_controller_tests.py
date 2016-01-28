@@ -11,7 +11,9 @@ from . import EventTest
 
 class KeyboardControllerTest(EventTest):
     NOTIFICATION = (
-        'This test case is non-interactive, so you must not use the keyboard')
+        'This test case is non-interactive, so you must not use the '
+        'keyboard.\n'
+        'You must, however, keep this window focused.')
     CONTROLLER_CLASS = pynput.keyboard.Controller
 
     def decode(self, string):
