@@ -1,80 +1,17 @@
-import unittest
-
-import contextlib
 import numbers
 import pynput.mouse
 import time
 
-from . import notify
+from . import EventTest
 
 
-class MouseControllerTest(unittest.TestCase):
-    @classmethod
-    def setUpClass(self):
-        notify(
-            'This test case is non-interactive, so you must not use the mouse',
-            delay=2)
-        self.listeners = []
+class MouseControllerTest(EventTest):
+    NOTIFICATION = (
+        'This test case is non-interactive, so you must not use the mouse')
+    CONTROLLER_CLASS = pynput.mouse.Controller
+    LISTENER_CLASS = pynput.mouse.Listener
 
-    def setUp(self):
-        self.controller = pynput.mouse.Controller()
-
-    @classmethod
-    def tearDownClass(self):
-        remaining = [
-            listener
-            for listener in self.listeners
-            if not (listener.join(0.5) or listener.is_alive)]
-        for listener in remaining:
-            listener.join()
-
-    def listener(self, *args, **kwargs):
-        """Creates a mouse listener.
-
-        All arguments are passed to the constructor.
-        """
-        listener = pynput.mouse.Listener(*args, **kwargs)
-        self.listeners.append(listener)
-        return listener
-
-    @contextlib.contextmanager
-    def assertEvent(self, failure_message, **kwargs):
-        """Asserts that a specific event is emitted.
-
-        :param str failure_message: The message to display upon failure.
-
-        :param args: Arguments to pass to :class:`pynput.mouse.Listener`.
-
-        :param kwargs: Arguments to pass to :class:`pynput.mouse.Listener`.
-        """
-        def handler(index, name):
-            callback = kwargs.get(name, None)
-
-            def inner(*a):
-                if callback(*a):
-                    listener.success = True
-                    return False
-
-            return inner if callback else None
-
-        with self.listener(
-                on_move=handler(0, 'on_move'),
-                on_click=handler(1, 'on_click'),
-                on_scroll=handler(2, 'on_scroll')) as listener:
-            time.sleep(0.1)
-            listener.success = False
-            yield
-
-            for _ in range(30):
-                time.sleep(0.1)
-                if listener.success:
-                    break
-
-        self.assertTrue(
-            listener.success,
-            failure_message)
-
-    def assertMovement(self, failure_message, d):
+    def assert_movement(self, failure_message, d):
         """Asserts that movement results in corresponding change of pointer
         position.
 
@@ -121,7 +58,7 @@ class MouseControllerTest(unittest.TestCase):
         for b in (
                 pynput.mouse.Button.left,
                 pynput.mouse.Button.right):
-            with self.assertEvent(
+            with self.assert_event(
                     'Failed to send press event',
                     on_click=lambda x, y, button, pressed:
                     button == b and pressed):
@@ -134,7 +71,7 @@ class MouseControllerTest(unittest.TestCase):
                 pynput.mouse.Button.left,
                 pynput.mouse.Button.right):
             self.controller.press(b)
-            with self.assertEvent(
+            with self.assert_event(
                     'Failed to send release event',
                     on_click=lambda x, y, button, pressed:
                     button == b and not pressed):
@@ -143,40 +80,40 @@ class MouseControllerTest(unittest.TestCase):
     def test_left(self):
         """Tests that moving left works"""
         ox, oy = self.controller.position
-        with self.assertEvent(
+        with self.assert_event(
                 'Failed to send move left event',
                 on_move=lambda x, y: x < ox):
-            self.assertMovement(
+            self.assert_movement(
                 'Pointer did not move',
                 (-1, 0))
 
     def test_right(self):
         """Tests that moving right works"""
         ox, oy = self.controller.position
-        with self.assertEvent(
+        with self.assert_event(
                 'Failed to send move right event',
                 on_move=lambda x, y: x > ox):
-            self.assertMovement(
+            self.assert_movement(
                 'Pointer did not move',
                 (1, 0))
 
     def test_up(self):
         """Tests that moving up works"""
         ox, oy = self.controller.position
-        with self.assertEvent(
+        with self.assert_event(
                 'Failed to send move up event',
                 on_move=lambda x, y: y < oy):
-            self.assertMovement(
+            self.assert_movement(
                 'Pointer did not move',
                 (0, -1))
 
     def test_down(self):
         """Tests that moving down works"""
         ox, oy = self.controller.position
-        with self.assertEvent(
+        with self.assert_event(
                 'Failed to send move down event',
                 on_move=lambda x, y: y > oy):
-            self.assertMovement(
+            self.assert_movement(
                 'Pointer did not move',
                 (0, 1))
 
@@ -196,21 +133,21 @@ class MouseControllerTest(unittest.TestCase):
                         'Unexpected event')
                 return len(events) == 0
 
-            with self.assertEvent(
+            with self.assert_event(
                     'Failed to send click events',
                     on_click=on_click):
                 self.controller.click(b)
 
     def test_scroll_up(self):
         """Tests that scrolling up works"""
-        with self.assertEvent(
+        with self.assert_event(
                 'Failed to send scroll up event',
                 on_scroll=lambda x, y, dx, dy: dy > 0):
             self.controller.scroll(0, 1)
 
     def test_scroll_down(self):
         """Tests that scrolling down works"""
-        with self.assertEvent(
+        with self.assert_event(
                 'Failed to send scroll down event',
                 on_scroll=lambda x, y, dx, dy: dy < 0):
             self.controller.scroll(0, -1)

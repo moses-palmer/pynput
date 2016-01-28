@@ -1,6 +1,4 @@
 # coding: utf-8
-import unittest
-
 import contextlib
 import locale
 import sys
@@ -8,19 +6,13 @@ import threading
 
 import pynput.keyboard
 
-from . import notify
+from . import EventTest
 
 
-class KeyboardControllerTest(unittest.TestCase):
-    @classmethod
-    def setUpClass(self):
-        notify(
-            'This test case is non-interactive, so you must not use the '
-            'keyboard',
-            delay=2)
-
-    def setUp(self):
-        self.controller = pynput.keyboard.Controller()
+class KeyboardControllerTest(EventTest):
+    NOTIFICATION = (
+        'This test case is non-interactive, so you must not use the keyboard')
+    CONTROLLER_CLASS = pynput.keyboard.Controller
 
     def decode(self, string):
         """Decodes a string read from ``stdin``.
@@ -69,7 +61,7 @@ class KeyboardControllerTest(unittest.TestCase):
             self.controller.release(pynput.keyboard.Key.enter)
             thread.join()
 
-    def assertInput(self, failure_message, expected):
+    def assert_input(self, failure_message, expected):
         """Asserts that a specific text is generated when typing.
 
         :param str failure_message: The message to display upon failure.
@@ -236,21 +228,21 @@ class KeyboardControllerTest(unittest.TestCase):
 
     def test_type_latin(self):
         """Asserts that type works for a Latin string"""
-        self.assertInput(
+        self.assert_input(
             'Failed to type latin string',
             u'Hello World')
 
     def test_type_ascii(self):
         """Asserts that type works for an ascii string"""
-        self.assertInput(
+        self.assert_input(
             'Failed to type ascii string',
             u'abc123, "quoted!"')
 
     def test_type_nonascii(self):
         """Asserts that type works for a non-ascii strings"""
-        self.assertInput(
+        self.assert_input(
             'Failed to type Spanish string',
             u'Teclado (informática)')
-        self.assertInput(
+        self.assert_input(
             'Failed to type Russian string',
             u'Компьютерная клавиатура')
