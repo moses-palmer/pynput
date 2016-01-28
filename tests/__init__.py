@@ -58,11 +58,15 @@ class EventTest(unittest.TestCase):
 
         # Split the message into lines containing at most max_length characters
         lines = []
-        for word in message.split():
-            if not lines or len(lines[-1]) + 1 + len(word) > max_length:
-                lines.append(word)
-            else:
-                lines[-1] += ' ' + word
+        for line in message.splitlines():
+            if lines:
+                lines.append('')
+            for word in line.split():
+                if not lines or not lines[-1] \
+                        or len(lines[-1]) + 1 + len(word) > max_length:
+                    lines.append(word)
+                else:
+                    lines[-1] += ' ' + word
 
         # Print the message
         print('')
