@@ -244,14 +244,17 @@ class ListenerMixin(object):
 
     Subclasses should set a value for :attr:`_EVENTS` and implement
     :meth:`_handle`.
+
+    Subclasses must also be decorated with a decorator compatible with
+    :meth:`pynput._util.NotifierMixin._receiver` or implement the method
+    ``_receive()``.
     """
     #: The Windows hook ID for the events to capture
     _EVENTS = None
 
     def _run(self):
         self._message_loop = MessageLoop()
-        self._add_listener()
-        try:
+        with self._receive():
             self._message_loop.start()
 
             with SystemHook(self._EVENTS, self._handler):
@@ -260,26 +263,12 @@ class ListenerMixin(object):
                     if not self.running:
                         break
 
-        finally:
-            self._remove_listener()
-
     def _stop(self):
         try:
             self._message_loop.stop()
         except AttributeError:
             # The loop may not have been created
             pass
-
-    @classmethod
-    def receiver(self, cls):
-        """A decorator to make a class able to receive fake events from a
-        controller.
-
-        :param cls: The class whose instances are to receive fake events.
-        """
-        cls._listeners = set()
-        cls._listener_lock = threading.Lock()
-        return cls
 
     @AbstractListener._emitter
     def _handler(self, code, msg, lpdata):
@@ -288,33 +277,6 @@ class ListenerMixin(object):
         This method will call the callbacks registered on initialisation.
         """
         self._handle(code, msg, lpdata)
-
-    def _add_listener(self):
-        """Adds this listener to the set of running listeners.
-        """
-        with self.__class__._listener_lock:
-            self.__class__._listeners.add(self)
-
-    def _remove_listener(self):
-        """Removes this listener from the set of running listeners.
-        """
-        with self.__class__._listener_lock:
-            self.__class__._listeners.remove(self)
-
-    @classmethod
-    def listeners(self):
-        """Iterates over the set of running listeners.
-
-        This method will quit without acquiring the lock if the set is empty,
-        so there is potential for race conditions. This is an optimisation,
-        since :class:`Controller` will need to call this method for every
-        control event.
-        """
-        if not self._listeners:
-            return
-        with self._listener_lock:
-            for listener in self._listeners:
-                yield listener
 
     def _handle(self, code, msg, lpdata):
         """The device specific callback handler.

@@ -17,6 +17,7 @@
 
 import enum
 
+from pynput._util import NotifierMixin
 from pynput._util.win32 import *
 from . import _base
 
@@ -29,7 +30,7 @@ class Button(enum.Enum):
     right = (MOUSEINPUT.RIGHTUP, MOUSEINPUT.RIGHTDOWN)
 
 
-class Controller(_base.Controller):
+class Controller(NotifierMixin, _base.Controller):
     __GetCursorPos = windll.user32.GetCursorPos
     __SetCursorPos = windll.user32.SetCursorPos
 
@@ -42,7 +43,7 @@ class Controller(_base.Controller):
 
     def _position_set(self, pos):
         self.__SetCursorPos(*pos)
-        self._notify('on_move', *pos)
+        self._emit('on_move', *pos)
 
     def _scroll(self, dx, dy):
         if dy:
@@ -69,7 +70,7 @@ class Controller(_base.Controller):
 
         if dx or dy:
             x, y = self._position_get()
-            self._notify('on_scroll', x, y, dx, dy)
+            self._emit('on_scroll', x, y, dx, dy)
 
     def _press(self, button):
         SendInput(
@@ -81,7 +82,7 @@ class Controller(_base.Controller):
                         dwFlags=button.value[0])))),
             ctypes.sizeof(INPUT))
         x, y = self.position
-        self._notify('on_click', x, y, button, True)
+        self._emit('on_click', x, y, button, True)
 
     def _release(self, button):
         SendInput(
@@ -93,30 +94,10 @@ class Controller(_base.Controller):
                         dwFlags=button.value[1])))),
             ctypes.sizeof(INPUT))
         x, y = self.position
-        self._notify('on_click', x, y, button, False)
-
-    def _notify(self, action, *args):
-        """Sends a notification to all currently running instances of
-        :class:`Listener`.
-
-        This method will ensure that listeners that raise
-        :class:`StopException` are stopped.
-
-        :param str action: The name of the notification.
-
-        :param args: The arguments to pass.
-        """
-        stopped = []
-        for listener in Listener.listeners():
-            try:
-                getattr(listener, action)(*args)
-            except Listener.StopException:
-                stopped.append(listener)
-        for listener in stopped:
-            listener.stop()
+        self._emit('on_click', x, y, button, False)
 
 
-@ListenerMixin.receiver
+@Controller._receiver
 class Listener(ListenerMixin, _base.Listener):
     #: The Windows hook ID for low level mouse events, ``WH_MOUSE_LL``
     _EVENTS = 14
