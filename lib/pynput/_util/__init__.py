@@ -27,6 +27,7 @@ class AbstractListener(threading.Thread):
     to the following code::
 
         listener.start()
+        listener.wait()
         try:
             with_statements()
         finally:
@@ -57,6 +58,8 @@ class AbstractListener(threading.Thread):
 
         self._running = False
         self._thread = threading.current_thread()
+        self._condition = threading.Condition()
+        self._ready = False
 
         for name, callback in kwargs.items():
             setattr(self, name, wrapper(callback or (lambda *a: None)))
@@ -83,6 +86,14 @@ class AbstractListener(threading.Thread):
     def __exit__(self, type, value, traceback):
         self.stop()
 
+    def wait(self):
+        """Waits for this listener to become ready.
+        """
+        self._condition.acquire()
+        while not self._ready:
+            self._condition.wait()
+        self._condition.release()
+
     def run(self):
         """The thread runner method.
         """
@@ -105,6 +116,17 @@ class AbstractListener(threading.Thread):
                 e.args[0].stop()
 
         return inner
+
+    def _mark_ready(self):
+        """Marks this listener as ready to receive events.
+
+        This method must be called from :meth:`_run`. :meth:`start` will block
+        until this method is called.
+        """
+        self._condition.acquire()
+        self._running = True
+        self._condition.notify()
+        self._condition.release()
 
     def _run(self):
         """The implementation of the :meth:`start` method.

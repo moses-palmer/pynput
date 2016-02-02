@@ -338,6 +338,7 @@ class ListenerMixin(object):
 
     def _run(self):
         self._initialize(self._display_stop)
+        self._mark_ready()
         try:
             self._display_record.record_enable_context(
                 self._context, self._handler)

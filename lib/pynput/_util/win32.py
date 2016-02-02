@@ -255,6 +255,7 @@ class ListenerMixin(object):
     def _run(self):
         self._message_loop = MessageLoop()
         with self._receive():
+            self._mark_ready()
             self._message_loop.start()
 
             with SystemHook(self._EVENTS, self._handler):

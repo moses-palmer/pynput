@@ -166,6 +166,7 @@ class ListenerMixin(object):
                 self._handler,
                 None)
             if tap is None:
+                self._mark_ready()
                 return
 
             loop_source = Quartz.CFMachPortCreateRunLoopSource(
@@ -176,6 +177,7 @@ class ListenerMixin(object):
                 self._loop, loop_source, Quartz.kCFRunLoopDefaultMode)
             Quartz.CGEventTapEnable(tap, True)
 
+            self._mark_ready()
             while self.running:
                 result = Quartz.CFRunLoopRunInMode(
                     Quartz.kCFRunLoopDefaultMode, 1, False)
