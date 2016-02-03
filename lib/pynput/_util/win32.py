@@ -23,6 +23,12 @@ from ctypes import windll, wintypes
 from . import AbstractListener
 
 
+SendInput = windll.user32.SendInput
+VkKeyScan = windll.user32.VkKeyScanW
+
+GetCurrentThreadId = windll.kernel32.GetCurrentThreadId
+
+
 class MessageLoop(object):
     """A class representing a message loop.
     """
@@ -150,15 +156,6 @@ class SystemHook(object):
 
         # Always call the next hook
         return SystemHook._CallNextHookEx(0, code, msg, lpdata)
-
-
-GetCurrentThreadId = windll.kernel32.GetCurrentThreadId
-
-
-SendInput = windll.user32.SendInput
-
-
-VkKeyScan = windll.user32.VkKeyScanW
 
 
 class MOUSEINPUT(ctypes.Structure):
