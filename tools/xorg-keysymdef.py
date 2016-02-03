@@ -171,6 +171,11 @@ CHARS = {
     codepoint: name
     for name, (keysym, codepoint) in SYMBOLS.items()
     if codepoint}
+
+KEYSYMS = {
+    keysym: name
+    for name, (keysym, codepoint) in SYMBOLS.items()
+    if codepoint}
 ''' % (
         datetime.date.today().year,
         ',\n'.join(
