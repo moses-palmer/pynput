@@ -118,6 +118,9 @@ class SystemHook(object):
     #: The registered hook procedures
     _HOOKS = {}
 
+    #: The hook action value for actions we should check
+    HC_ACTION = 0
+
     def __init__(self, hook_id, on_hook=lambda code, msg, lpdata: None):
         self.hook_id = hook_id
         self.on_hook = on_hook

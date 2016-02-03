@@ -121,7 +121,6 @@ class Listener(ListenerMixin, _base.Listener):
     #: The Windows hook ID for low level mouse events, ``WH_MOUSE_LL``
     _EVENTS = 14
 
-    _HC_ACTION = 0
     _WM_LBUTTONDOWN = 0x0201
     _WM_LBUTTONUP = 0x0202
     _WM_MOUSEMOVE = 0x0200
@@ -159,7 +158,7 @@ class Listener(ListenerMixin, _base.Listener):
     _LPMSLLHOOKSTRUCT = ctypes.POINTER(_MSLLHOOKSTRUCT)
 
     def _handle(self, code, msg, lpdata):
-        if code != self._HC_ACTION:
+        if code != SystemHook.HC_ACTION:
             return
 
         data = ctypes.cast(lpdata, self._LPMSLLHOOKSTRUCT).contents
