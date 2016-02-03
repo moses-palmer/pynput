@@ -3,38 +3,40 @@ Controlling the mouse
 
 Use ``pynput.mouse.Controller`` like this::
 
-    from pynput.mouse import Button, Controller, Listener
+    from pynput.mouse import Button, Controller
 
-    d = Controller()
+    mouse = Controller()
 
     # Read pointer position
     print('The current pointer position is {0}'.format(
-        d.position))
+        mouse.position))
 
     # Set pointer position
-    d.position = (10, 20)
+    mouse.position = (10, 20)
     print('Now we have moved it to {0}'.format(
-        d.position))
+        mouse.position))
 
     # Move pointer relative to current position
-    d.move(5, -5)
+    mouse.move(5, -5)
 
     # Press and release
-    d.press(Button.left)
-    d.release(Button.left)
+    mouse.press(Button.left)
+    mouse.release(Button.left)
 
-    # Double click; this is different from pressing and releasing twice on Mac
-    # OSX
-    d.click(Button.left, 2)
+    # Double click; this is different from pressing and releasing
+    # twice on Mac OSX
+    mouse.click(Button.left, 2)
 
     # Scroll two steps down
-    d.scroll(0, 2)
+    mouse.scroll(0, 2)
 
 
 Monitoring the mouse
 --------------------
 
 Use ``pynput.mouse.Listener`` like this::
+
+    from pynput.mouse import Listener
 
     def on_move(x, y):
         print('Pointer moved to {0}'.format(
@@ -56,8 +58,8 @@ Use ``pynput.mouse.Listener`` like this::
     with Listener(
             on_move=on_move,
             on_click=on_click,
-            on_scroll=on_scroll) as l:
-        l.join()
+            on_scroll=on_scroll) as listener:
+        listener.join()
 
 A mouse listener is a ``threading.Thread``, and all callbacks will be invoked
 from the thread.
