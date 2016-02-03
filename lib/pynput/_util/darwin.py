@@ -109,6 +109,10 @@ class CarbonExtra(object):
 
 
 def get_unicode_to_keycode_map():
+    """Returns a mapping from unicode strings to virtual key codes.
+
+    :return: a dict mapping key codes to strings
+    """
     LENGTH = 4
 
     with _wrapped(CarbonExtra.TISCopyCurrentKeyboardInputSource()) as keyboard:

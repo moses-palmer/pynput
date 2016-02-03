@@ -55,8 +55,6 @@ class KeyCode(object):
         ``KeyCode.from_dead('~').join(KeyCode.from_char(' '))`` equals
         ``KeyCode.from_char('~')``.
 
-        :param KeyCode dead: The dead key to join with another key.
-
         :param KeyCode key: The key to join with the dead key.
 
         :return: a key code

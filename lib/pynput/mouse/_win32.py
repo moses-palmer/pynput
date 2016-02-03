@@ -118,7 +118,7 @@ class Controller(_base.Controller):
 
 @ListenerMixin.receiver
 class Listener(ListenerMixin, _base.Listener):
-    #: The Windows hook ID for low level mouse events
+    #: The Windows hook ID for low level mouse events, ``WH_MOUSE_LL``
     _EVENTS = 14
 
     _HC_ACTION = 0
@@ -155,7 +155,7 @@ class Listener(ListenerMixin, _base.Listener):
             ('time', wintypes.DWORD),
             ('dwExtraInfo', ctypes.c_void_p)]
 
-    #: A pointer to a :class:`MSLLHOOKSTRUCT`
+    #: A pointer to a :class:`_MSLLHOOKSTRUCT`
     _LPMSLLHOOKSTRUCT = ctypes.POINTER(_MSLLHOOKSTRUCT)
 
     def _handle(self, code, msg, lpdata):
