@@ -163,32 +163,28 @@ class Listener(ListenerMixin, _base.Listener):
             # This happens during teardown of the virtual machine
             return event
 
-        try:
-            # Quickly detect the most common event type
-            if event_type == Quartz.kCGEventMouseMoved:
-                self.on_move(x, y)
+        # Quickly detect the most common event type
+        if event_type == Quartz.kCGEventMouseMoved:
+            self.on_move(x, y)
 
-            elif event_type == Quartz.kCGEventScrollWheel:
-                dx = Quartz.CGEventGetIntegerValueField(
-                    event,
-                    Quartz.kCGScrollWheelEventDeltaAxis2)
-                dy = Quartz.CGEventGetIntegerValueField(
-                    event,
-                    Quartz.kCGScrollWheelEventDeltaAxis1)
-                self.on_scroll(x, y, dx, dy)
+        elif event_type == Quartz.kCGEventScrollWheel:
+            dx = Quartz.CGEventGetIntegerValueField(
+                event,
+                Quartz.kCGScrollWheelEventDeltaAxis2)
+            dy = Quartz.CGEventGetIntegerValueField(
+                event,
+                Quartz.kCGScrollWheelEventDeltaAxis1)
+            self.on_scroll(x, y, dx, dy)
 
-            else:
-                for button in Button:
-                    (press, release, drag), mouse_button = button.value
+        else:
+            for button in Button:
+                (press, release, drag), mouse_button = button.value
 
-                    # Press and release generate click events, and drag
-                    # generates move events
-                    if event_type in (press, release):
-                        self.on_click(x, y, button, event_type == press)
-                    elif event_type == drag:
-                        self.on_move(x, y)
-
-        except self.StopException:
-            self.stop()
+                # Press and release generate click events, and drag
+                # generates move events
+                if event_type in (press, release):
+                    self.on_click(x, y, button, event_type == press)
+                elif event_type == drag:
+                    self.on_move(x, y)
 
         return event
