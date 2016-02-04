@@ -108,41 +108,54 @@ class CarbonExtra(object):
         _Carbon.UCKeyTranslate
 
 
+@contextlib.contextmanager
+def keycode_context():
+    """Returns an opaque value representing a context for translating keycodes
+    to strings.
+    """
+    with _wrapped(CarbonExtra.TISCopyCurrentKeyboardInputSource()) as keyboard:
+        keyboard_type = CarbonExtra.LMGetKbdType()
+        layout = _wrap_value(CarbonExtra.TISGetInputSourceProperty(
+            keyboard,
+            CarbonExtra.kTISPropertyUnicodeKeyLayoutData))
+        layout_data = layout.bytes().tobytes()
+        yield (keyboard_type, layout_data)
+
+
+def keycode_to_string(context, keycode, modifier_state=0):
+    """Converts a keycode to a string.
+    """
+    LENGTH = 4
+
+    keyboard_type, layout_data = context
+
+    dead_key_state = ctypes.c_uint32()
+    length = ctypes.c_uint8()
+    unicode_string = (ctypes.c_uint16 * LENGTH)()
+    CarbonExtra.UCKeyTranslate(
+        layout_data,
+        keycode,
+        CarbonExtra.kUCKeyActionDisplay,
+        modifier_state,
+        keyboard_type,
+        CarbonExtra.kUCKeyTranslateNoDeadKeysBit,
+        ctypes.byref(dead_key_state),
+        LENGTH,
+        ctypes.byref(length),
+        unicode_string)
+    return u''.join(
+        six.unichr(unicode_string[i])
+        for i in range(length.value))
+
+
 def get_unicode_to_keycode_map():
     """Returns a mapping from unicode strings to virtual key codes.
 
     :return: a dict mapping key codes to strings
     """
-    LENGTH = 4
-
-    with _wrapped(CarbonExtra.TISCopyCurrentKeyboardInputSource()) as keyboard:
-        keyboard_type = CarbonExtra.LMGetKbdType()
-        layout = _wrap_value(CarbonExtra.TISGetInputSourceProperty(
-                keyboard,
-                CarbonExtra.kTISPropertyUnicodeKeyLayoutData))
-        data = layout.bytes().tobytes()
-
-        def keycode_to_string(keycode):
-            dead_key_state = ctypes.c_uint32()
-            length = ctypes.c_uint8()
-            unicode_string = (ctypes.c_uint16 * LENGTH)()
-            CarbonExtra.UCKeyTranslate(
-                data,
-                keycode,
-                CarbonExtra.kUCKeyActionDisplay,
-                0,
-                keyboard_type,
-                CarbonExtra.kUCKeyTranslateNoDeadKeysBit,
-                ctypes.byref(dead_key_state),
-                LENGTH,
-                ctypes.byref(length),
-                unicode_string)
-            return u''.join(
-                six.unichr(unicode_string[i])
-                for i in range(length.value))
-
+    with keycode_context() as context:
         return {
-            keycode_to_string(keycode): keycode
+            keycode_to_string(context, keycode): keycode
             for keycode in range(128)}
 
 
