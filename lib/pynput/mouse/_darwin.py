@@ -157,7 +157,11 @@ class Listener(ListenerMixin, _base.Listener):
 
         This method will call the callbacks registered on initialisation.
         """
-        (x, y) = Quartz.CGEventGetLocation(event)
+        try:
+            (x, y) = Quartz.CGEventGetLocation(event)
+        except AttributeError:
+            # This happens during teardown of the virtual machine
+            return event
 
         try:
             # Quickly detect the most common event type

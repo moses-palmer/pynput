@@ -176,10 +176,14 @@ class ListenerMixin(object):
                 self._loop, loop_source, Quartz.kCFRunLoopDefaultMode)
             Quartz.CGEventTapEnable(tap, True)
 
-            while True:
+            while self.running:
                 result = Quartz.CFRunLoopRunInMode(
                     Quartz.kCFRunLoopDefaultMode, 1, False)
-                if result != Quartz.kCFRunLoopRunTimedOut:
+                try:
+                    if result != Quartz.kCFRunLoopRunTimedOut:
+                        break
+                except AttributeError:
+                    # This happens during teardown of the virtual machine
                     break
 
         finally:
