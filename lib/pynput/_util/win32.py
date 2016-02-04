@@ -154,11 +154,13 @@ class SystemHook(object):
     def _handler(code, msg, lpdata):
         key = threading.current_thread()
         self = SystemHook._HOOKS.get(key, None)
-        if self:
-            self.on_hook(code, msg, lpdata)
+        try:
+            if self:
+                self.on_hook(code, msg, lpdata)
 
-        # Always call the next hook
-        return SystemHook._CallNextHookEx(0, code, msg, lpdata)
+        finally:
+            # Always call the next hook
+            return SystemHook._CallNextHookEx(0, code, msg, lpdata)
 
 
 class MOUSEINPUT(ctypes.Structure):
