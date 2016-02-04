@@ -156,6 +156,7 @@ class ListenerMixin(object):
     _EVENTS = tuple()
 
     def _run(self):
+        self._loop = None
         try:
             tap = Quartz.CGEventTapCreate(
                 Quartz.kCGSessionEventTap,
@@ -164,6 +165,8 @@ class ListenerMixin(object):
                 self._EVENTS,
                 self._handler,
                 None)
+            if tap is None:
+                return
 
             loop_source = Quartz.CFMachPortCreateRunLoopSource(
                 None, tap, 0)
@@ -186,7 +189,8 @@ class ListenerMixin(object):
         # The base class sets the running flag to False; this will cause the
         # loop around run loop invocations to terminate and set this event
         try:
-            Quartz.CFRunLoopStop(self._loop)
+            if self._loop is not None:
+                Quartz.CFRunLoopStop(self._loop)
         except AttributeError:
             # The loop may not have been created
             pass
