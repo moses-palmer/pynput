@@ -2,6 +2,15 @@ Release Notes
 =============
 
 
+v0.6 - Keyboard Monitor
+-----------------------
+*  Added support for monitoring the keyboard.
+*  Corrected wheel packaging.
+*  Corrected deadlock when stopping a listener in some cases on *X*.
+*  Corrected key code constants on *Mac OSX*.
+*  Do not intercept events on *Mac OSX*.
+
+
 v0.5.1 - Do not die on dead keys
 --------------------------------
 *  Corrected handling of dead keys.
