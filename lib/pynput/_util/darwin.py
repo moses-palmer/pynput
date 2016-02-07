@@ -161,7 +161,7 @@ class ListenerMixin(object):
             tap = Quartz.CGEventTapCreate(
                 Quartz.kCGSessionEventTap,
                 Quartz.kCGHeadInsertEventTap,
-                Quartz.kCGEventTapOptionDefault,
+                Quartz.kCGEventTapOptionListenOnly,
                 self._EVENTS,
                 self._handler,
                 None)

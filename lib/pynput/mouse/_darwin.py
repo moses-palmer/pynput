@@ -161,7 +161,7 @@ class Listener(ListenerMixin, _base.Listener):
             (x, y) = Quartz.CGEventGetLocation(event)
         except AttributeError:
             # This happens during teardown of the virtual machine
-            return event
+            return
 
         # Quickly detect the most common event type
         if event_type == Quartz.kCGEventMouseMoved:
@@ -186,5 +186,3 @@ class Listener(ListenerMixin, _base.Listener):
                     self.on_click(x, y, button, event_type == press)
                 elif event_type == drag:
                     self.on_move(x, y)
-
-        return event
