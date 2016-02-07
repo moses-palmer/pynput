@@ -157,34 +157,32 @@ class Listener(ListenerMixin, _base.Listener):
 
         This method will call the callbacks registered on initialisation.
         """
-        (x, y) = Quartz.CGEventGetLocation(event)
-
         try:
-            # Quickly detect the most common event type
-            if event_type == Quartz.kCGEventMouseMoved:
-                self.on_move(x, y)
+            (x, y) = Quartz.CGEventGetLocation(event)
+        except AttributeError:
+            # This happens during teardown of the virtual machine
+            return
 
-            elif event_type == Quartz.kCGEventScrollWheel:
-                dx = Quartz.CGEventGetIntegerValueField(
-                    event,
-                    Quartz.kCGScrollWheelEventDeltaAxis2)
-                dy = Quartz.CGEventGetIntegerValueField(
-                    event,
-                    Quartz.kCGScrollWheelEventDeltaAxis1)
-                self.on_scroll(x, y, dx, dy)
+        # Quickly detect the most common event type
+        if event_type == Quartz.kCGEventMouseMoved:
+            self.on_move(x, y)
 
-            else:
-                for button in Button:
-                    (press, release, drag), mouse_button = button.value
+        elif event_type == Quartz.kCGEventScrollWheel:
+            dx = Quartz.CGEventGetIntegerValueField(
+                event,
+                Quartz.kCGScrollWheelEventDeltaAxis2)
+            dy = Quartz.CGEventGetIntegerValueField(
+                event,
+                Quartz.kCGScrollWheelEventDeltaAxis1)
+            self.on_scroll(x, y, dx, dy)
 
-                    # Press and release generate click events, and drag
-                    # generates move events
-                    if event_type in (press, release):
-                        self.on_click(x, y, button, event_type == press)
-                    elif event_type == drag:
-                        self.on_move(x, y)
+        else:
+            for button in Button:
+                (press, release, drag), mouse_button = button.value
 
-        except self.StopException:
-            self.stop()
-
-        return event
+                # Press and release generate click events, and drag
+                # generates move events
+                if event_type in (press, release):
+                    self.on_click(x, y, button, event_type == press)
+                elif event_type == drag:
+                    self.on_move(x, y)

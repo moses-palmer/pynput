@@ -59,11 +59,11 @@ class Key(enum.Enum):
     caps_lock = KeyCode.from_vk(0x39)
     cmd = KeyCode.from_vk(0x37)
     cmd_l = KeyCode.from_vk(0x37)
-    cmd_r = KeyCode.from_vk(0x37)
+    cmd_r = KeyCode.from_vk(0x36)
     ctrl = KeyCode.from_vk(0x3B)
     ctrl_l = KeyCode.from_vk(0x3B)
     ctrl_r = KeyCode.from_vk(0x3E)
-    delete = KeyCode.from_vk(0x35)
+    delete = KeyCode.from_vk(0x75)
     down = KeyCode.from_vk(0x7D)
     end = KeyCode.from_vk(0x77)
     enter = KeyCode.from_vk(0x24)
@@ -97,7 +97,7 @@ class Key(enum.Enum):
     shift_l = KeyCode.from_vk(0x38)
     shift_r = KeyCode.from_vk(0x3C)
     space = KeyCode(vk=0x31, char=' ')
-    tab = KeyCode.from_vk(0x31)
+    tab = KeyCode.from_vk(0x30)
     up = KeyCode.from_vk(0x7E)
 
 

@@ -109,6 +109,10 @@ class CarbonExtra(object):
 
 
 def get_unicode_to_keycode_map():
+    """Returns a mapping from unicode strings to virtual key codes.
+
+    :return: a dict mapping key codes to strings
+    """
     LENGTH = 4
 
     with _wrapped(CarbonExtra.TISCopyCurrentKeyboardInputSource()) as keyboard:
@@ -152,14 +156,17 @@ class ListenerMixin(object):
     _EVENTS = tuple()
 
     def _run(self):
+        self._loop = None
         try:
             tap = Quartz.CGEventTapCreate(
                 Quartz.kCGSessionEventTap,
                 Quartz.kCGHeadInsertEventTap,
-                Quartz.kCGEventTapOptionDefault,
+                Quartz.kCGEventTapOptionListenOnly,
                 self._EVENTS,
                 self._handler,
                 None)
+            if tap is None:
+                return
 
             loop_source = Quartz.CFMachPortCreateRunLoopSource(
                 None, tap, 0)
@@ -169,10 +176,14 @@ class ListenerMixin(object):
                 self._loop, loop_source, Quartz.kCFRunLoopDefaultMode)
             Quartz.CGEventTapEnable(tap, True)
 
-            while True:
+            while self.running:
                 result = Quartz.CFRunLoopRunInMode(
                     Quartz.kCFRunLoopDefaultMode, 1, False)
-                if result != Quartz.kCFRunLoopRunTimedOut:
+                try:
+                    if result != Quartz.kCFRunLoopRunTimedOut:
+                        break
+                except AttributeError:
+                    # This happens during teardown of the virtual machine
                     break
 
         finally:
@@ -182,7 +193,8 @@ class ListenerMixin(object):
         # The base class sets the running flag to False; this will cause the
         # loop around run loop invocations to terminate and set this event
         try:
-            Quartz.CFRunLoopStop(self._loop)
+            if self._loop is not None:
+                Quartz.CFRunLoopStop(self._loop)
         except AttributeError:
             # The loop may not have been created
             pass
