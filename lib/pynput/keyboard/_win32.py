@@ -17,6 +17,7 @@
 
 import enum
 
+from pynput._util import NotifierMixin
 from pynput._util.win32 import *
 from . import _base
 
@@ -103,7 +104,7 @@ class Key(enum.Enum):
     scroll_lock = KeyCode.from_vk(0x91)
 
 
-class Controller(_base.Controller):
+class Controller(NotifierMixin, _base.Controller):
     _KeyCode = KeyCode
     _Key = Key
 
@@ -115,3 +116,101 @@ class Controller(_base.Controller):
                 value=INPUT_union(
                     ki=KEYBDINPUT(**key.parameters(is_press))))),
             ctypes.sizeof(INPUT))
+
+        # Notify any running listeners
+        self._emit('_on_fake_event', key, is_press)
+
+
+@Controller._receiver
+class Listener(ListenerMixin, _base.Listener):
+    #: The Windows hook ID for low level keyboard events, ``WH_KEYBOARD_LL``
+    _EVENTS = 13
+
+    _WM_KEYDOWN = 0x0100
+    _WM_KEYUP = 0x0101
+    _WM_SYSKEYDOWN = 0x0104
+    _WM_SYSKEYUP = 0x0105
+
+    #: The messages that correspond to a key press
+    _PRESS_MESSAGES = (_WM_KEYDOWN, _WM_SYSKEYDOWN)
+
+    #: The messages that correspond to a key release
+    _RELEASE_MESSAGES = (_WM_KEYUP, _WM_SYSKEYUP)
+
+    #: A mapping from keysym to special key
+    _SPECIAL_KEYS = {
+        key.value.vk: key
+        for key in Key}
+
+    def __init__(self, *args, **kwargs):
+        super(Listener, self).__init__(*args, **kwargs)
+        self._translate = KeyTranslator()
+
+    def _event_to_key(self, msg, data):
+        """Converts an :class:`_KBDLLHOOKSTRUCT` to a :class:`KeyCode`.
+
+        :param msg: The message received.
+
+        :param data: The data to convert.
+
+        :return: a :class:`pynput.keyboard.KeyCode`
+
+        :raises OSError: if the message and data could not be converted
+        """
+        # We must always call self._translate to keep the keyboard state up to
+        # date
+        key = KeyCode(**self._translate(
+            data.vkCode,
+            msg in self._PRESS_MESSAGES))
+
+        # If the virtual key code corresponds to a Key value, we prefer that
+        if data.vkCode in self._SPECIAL_KEYS:
+            return self._SPECIAL_KEYS[data.vkCode]
+        else:
+            return key
+
+    class _KBDLLHOOKSTRUCT(ctypes.Structure):
+        """Contains information about a mouse event passed to a
+        ``WH_KEYBOARD_LL`` hook procedure, ``LowLevelKeyboardProc``.
+        """
+        _fields_ = [
+            ('vkCode', wintypes.DWORD),
+            ('scanCode', wintypes.DWORD),
+            ('flags', wintypes.DWORD),
+            ('time', wintypes.DWORD),
+            ('dwExtraInfo', ctypes.c_void_p)]
+
+    #: A pointer to a :class:`KBDLLHOOKSTRUCT`
+    _LPKBDLLHOOKSTRUCT = ctypes.POINTER(_KBDLLHOOKSTRUCT)
+
+    def _handle(self, code, msg, lpdata):
+        if code != SystemHook.HC_ACTION:
+            return
+
+        data = ctypes.cast(lpdata, self._LPKBDLLHOOKSTRUCT).contents
+
+        # Convert the event to a KeyCode; this may fail, and in that case we
+        # pass None
+        try:
+            key = self._event_to_key(msg, data)
+        except OSError:
+            key = None
+        except:
+            # TODO: Error reporting
+            return
+
+        if msg in self._PRESS_MESSAGES:
+            self.on_press(key)
+
+        elif msg in self._RELEASE_MESSAGES:
+            self.on_release(key)
+
+    def _on_fake_event(self, key, is_press):
+        """The handler for fake press events sent by the controllers.
+
+        :param KeyCode key: The key pressed.
+
+        :param bool is_press: Whether this is a press event.
+        """
+        (self.on_press if is_press else self.on_release)(
+            self._SPECIAL_KEYS.get(key.vk, key))

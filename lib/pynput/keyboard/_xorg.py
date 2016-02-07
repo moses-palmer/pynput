@@ -25,6 +25,7 @@ import Xlib.X
 import Xlib.XK
 import Xlib.protocol
 
+from pynput._util import NotifierMixin
 from pynput._util.xorg import *
 from . import _base
 
@@ -112,7 +113,7 @@ class Key(enum.Enum):
     scroll_lock = KeyCode.from_symbol('Scroll_Lock')
 
 
-class Controller(_base.Controller):
+class Controller(NotifierMixin, _base.Controller):
     _KeyCode = KeyCode
     _Key = Key
 
@@ -174,6 +175,9 @@ class Controller(_base.Controller):
                     event, keycode, index_to_shift(self._display, index))
                 count += 1 if is_press else -1
                 self._borrows[keysym] = (keycode, index, count)
+
+        # Notify any running listeners
+        self._emit('_on_fake_event', key, is_press)
 
     def _keysym(self, key):
         """Converts a key to a *keysym*.
@@ -379,3 +383,110 @@ class Controller(_base.Controller):
         """
         with display_manager(self._display) as d:
             self._keyboard_mapping = keyboard_mapping(d)
+
+
+@Controller._receiver
+class Listener(ListenerMixin, _base.Listener):
+    _EVENTS = (
+        Xlib.X.KeyPress,
+        Xlib.X.KeyRelease)
+
+    #: A mapping from keysym to special key
+    _SPECIAL_KEYS = {
+        key.value.vk: key
+        for key in Key}
+
+    def _keycode_to_keysym(self, display, keycode, index):
+        """Converts a keycode and shift state index to a keysym.
+
+        This method uses a simplified version of the *X* convention to locate
+        the correct keysym in the display table: since this method is only used
+        to locate special keys, alphanumeric keys are not treated specially.
+
+        :param display: The current *X* display.
+
+        :param keycode: The keycode.
+
+        :param index: The shift state index.
+
+        :return: a keysym
+        """
+        keysym = display.keycode_to_keysym(keycode, index)
+        if keysym:
+            return keysym
+        elif index & 0x2:
+            return self._keycode_to_keysym(display, keycode, index & ~0x2)
+        elif index & 0x1:
+             return self._keycode_to_keysym(display, keycode, index & ~0x1)
+        else:
+            return 0
+
+    def _event_to_key(self, display, event):
+        """Converts an *X* event to a :class:`KeyCode`.
+
+        :param display: The current *X* display.
+
+        :param event: The event to convert.
+
+        :return: a :class:`pynput.keyboard.KeyCode`
+
+        :raises IndexError: if the key code is invalid
+        """
+        keycode = event.detail
+        index = shift_to_index(display, event.state)
+
+        # First try special keys...
+        keysym = self._keycode_to_keysym(display, keycode, index)
+        if keysym in self._SPECIAL_KEYS:
+            return self._SPECIAL_KEYS[keysym]
+
+        # ...then try characters...
+        name = KEYSYMS[keysym]
+        if name in SYMBOLS:
+            char = SYMBOLS[name][1]
+            if char in DEAD_KEYS:
+                return KeyCode.from_dead(DEAD_KEYS[char])
+            else:
+                return KeyCode.from_char(char)
+
+        # ...and fall back on a virtual key code
+        return KeyCode.from_vk(keysym)
+
+    def _run(self):
+        with self._receive():
+            super(Listener, self)._run()
+
+    def _initialize(self, display):
+        # Get the keyboard mapping to be able to translate events details to
+        # key codes
+        min_keycode = display.display.info.min_keycode
+        keycode_count = display.display.info.max_keycode - min_keycode + 1
+        self._keyboard_mapping = display.get_keyboard_mapping(
+            min_keycode, keycode_count)
+
+    def _handle(self, display, event):
+        # Convert the event to a KeyCode; this may fail, and in that case we
+        # pass None
+        try:
+            key = self._event_to_key(display, event)
+        except IndexError:
+            key = None
+        except:
+            # TODO: Error reporting
+            return
+
+        if event.type == Xlib.X.KeyPress:
+            self.on_press(key)
+
+        elif event.type == Xlib.X.KeyRelease:
+            self.on_release(key)
+
+    def _on_fake_event(self, key, is_press):
+        """The handler for fake press events sent by the controllers.
+
+        :param KeyCode key: The key pressed.
+
+        :param bool is_press: Whether this is a press event.
+        """
+        (self.on_press if is_press else self.on_release)(
+            self._SPECIAL_KEYS.get(key.vk, key))

@@ -115,3 +115,112 @@ class Controller(_base.Controller):
                 Quartz.kCGHIDEventTap,
                 (key if key not in Key else key.value).event(
                     modifiers, self._mapping, is_press))
+
+
+class Listener(ListenerMixin, _base.Listener):
+    #: The events that we listen to
+    _EVENTS = (
+        Quartz.CGEventMaskBit(Quartz.kCGEventKeyDown) |
+        Quartz.CGEventMaskBit(Quartz.kCGEventKeyUp) |
+        Quartz.CGEventMaskBit(Quartz.kCGEventFlagsChanged))
+
+    #: A mapping from keysym to special key
+    _SPECIAL_KEYS = {
+        key.value.vk: key
+        for key in Key}
+
+    #: The event flags set for the various modifier keys
+    _MODIFIER_FLAGS = {
+        Key.alt: Quartz.kCGEventFlagMaskAlternate,
+        Key.alt_l: Quartz.kCGEventFlagMaskAlternate,
+        Key.alt_r: Quartz.kCGEventFlagMaskAlternate,
+        Key.cmd: Quartz.kCGEventFlagMaskCommand,
+        Key.cmd_l: Quartz.kCGEventFlagMaskCommand,
+        Key.cmd_r: Quartz.kCGEventFlagMaskCommand,
+        Key.ctrl: Quartz.kCGEventFlagMaskControl,
+        Key.ctrl_l: Quartz.kCGEventFlagMaskControl,
+        Key.ctrl_r: Quartz.kCGEventFlagMaskControl,
+        Key.shift: Quartz.kCGEventFlagMaskShift,
+        Key.shift_l: Quartz.kCGEventFlagMaskShift,
+        Key.shift_r: Quartz.kCGEventFlagMaskShift}
+
+    def __init__(self, *args, **kwargs):
+        super(Listener, self).__init__(*args, **kwargs)
+        self._flags = 0
+        self._context = None
+
+    def _run(self):
+        with keycode_context() as context:
+            self._context = context
+            try:
+                super(Listener, self)._run()
+            finally:
+                self._context = None
+
+    def _event_to_key(self, event):
+        """Converts a *Quartz* event to a :class:`KeyCode`.
+
+        :param event: The event to convert.
+
+        :return: a :class:`pynput.keyboard.KeyCode`
+
+        :raises IndexError: if the key code is invalid
+        """
+        vk = Quartz.CGEventGetIntegerValueField(
+            event, Quartz.kCGKeyboardEventKeycode)
+
+        # First try special keys...
+        if vk in self._SPECIAL_KEYS:
+            return self._SPECIAL_KEYS[vk]
+
+        # ...then try characters...
+        # TODO: Use Quartz.CGEventKeyboardGetUnicodeString instead
+        char = keycode_to_string(
+            self._context, vk, Quartz.CGEventGetFlags(event))
+        if char:
+            return KeyCode.from_char(char)
+
+        # ...and fall back on a virtual key code
+        return KeyCode.from_vk(vk)
+
+    def _handle(self, proxy, event_type, event, refcon):
+        # Convert the event to a KeyCode; this may fail, and in that case we
+        # pass None
+        try:
+            key = self._event_to_key(event)
+        except IndexError:
+            key = None
+        except:
+            # TODO: Error reporting
+            return
+
+        try:
+            if event_type == Quartz.kCGEventKeyDown:
+                # This is a normal key press
+                self.on_press(key)
+
+            elif event_type == Quartz.kCGEventKeyUp:
+                # This is a normal key release
+                self.on_release(key)
+
+            elif key == Key.caps_lock:
+                # We only get an event when caps lock is toggled, so we fake
+                # press and release
+                self.on_press(key)
+                self.on_release(key)
+
+            else:
+                # This is a modifier event---excluding caps lock---for which we
+                # must check the current modifier state to determine whether
+                # the key was pressed or released
+                flags = Quartz.CGEventGetFlags(event)
+                is_press = flags & self._MODIFIER_FLAGS.get(key, 0)
+                if is_press:
+                    self.on_press(key)
+                else:
+                    self.on_release(key)
+
+        finally:
+            # Store the current flag mask to be able to detect modifier state
+            # changes
+            self._flags = Quartz.CGEventGetFlags(event)

@@ -6,6 +6,8 @@ import threading
 
 import pynput.keyboard
 
+from six.moves import input
+
 from . import EventTest
 
 
@@ -15,6 +17,7 @@ class KeyboardControllerTest(EventTest):
         'keyboard.\n'
         'You must, however, keep this window focused.')
     CONTROLLER_CLASS = pynput.keyboard.Controller
+    LISTENER_CLASS = pynput.keyboard.Listener
 
     def decode(self, string):
         """Decodes a string read from ``stdin``.
@@ -248,3 +251,18 @@ class KeyboardControllerTest(EventTest):
         self.assert_input(
             'Failed to type Russian string',
             u'Компьютерная клавиатура')
+
+    def test_controller_events(self):
+        """Tests that events sent by a controller are received correctly"""
+        with self.assert_event(
+                'Failed to send press',
+                on_press=lambda k: getattr(k, 'char', None) == 'a'):
+            self.controller.press('a')
+        with self.assert_event(
+                'Failed to send release',
+                on_release=lambda k: getattr(k, 'char', None) == 'a'):
+            self.controller.release('a')
+
+        self.controller.press(pynput.keyboard.Key.enter)
+        self.controller.release(pynput.keyboard.Key.enter)
+        input()

@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License along with
 # this program. If not, see <http://www.gnu.org/licenses/>.
 
+import contextlib
 import functools
 import threading
 
@@ -26,6 +27,7 @@ class AbstractListener(threading.Thread):
     to the following code::
 
         listener.start()
+        listener.wait()
         try:
             with_statements()
         finally:
@@ -56,6 +58,8 @@ class AbstractListener(threading.Thread):
 
         self._running = False
         self._thread = threading.current_thread()
+        self._condition = threading.Condition()
+        self._ready = False
 
         for name, callback in kwargs.items():
             setattr(self, name, wrapper(callback or (lambda *a: None)))
@@ -82,6 +86,14 @@ class AbstractListener(threading.Thread):
     def __exit__(self, type, value, traceback):
         self.stop()
 
+    def wait(self):
+        """Waits for this listener to become ready.
+        """
+        self._condition.acquire()
+        while not self._ready:
+            self._condition.wait()
+        self._condition.release()
+
     def run(self):
         """The thread runner method.
         """
@@ -105,6 +117,17 @@ class AbstractListener(threading.Thread):
 
         return inner
 
+    def _mark_ready(self):
+        """Marks this listener as ready to receive events.
+
+        This method must be called from :meth:`_run`. :meth:`start` will block
+        until this method is called.
+        """
+        self._condition.acquire()
+        self._running = True
+        self._condition.notify()
+        self._condition.release()
+
     def _run(self):
         """The implementation of the :meth:`start` method.
 
@@ -118,3 +141,94 @@ class AbstractListener(threading.Thread):
         This is a platform dependent implementation.
         """
         raise NotImplementedError()
+
+
+class NotifierMixin(object):
+    """A mixin for notifiers of fake events.
+
+    This mixin can be used for controllers on platforms where sending fake
+    events does not cause a listener to receive a notification.
+    """
+    def _emit(self, action, *args):
+        """Sends a notification to all registered listeners.
+
+        This method will ensure that listeners that raise
+        :class:`StopException` are stopped.
+
+        :param str action: The name of the notification.
+
+        :param args: The arguments to pass.
+        """
+        stopped = []
+        for listener in self._listeners():
+            try:
+                getattr(listener, action)(*args)
+            except listener.StopException:
+                stopped.append(listener)
+        for listener in stopped:
+            listener.stop()
+
+    @classmethod
+    def _receiver(cls, listener_class):
+        """A decorator to make a class able to receive fake events from a
+        controller.
+
+        This decorator will add the method ``_receive`` to the decorated class.
+
+        This method is a context manager which ensures that all calls to
+        :meth:`_emit` will invoke the named method in the listener instance
+        while the block is active.
+        """
+        @contextlib.contextmanager
+        def receive(self):
+            """Executes a code block with this listener instance registered as
+            a receiver of fake input events.
+            """
+            self._controller_class._add_listener(self)
+            try:
+                yield
+            finally:
+                self._controller_class._remove_listener(self)
+
+        listener_class._receive = receive
+        listener_class._controller_class = cls
+
+        # Make sure this class has the necessary attributes
+        if not hasattr(cls, '_listener_cache'):
+            cls._listener_cache = set()
+            cls._listener_lock = threading.Lock()
+
+        return listener_class
+
+    @classmethod
+    def _listeners(cls):
+        """Iterates over the set of running listeners.
+
+        This method will quit without acquiring the lock if the set is empty,
+        so there is potential for race conditions. This is an optimisation,
+        since :class:`Controller` will need to call this method for every
+        control event.
+        """
+        if not cls._listener_cache:
+            return
+        with cls._listener_lock:
+            for listener in cls._listener_cache:
+                yield listener
+
+    @classmethod
+    def _add_listener(cls, listener):
+        """Adds a listener to the set of running listeners.
+
+        :param listener: The listener for fake events.
+        """
+        with cls._listener_lock:
+            cls._listener_cache.add(listener)
+
+    @classmethod
+    def _remove_listener(cls, listener):
+        """Removes this listener from the set of running listeners.
+
+        :param listener: The listener for fake events.
+        """
+        with cls._listener_lock:
+            cls._listener_cache.remove(listener)

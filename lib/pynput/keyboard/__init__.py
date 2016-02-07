@@ -19,7 +19,7 @@ import os
 import sys
 
 if os.environ.get('__PYNPUT_GENERATE_DOCUMENTATION') == 'yes':
-    from ._base import KeyCode, Key, Controller
+    from ._base import KeyCode, Key, Controller, Listener
 else:
     KeyCode = None
     Key = None
@@ -28,20 +28,23 @@ else:
 
 
 if sys.platform == 'darwin':
-    if KeyCode is None and Key is None and Controller is None:
-        from ._darwin import KeyCode, Key, Controller
+    if KeyCode is None and Key is None and Controller is None \
+            and Listener is None:
+        from ._darwin import KeyCode, Key, Controller, Listener
 
 elif sys.platform == 'win32':
-    if KeyCode is None and Key is None and Controller is None:
-        from ._win32 import KeyCode, Key, Controller
+    if KeyCode is None and Key is None and Controller is None \
+            and Listener is None:
+        from ._win32 import KeyCode, Key, Controller, Listener
 
 else:
-    if KeyCode is None and Key is None and Controller is None:
+    if KeyCode is None and Key is None and Controller is None \
+            and Listener is None:
         try:
-            from ._xorg import KeyCode, Key, Controller
+            from ._xorg import KeyCode, Key, Controller, Listener
         except:
             pass
 
 
-if not KeyCode or not Key or not Controller:
+if not KeyCode or not Key or not Controller or not Listener:
     raise ImportError('this platform is not supported')

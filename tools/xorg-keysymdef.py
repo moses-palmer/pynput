@@ -18,7 +18,6 @@
 Converts <keysymdef.h> to Python mappings.
 """
 
-import collections
 import datetime
 import re
 import sys
@@ -57,52 +56,72 @@ DEAD_KEYSYM_RE = re.compile(r'''(?mx)
     # description
     (?:/\*(.*?)\*/)?''')
 
+
+def lookup(name):
+    """Looks up a named unicode character.
+
+    If it does not exist, ``None`` is returned, otherwise the code point is
+    returned.
+
+    :return: a hex number as a string or ``None``
+    """
+    try:
+        return '%04X' % ord(unicodedata.lookup(name))
+    except KeyError:
+        return None
+
 # A mapping from dead keys to their unicode codepoints
 DEAD_CODEPOINTS = {
-    name: '%04X' % ord(unicodedata.lookup(codepoint))
+    name: (
+        lookup('COMBINING ' + codepoint),
+        lookup(codepoint))
     for name, codepoint in {
-        'abovecomma': 'COMBINING COMMA ABOVE RIGHT',
-        'abovedot': 'COMBINING DOT ABOVE',
-        'abovereversedcomma': 'COMBINING TURNED COMMA ABOVE',
-        'abovering': 'COMBINING RING ABOVE',
-        'aboveverticalline': 'COMBINING VERTICAL LINE ABOVE',
-        'acute': 'COMBINING ACUTE ACCENT',
-        'belowbreve': 'COMBINING BREVE BELOW',
-        'belowcircumflex': 'COMBINING CIRCUMFLEX ACCENT BELOW',
-        'belowcomma': 'COMBINING COMMA BELOW',
-        'belowdiaeresis': 'COMBINING DIAERESIS BELOW',
-        'belowdot': 'COMBINING DOT BELOW',
-        'belowmacron': 'COMBINING MACRON BELOW',
-        'belowring': 'COMBINING RING BELOW',
-        'belowtilde': 'COMBINING TILDE BELOW',
-        'belowverticalline': 'COMBINING VERTICAL LINE BELOW',
-        'breve': 'COMBINING BREVE',
-        'caron': 'COMBINING CARON',
-        'cedilla': 'COMBINING CEDILLA',
-        'circumflex': 'COMBINING CIRCUMFLEX ACCENT',
-        'diaeresis': 'COMBINING DIAERESIS',
-        'doubleacute': 'COMBINING DOUBLE ACUTE ACCENT',
-        'doublegrave': 'COMBINING DOUBLE GRAVE ACCENT',
-        'grave': 'COMBINING GRAVE ACCENT',
-        'hook': 'COMBINING HOOK ABOVE',
-        'horn': 'COMBINING HORN',
-        'invertedbreve': 'COMBINING INVERTED BREVE BELOW',
-        'iota': 'COMBINING GREEK YPOGEGRAMMENI',
-        'longsolidusoverlay': 'COMBINING LONG SOLIDUS OVERLAY',
-        'lowline': 'COMBINING LOW LINE',
-        'macron': 'COMBINING MACRON',
-        'ogonek': 'COMBINING OGONEK',
-        'stroke': 'COMBINING SHORT STROKE OVERLAY',
-        'tilde': 'COMBINING TILDE'}.items()}
+        'abovecomma': 'COMMA ABOVE RIGHT',
+        'abovedot': 'DOT ABOVE',
+        'abovereversedcomma': 'TURNED COMMA ABOVE',
+        'abovering': 'RING ABOVE',
+        'aboveverticalline': 'VERTICAL LINE ABOVE',
+        'acute': 'ACUTE ACCENT',
+        'belowbreve': 'BREVE BELOW',
+        'belowcircumflex': 'CIRCUMFLEX ACCENT BELOW',
+        'belowcomma': 'COMMA BELOW',
+        'belowdiaeresis': 'DIAERESIS BELOW',
+        'belowdot': 'DOT BELOW',
+        'belowmacron': 'MACRON BELOW',
+        'belowring': 'RING BELOW',
+        'belowtilde': 'TILDE BELOW',
+        'belowverticalline': 'VERTICAL LINE BELOW',
+        'breve': 'BREVE',
+        'caron': 'CARON',
+        'cedilla': 'CEDILLA',
+        'circumflex': 'CIRCUMFLEX ACCENT',
+        'diaeresis': 'DIAERESIS',
+        'doubleacute': 'DOUBLE ACUTE ACCENT',
+        'doublegrave': 'DOUBLE GRAVE ACCENT',
+        'grave': 'GRAVE ACCENT',
+        'hook': 'HOOK ABOVE',
+        'horn': 'HORN',
+        'invertedbreve': 'INVERTED BREVE BELOW',
+        'iota': 'GREEK YPOGEGRAMMENI',
+        'longsolidusoverlay': 'LONG SOLIDUS OVERLAY',
+        'lowline': 'LOW LINE',
+        'macron': 'MACRON',
+        'ogonek': 'OGONEK',
+        'stroke': 'SHORT STROKE OVERLAY',
+        'tilde': 'TILDE'}.items()}
 
 
-def definitions():
-    """Yields all keysym as the tuple ``(name, keysym, codepoint)``.
+def definitions(data):
+    """Yields all keysym as the tuple ``(name, keysym, (first, second))``.
 
-    If ``codepoint`` is ``None``, the definition is for a dead key with no
+    ``(first, second))`` is a tuple of codepoints. The first value is the one
+    to use in the lookup table, and the second one is used only by dead keys to
+    indicate the non-combining version.
+
+    If a codepoint is ``None``, the definition is for a dead key with no
     unicode codepoint.
     """
-    for line in sys.stdin:
+    for line in data:
         for regex in (KEYSYM_RE, DEAD_KEYSYM_RE):
             m = regex.search(line)
             if m:
@@ -112,19 +131,20 @@ def definitions():
                     # to a normal character
                     yield (
                         name,
-                        (keysym, codepoint))
+                        (keysym, (codepoint, codepoint)))
 
                 elif not description or 'alias for' not in description:
                     # If we have no code point, this is a dead key unless it
                     # is an alias, in which case we ignore it
                     yield (
                         'dead_' + name,
-                        (keysym, DEAD_CODEPOINTS.get(name, None)))
+                        (keysym, DEAD_CODEPOINTS.get(name, (None, None))))
 
                 break
 
 
 def main():
+    data = sys.stdin.read().splitlines()
     sys.stdout.write('''# coding: utf-8
 # Copyright %d Moses Palmér
 #
@@ -144,8 +164,16 @@ def main():
 SYMBOLS = {
 %s}
 
+DEAD_KEYS = {
+%s}
+
 CHARS = {
     codepoint: name
+    for name, (keysym, codepoint) in SYMBOLS.items()
+    if codepoint}
+
+KEYSYMS = {
+    keysym: name
     for name, (keysym, codepoint) in SYMBOLS.items()
     if codepoint}
 ''' % (
@@ -154,7 +182,13 @@ CHARS = {
             '    \'%s\': (0x%s, %s)' % (
                     name,
                     keysym,
-                    'u\'\\u%s\'' % codepoint if codepoint else None)
-            for name, (keysym, codepoint) in definitions())))
+                    'u\'\\u%s\'' % first if first else None)
+            for name, (keysym, (first, second)) in definitions(data)),
+        ',\n'.join(
+            '    %s: %s' % (
+                    'u\'\\u%s\'' % first,
+                    'u\'\\u%s\'' % second)
+            for name, (keysym, (first, second)) in definitions(data)
+            if first and second and first != second)))
 
 main()

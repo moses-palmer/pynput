@@ -1,5 +1,5 @@
 # coding: utf-8
-# Copyright 2015 Moses Palmér
+# Copyright 2016 Moses Palmér
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -1607,6 +1607,23 @@ SYMBOLS = {
     'Sinh_ruu2': (0x1000df2, u'\u0DF2'),
     'Sinh_luu2': (0x1000df3, u'\u0DF3'),
     'Sinh_kunddaliya': (0x1000df4, u'\u0DF4')}
+
+DEAD_KEYS = {
+    u'\u0300': u'\u0060',
+    u'\u0301': u'\u00B4',
+    u'\u0302': u'\u005E',
+    u'\u0303': u'\u007E',
+    u'\u0304': u'\u00AF',
+    u'\u0306': u'\u02D8',
+    u'\u0307': u'\u02D9',
+    u'\u0308': u'\u00A8',
+    u'\u030A': u'\u02DA',
+    u'\u030B': u'\u02DD',
+    u'\u030C': u'\u02C7',
+    u'\u0327': u'\u00B8',
+    u'\u0328': u'\u02DB',
+    u'\u0345': u'\u037A',
+    u'\u0332': u'\u005F'}
 
 CHARS = {
     codepoint: name

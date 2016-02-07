@@ -25,3 +25,35 @@ Use ``pynput.keyboard.Controller`` like this::
 
     # Type 'Hello World' using the shortcut type method
     keyboard.type('Hello World')
+
+
+Monitoring the keyboard
+-----------------------
+
+Use ``pynput.keyboard.Listener`` like this::
+
+    from pynput.keyboard import Key, Listener
+
+    def on_press(key):
+        print('{0} pressed'.format(
+            key))
+
+    def on_release(key):
+        print('{0} release'.format(
+            key))
+        if key == Key.esc:
+            # Stop listener
+            return False
+
+    # Collect events until released
+    with Listener(
+            on_press=on_press,
+            on_release=on_release) as listener:
+        listener.join()
+
+A keyboard listener is a ``threading.Thread``, and all callbacks will be
+invoked from the thread.
+
+Call ``pynput.keyboard.Listener.stop`` from anywhere, or raise
+``pynput.keyboard.Listener.StopException`` or return ``False`` from a callback
+to stop the listener.

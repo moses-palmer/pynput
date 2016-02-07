@@ -224,9 +224,24 @@ def index_to_shift(display, index):
 
     :return: a shift mask
     """
-    return 0 \
-        | 1 << 0 if index & 1 else 0 \
-        | alt_gr_mask(display) if index & 2 else 0
+    return (
+        (1 << 0 if index & 1 else 0) |
+        (alt_gr_mask(display) if index & 2 else 0))
+
+
+def shift_to_index(display, shift):
+    """Converts an index in a *key code* list to the corresponding shift state.
+
+    :param Xlib.display.Display display: The display for which to retrieve the
+        shift mask.
+
+    :param int index: The keyboard mapping *key code* index.
+
+    :retur: a shift mask
+    """
+    return (
+        (1 if shift & 1 else 0) +
+        (2 if shift & alt_gr_mask(display) else 0))
 
 
 def keyboard_mapping(display):
@@ -338,6 +353,7 @@ class ListenerMixin(object):
 
     def _run(self):
         self._initialize(self._display_stop)
+        self._mark_ready()
         try:
             self._display_record.record_enable_context(
                 self._context, self._handler)
