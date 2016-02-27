@@ -106,7 +106,7 @@ setuptools.setup(
     license='LGPLv3',
     keywords='control mouse, mouse input, control keyboard, keyboard input',
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: GNU Lesser General Public License v3 '
         '(LGPLv3)',
