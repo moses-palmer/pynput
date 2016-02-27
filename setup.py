@@ -104,7 +104,7 @@ setuptools.setup(
     test_suite='tests',
 
     license='LGPLv3',
-    keywords='control mouse, mouse input',
+    keywords='control mouse, mouse input, control keyboard, keyboard input',
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
