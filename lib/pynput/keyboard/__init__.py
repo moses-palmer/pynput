@@ -28,18 +28,15 @@ else:
 
 
 if sys.platform == 'darwin':
-    if KeyCode is None and Key is None and Controller is None \
-            and Listener is None:
+    if not KeyCode and not Key and not Controller and not Listener:
         from ._darwin import KeyCode, Key, Controller, Listener
 
 elif sys.platform == 'win32':
-    if KeyCode is None and Key is None and Controller is None \
-            and Listener is None:
+    if not KeyCode and not Key and not Controller and not Listener:
         from ._win32 import KeyCode, Key, Controller, Listener
 
 else:
-    if KeyCode is None and Key is None and Controller is None \
-            and Listener is None:
+    if not KeyCode and not Key and not Controller and not Listener:
         try:
             from ._xorg import KeyCode, Key, Controller, Listener
         except:

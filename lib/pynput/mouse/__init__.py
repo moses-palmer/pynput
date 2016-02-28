@@ -27,15 +27,15 @@ else:
 
 
 if sys.platform == 'darwin':
-    if Controller is None and Listener is None:
+    if not Button and not Controller and not Listener:
         from ._darwin import Button, Controller, Listener
 
 elif sys.platform == 'win32':
-    if Controller is None and Listener is None:
+    if not Button and not Controller and not Listener:
         from ._win32 import Button, Controller, Listener
 
 else:
-    if Controller is None and Listener is None:
+    if not Button and not Controller and not Listener:
         try:
             from ._xorg import Button, Controller, Listener
         except:
