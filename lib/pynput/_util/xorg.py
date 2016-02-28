@@ -259,7 +259,7 @@ def keyboard_mapping(display):
     keycode_count = display.display.info.max_keycode - min_keycode + 1
     for index, keysyms in enumerate(display.get_keyboard_mapping(
             min_keycode, keycode_count)):
-        key_code = index + display.display.info.min_keycode
+        key_code = index + min_keycode
 
         # Normalise the keysym list to yield a tuple containing the two groups
         normalized = keysym_normalize(keysyms)
