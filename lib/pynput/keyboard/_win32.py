@@ -23,7 +23,7 @@ from . import _base
 
 
 class KeyCode(_base.KeyCode):
-    def parameters(self, is_press):
+    def _parameters(self, is_press):
         """The parameters to pass to ``SendInput`` to generate this key.
         """
         if self.vk:
@@ -114,7 +114,7 @@ class Controller(NotifierMixin, _base.Controller):
             ctypes.byref(INPUT(
                 type=INPUT.KEYBOARD,
                 value=INPUT_union(
-                    ki=KEYBDINPUT(**key.parameters(is_press))))),
+                    ki=KEYBDINPUT(**key._parameters(is_press))))),
             ctypes.sizeof(INPUT))
 
         # Notify any running listeners

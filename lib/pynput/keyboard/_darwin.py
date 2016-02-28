@@ -24,7 +24,7 @@ from . import _base
 
 
 class KeyCode(_base.KeyCode):
-    def event(self, modifiers, mapping, is_pressed):
+    def _event(self, modifiers, mapping, is_pressed):
         vk = self.vk or mapping.get(self.char, 0)
         result = Quartz.CGEventCreateKeyboardEvent(None, vk, is_pressed)
 
@@ -113,7 +113,7 @@ class Controller(_base.Controller):
         with self.modifiers as modifiers:
             Quartz.CGEventPost(
                 Quartz.kCGHIDEventTap,
-                (key if key not in Key else key.value).event(
+                (key if key not in Key else key.value)._event(
                     modifiers, self._mapping, is_press))
 
 
