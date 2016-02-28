@@ -322,8 +322,7 @@ class ListenerMixin(object):
         """
         pass
 
-    def __init__(self, *args, **kwargs):
-        super(ListenerMixin, self).__init__(*args, **kwargs)
+    def _run(self):
         self._display_stop = Xlib.display.Display()
         self._display_record = Xlib.display.Display()
         with display_manager(self._display_record) as d:
@@ -341,16 +340,9 @@ class ListenerMixin(object):
                     'client_started': False,
                     'client_died': False}])
 
-    def __del__(self):
-        if hasattr(self, '_display_stop'):
-            self._display_stop.close()
-        if hasattr(self, '_display_record'):
-            self._display_record.close()
-
-    def _run(self):
-        self._initialize(self._display_stop)
-        self._mark_ready()
         try:
+            self._initialize(self._display_stop)
+            self._mark_ready()
             self._display_record.record_enable_context(
                 self._context, self._handler)
         except self._WrappedException as e:
@@ -359,8 +351,12 @@ class ListenerMixin(object):
                 pass
         finally:
             self._display_record.record_free_context(self._context)
+            self._display_stop.close()
+            self._display_record.close()
 
     def _stop(self):
+        if not hasattr(self, '_context'):
+            self.wait()
         self._display_stop.record_disable_context(self._context)
 
     @AbstractListener._emitter
