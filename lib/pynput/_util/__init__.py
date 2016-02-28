@@ -81,6 +81,7 @@ class AbstractListener(threading.Thread):
 
     def __enter__(self):
         self.start()
+        self.wait()
         return self
 
     def __exit__(self, type, value, traceback):
@@ -120,7 +121,7 @@ class AbstractListener(threading.Thread):
     def _mark_ready(self):
         """Marks this listener as ready to receive events.
 
-        This method must be called from :meth:`_run`. :meth:`start` will block
+        This method must be called from :meth:`_run`. :meth:`wait` will block
         until this method is called.
         """
         self._condition.acquire()
