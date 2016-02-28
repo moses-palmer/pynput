@@ -1,19 +1,19 @@
 # coding=utf-8
 # pynput
-# Copyright (C) 2015 Moses Palmér
+# Copyright (C) 2015-2016 Moses Palmér
 #
 # This program is free software: you can redistribute it and/or modify it under
-# the terms of the GNU General Public License as published by the Free Software
-# Foundation, either version 3 of the License, or (at your option) any later
-# version.
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
 #
 # This program is distributed in the hope that it will be useful, but WITHOUT
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+# FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
 # details.
 #
-# You should have received a copy of the GNU General Public License along with
-# this program. If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import contextlib
 import functools
@@ -43,7 +43,8 @@ class AbstractListener(threading.Thread):
         """If an event listener callback raises this exception, the current
         listener is stopped.
 
-        Its first argument must be set to the :class:`Listener` to stop.
+        Its first argument must be set to the :class:`AbstractListener` to
+        stop.
         """
         pass
 
@@ -60,6 +61,8 @@ class AbstractListener(threading.Thread):
         self._thread = threading.current_thread()
         self._condition = threading.Condition()
         self._ready = False
+
+        self.daemon = True
 
         for name, callback in kwargs.items():
             setattr(self, name, wrapper(callback or (lambda *a: None)))
@@ -81,6 +84,7 @@ class AbstractListener(threading.Thread):
 
     def __enter__(self):
         self.start()
+        self.wait()
         return self
 
     def __exit__(self, type, value, traceback):
@@ -120,16 +124,16 @@ class AbstractListener(threading.Thread):
     def _mark_ready(self):
         """Marks this listener as ready to receive events.
 
-        This method must be called from :meth:`_run`. :meth:`start` will block
+        This method must be called from :meth:`_run`. :meth:`wait` will block
         until this method is called.
         """
         self._condition.acquire()
-        self._running = True
+        self._ready = True
         self._condition.notify()
         self._condition.release()
 
     def _run(self):
-        """The implementation of the :meth:`start` method.
+        """The implementation of the :meth:`run` method.
 
         This is a platform dependent implementation.
         """

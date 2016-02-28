@@ -1,19 +1,19 @@
 # coding=utf-8
 # pynput
-# Copyright (C) 2015 Moses Palmér
+# Copyright (C) 2015-2016 Moses Palmér
 #
 # This program is free software: you can redistribute it and/or modify it under
-# the terms of the GNU General Public License as published by the Free Software
-# Foundation, either version 3 of the License, or (at your option) any later
-# version.
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
 #
 # This program is distributed in the hope that it will be useful, but WITHOUT
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+# FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
 # details.
 #
-# You should have received a copy of the GNU General Public License along with
-# this program. If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import enum
 
@@ -24,7 +24,17 @@ from . import _base
 
 
 class KeyCode(_base.KeyCode):
-    def event(self, modifiers, mapping, is_pressed):
+    def _event(self, modifiers, mapping, is_pressed):
+        """This key as a *Quartz* event.
+
+        :param set modifiers: The currently active modifiers.
+
+        :param mapping: The current keyboard mapping.
+
+        :param bool is_press: Whether to generate a press event.
+
+        :return: a *Quartz* event
+        """
         vk = self.vk or mapping.get(self.char, 0)
         result = Quartz.CGEventCreateKeyboardEvent(None, vk, is_pressed)
 
@@ -96,7 +106,7 @@ class Key(enum.Enum):
     shift = KeyCode.from_vk(0x38)
     shift_l = KeyCode.from_vk(0x38)
     shift_r = KeyCode.from_vk(0x3C)
-    space = KeyCode(vk=0x31, char=' ')
+    space = KeyCode.from_vk(0x31, char=' ')
     tab = KeyCode.from_vk(0x30)
     up = KeyCode.from_vk(0x7E)
 
@@ -113,7 +123,7 @@ class Controller(_base.Controller):
         with self.modifiers as modifiers:
             Quartz.CGEventPost(
                 Quartz.kCGHIDEventTap,
-                (key if key not in Key else key.value).event(
+                (key if key not in Key else key.value)._event(
                     modifiers, self._mapping, is_press))
 
 

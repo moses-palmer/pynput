@@ -1,19 +1,19 @@
 # coding=utf-8
 # pynput
-# Copyright (C) 2015 Moses Palmér
+# Copyright (C) 2015-2016 Moses Palmér
 #
 # This program is free software: you can redistribute it and/or modify it under
-# the terms of the GNU General Public License as published by the Free Software
-# Foundation, either version 3 of the License, or (at your option) any later
-# version.
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
 #
 # This program is distributed in the hope that it will be useful, but WITHOUT
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+# FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
 # details.
 #
-# You should have received a copy of the GNU General Public License along with
-# this program. If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import contextlib
 import ctypes
@@ -340,11 +340,11 @@ class KeyTranslator(object):
 
         # Get a string representation of the key
         char, is_dead = self._to_char(vk, layout)
-        modified_char = self._to_char_with_modifiers(vk, scan, state, layout)
+        modified_char = self._to_char_with_modifiers(vk, layout, scan, state)
 
         # Clear the keyboard state if the key was a dead key
         if is_dead:
-            self._reset_state(vk, scan, layout)
+            self._reset_state(vk, layout, scan)
 
         # If the previous key handled was a dead key, we reinject it
         if self._reinject_arguments:
@@ -356,9 +356,9 @@ class KeyTranslator(object):
         elif is_dead:
             self._reinject_arguments = (
                 vk,
+                layout,
                 scan,
-                (ctypes.c_byte * 255)(*state),
-                layout)
+                (ctypes.c_byte * 255)(*state))
 
         # Otherwise we just clear any previous dead key state
         else:
@@ -430,7 +430,7 @@ class KeyTranslator(object):
         else:
             return (None, None)
 
-    def _to_char_with_modifiers(self, vk, scan, state, layout):
+    def _to_char_with_modifiers(self, vk, layout, scan, state):
         """Converts a virtual key by mapping it through the keyboard layout and
         internal kernel keyboard state.
 
@@ -440,9 +440,9 @@ class KeyTranslator(object):
 
         :param int vk: The virtual key code.
 
-        :param int scan: The scan code of the key.
-
         :param layout: The keyboard layout.
+
+        :param int scan: The scan code of the key.
 
         :param state: The keyboard state.
 
@@ -457,16 +457,16 @@ class KeyTranslator(object):
 
         return out[0] if count > 0 else None
 
-    def _reset_state(self, vk, scan, layout):
+    def _reset_state(self, vk, layout, scan):
         """Clears the internal kernel keyboard state.
 
         This method will remove all dead keys from the internal state.
 
         :param int vk: The virtual key code.
 
-        :param int scan: The scan code of the key.
-
         :param layout: The keyboard layout.
+
+        :param int scan: The scan code of the key.
         """
         state = (ctypes.c_byte * 255)()
         out = (ctypes.wintypes.WCHAR * 5)()
@@ -475,13 +475,19 @@ class KeyTranslator(object):
                 len(out), 0, layout) < 0:
             pass
 
-    def _reinject(self, vk, scan, state, layout):
+    def _reinject(self, vk, layout, scan, state):
         """Reinjects the previous dead key.
 
         This must be called if ``ToUnicodeEx`` has been called, and the
         previous key was a dead one.
 
-        :param keyboard_layou: The keyboard layout.
+        :param int vk: The virtual key code.
+
+        :param layout: The keyboard layout.
+
+        :param int scan: The scan code of the key.
+
+        :param state: The keyboard state.
         """
         out = (ctypes.wintypes.WCHAR * 5)()
         self._ToUnicodeEx(

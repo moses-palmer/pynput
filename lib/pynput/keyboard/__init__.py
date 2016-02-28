@@ -1,19 +1,19 @@
 # coding=utf-8
 # pynput
-# Copyright (C) 2015 Moses Palmér
+# Copyright (C) 2015-2016 Moses Palmér
 #
 # This program is free software: you can redistribute it and/or modify it under
-# the terms of the GNU General Public License as published by the Free Software
-# Foundation, either version 3 of the License, or (at your option) any later
-# version.
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
 #
 # This program is distributed in the hope that it will be useful, but WITHOUT
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+# FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
 # details.
 #
-# You should have received a copy of the GNU General Public License along with
-# this program. If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import os
 import sys
@@ -28,18 +28,15 @@ else:
 
 
 if sys.platform == 'darwin':
-    if KeyCode is None and Key is None and Controller is None \
-            and Listener is None:
+    if not KeyCode and not Key and not Controller and not Listener:
         from ._darwin import KeyCode, Key, Controller, Listener
 
 elif sys.platform == 'win32':
-    if KeyCode is None and Key is None and Controller is None \
-            and Listener is None:
+    if not KeyCode and not Key and not Controller and not Listener:
         from ._win32 import KeyCode, Key, Controller, Listener
 
 else:
-    if KeyCode is None and Key is None and Controller is None \
-            and Listener is None:
+    if not KeyCode and not Key and not Controller and not Listener:
         try:
             from ._xorg import KeyCode, Key, Controller, Listener
         except:

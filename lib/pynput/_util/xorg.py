@@ -1,20 +1,21 @@
 # coding=utf-8
 # pynput
-# Copyright (C) 2015 Moses Palmér
+# Copyright (C) 2015-2016 Moses Palmér
 #
 # This program is free software: you can redistribute it and/or modify it under
-# the terms of the GNU General Public License as published by the Free Software
-# Foundation, either version 3 of the License, or (at your option) any later
-# version.
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
 #
 # This program is distributed in the hope that it will be useful, but WITHOUT
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+# FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
 # details.
 #
-# You should have received a copy of the GNU General Public License along with
-# this program. If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+import contextlib
 import itertools
 import Xlib.display
 import Xlib.XK
@@ -36,6 +37,7 @@ class X11Error(Exception):
     pass
 
 
+@contextlib.contextmanager
 def display_manager(display):
     """Traps *X* errors and raises an :class:``X11Error`` at the end if any
     error occurred.
@@ -48,29 +50,29 @@ def display_manager(display):
     :return: the display
     :rtype: Xlib.display.Display
     """
-    from contextlib import contextmanager
+    errors = []
 
-    @contextmanager
-    def manager():
-        errors = []
+    def handler(*args):
+        errors.append(args)
 
-        def handler(*args):
-            errors.append(args)
-
-        old_handler = display.set_error_handler(handler)
-        try:
-            yield display
-            display.sync()
-        finally:
-            display.set_error_handler(old_handler)
-        if errors:
-            raise X11Error(errors)
-
-    return manager()
+    old_handler = display.set_error_handler(handler)
+    try:
+        yield display
+        display.sync()
+    finally:
+        display.set_error_handler(old_handler)
+    if errors:
+        raise X11Error(errors)
 
 
 def _find_mask(display, symbol):
     """Returns the mode flags to use for a modifier symbol.
+
+    :param Xlib.display.Display display: The *X* display.
+
+    :param str symbol: The name of the symbol.
+
+    :return: the modifier mask
     """
     # Get the key code for the symbol
     modifier_keycode = display.keysym_to_keycode(
@@ -89,6 +91,10 @@ def alt_mask(display):
 
     The first time this function is called for a display, the value is cached.
     Subsequent calls will return the cached value.
+
+    :param Xlib.display.Display display: The *X* display.
+
+    :return: the modifier mask
     """
     if not hasattr(display, '__alt_mask'):
         display.__alt_mask = _find_mask(display, 'Alt_L')
@@ -100,6 +106,10 @@ def alt_gr_mask(display):
 
     The first time this function is called for a display, the value is cached.
     Subsequent calls will return the cached value.
+
+    :param Xlib.display.Display display: The *X* display.
+
+    :return: the modifier mask
     """
     if not hasattr(display, '__altgr_mask'):
         display.__altgr_mask = _find_mask(display, 'Mode_switch')
@@ -108,12 +118,20 @@ def alt_gr_mask(display):
 
 def keysym_is_latin_upper(keysym):
     """Determines whether a *keysym* is an upper case *latin* character.
+
+    This is true only if ``XK_A`` <= ``keysym`` <= ` XK_Z``.
+
+    :param in keysym: The *keysym* to check.
     """
     return Xlib.XK.XK_A <= keysym <= Xlib.XK.XK_Z
 
 
 def keysym_is_latin_lower(keysym):
     """Determines whether a *keysym* is a lower case *latin* character.
+
+    This is true only if ``XK_a`` <= ``keysym`` <= ` XK_z``.
+
+    :param in keysym: The *keysym* to check.
     """
     return Xlib.XK.XK_a <= keysym <= Xlib.XK.XK_z
 
@@ -263,7 +281,7 @@ def keyboard_mapping(display):
     keycode_count = display.display.info.max_keycode - min_keycode + 1
     for index, keysyms in enumerate(display.get_keyboard_mapping(
             min_keycode, keycode_count)):
-        key_code = index + display.display.info.min_keycode
+        key_code = index + min_keycode
 
         # Normalise the keysym list to yield a tuple containing the two groups
         normalized = keysym_normalize(keysyms)
@@ -278,6 +296,8 @@ def keyboard_mapping(display):
                 shift_state = 0 \
                     | (shift_mask if shift else 0) \
                     | (group_mask if group else 0)
+
+                # Prefer already known lesser shift states
                 if keysym in mapping and mapping[keysym][1] < shift_state:
                     continue
                 mapping[keysym] = (key_code, shift_state)
@@ -326,8 +346,7 @@ class ListenerMixin(object):
         """
         pass
 
-    def __init__(self, *args, **kwargs):
-        super(ListenerMixin, self).__init__(*args, **kwargs)
+    def _run(self):
         self._display_stop = Xlib.display.Display()
         self._display_record = Xlib.display.Display()
         with display_manager(self._display_record) as d:
@@ -345,16 +364,9 @@ class ListenerMixin(object):
                     'client_started': False,
                     'client_died': False}])
 
-    def __del__(self):
-        if hasattr(self, '_display_stop'):
-            self._display_stop.close()
-        if hasattr(self, '_display_record'):
-            self._display_record.close()
-
-    def _run(self):
-        self._initialize(self._display_stop)
-        self._mark_ready()
         try:
+            self._initialize(self._display_stop)
+            self._mark_ready()
             self._display_record.record_enable_context(
                 self._context, self._handler)
         except self._WrappedException as e:
@@ -363,8 +375,12 @@ class ListenerMixin(object):
                 pass
         finally:
             self._display_record.record_free_context(self._context)
+            self._display_stop.close()
+            self._display_record.close()
 
     def _stop(self):
+        if not hasattr(self, '_context'):
+            self.wait()
         self._display_stop.record_disable_context(self._context)
 
     @AbstractListener._emitter
@@ -373,6 +389,9 @@ class ListenerMixin(object):
 
         This method will parse the response and call the callbacks registered
         on initialisation.
+
+        :param events: The events passed by *X*. This is a binary block
+            parsable by :attr:`_EVENT_PARSER`.
         """
         # If
         if not self.running:

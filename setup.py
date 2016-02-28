@@ -103,12 +103,13 @@ setuptools.setup(
 
     test_suite='tests',
 
-    license='GPLv3',
-    keywords='control mouse, mouse input',
+    license='LGPLv3',
+    keywords='control mouse, mouse input, control keyboard, keyboard input',
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+        'License :: OSI Approved :: GNU Lesser General Public License v3 '
+        '(LGPLv3)',
         'Operating System :: MacOS :: MacOS X',
         'Operating System :: Microsoft :: Windows :: Windows NT/2000',
         'Operating System :: POSIX',

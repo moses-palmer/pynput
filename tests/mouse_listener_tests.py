@@ -16,6 +16,18 @@ class MouseListenerTest(EventTest):
         listener = self.listener()
 
         listener.start()
+        listener.wait()
+        self.notify('Move mouse, click button or scroll')
+        listener.stop()
+
+        time.sleep(1)
+
+    def test_stop_no_wait(self):
+        """Tests that stopping the listener from a different thread without
+        waiting for the listener to start works"""
+        listener = self.listener()
+
+        listener.start()
         self.notify('Move mouse, click button or scroll')
         listener.stop()
 

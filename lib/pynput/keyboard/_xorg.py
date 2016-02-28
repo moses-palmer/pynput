@@ -1,19 +1,19 @@
 # coding=utf-8
 # pynput
-# Copyright (C) 2015 Moses Palmér
+# Copyright (C) 2015-2016 Moses Palmér
 #
 # This program is free software: you can redistribute it and/or modify it under
-# the terms of the GNU General Public License as published by the Free Software
-# Foundation, either version 3 of the License, or (at your option) any later
-# version.
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
 #
 # This program is distributed in the hope that it will be useful, but WITHOUT
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+# FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
 # details.
 #
-# You should have received a copy of the GNU General Public License along with
-# this program. If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import enum
 import threading
@@ -32,7 +32,7 @@ from . import _base
 
 class KeyCode(_base.KeyCode):
     @classmethod
-    def from_symbol(self, symbol):
+    def _from_symbol(self, symbol, **kwargs):
         """Creates a key from a symbol.
 
         :param str symbol: The symbol name.
@@ -42,75 +42,77 @@ class KeyCode(_base.KeyCode):
         # First try simple translation
         keysym = Xlib.XK.string_to_keysym(symbol)
         if keysym:
-            return self.from_vk(keysym)
+            return self.from_vk(keysym, **kwargs)
 
         # If that fails, try checking a module attribute of Xlib.keysymdef.xkb
         if not keysym:
             try:
                 return self.from_vk(
-                    getattr(Xlib.keysymdef.xkb, 'XK_' + symbol, 0))
+                    getattr(Xlib.keysymdef.xkb, 'XK_' + symbol, 0),
+                    **kwargs)
             except:
                 return self.from_vk(
-                    SYMBOLS.get(symbol, (0,))[0])
+                    SYMBOLS.get(symbol, (0,))[0],
+                    **kwargs)
 
 
 class Key(enum.Enum):
     # Default keys
-    alt = KeyCode.from_symbol('Alt_L')
-    alt_l = KeyCode.from_symbol('Alt_L')
-    alt_r = KeyCode.from_symbol('Alt_R')
-    alt_gr = KeyCode.from_symbol('Mode_switch')
-    backspace = KeyCode.from_symbol('BackSpace')
-    caps_lock = KeyCode.from_symbol('Caps_Lock')
-    cmd = KeyCode.from_symbol('Super_L')
-    cmd_l = KeyCode.from_symbol('Super_L')
-    cmd_r = KeyCode.from_symbol('Super_R')
-    ctrl = KeyCode.from_symbol('Control_L')
-    ctrl_l = KeyCode.from_symbol('Control_L')
-    ctrl_r = KeyCode.from_symbol('Control_R')
-    delete = KeyCode.from_symbol('Delete')
-    down = KeyCode.from_symbol('Down')
-    end = KeyCode.from_symbol('End')
-    enter = KeyCode.from_symbol('Return')
-    esc = KeyCode.from_symbol('Escape')
-    f1 = KeyCode.from_symbol('F1')
-    f2 = KeyCode.from_symbol('F2')
-    f3 = KeyCode.from_symbol('F3')
-    f4 = KeyCode.from_symbol('F4')
-    f5 = KeyCode.from_symbol('F5')
-    f6 = KeyCode.from_symbol('F6')
-    f7 = KeyCode.from_symbol('F7')
-    f8 = KeyCode.from_symbol('F8')
-    f9 = KeyCode.from_symbol('F9')
-    f10 = KeyCode.from_symbol('F10')
-    f11 = KeyCode.from_symbol('F11')
-    f12 = KeyCode.from_symbol('F12')
-    f13 = KeyCode.from_symbol('F13')
-    f14 = KeyCode.from_symbol('F14')
-    f15 = KeyCode.from_symbol('F15')
-    f16 = KeyCode.from_symbol('F16')
-    f17 = KeyCode.from_symbol('F17')
-    f18 = KeyCode.from_symbol('F18')
-    f19 = KeyCode.from_symbol('F19')
-    f20 = KeyCode.from_symbol('F20')
-    home = KeyCode.from_symbol('Home')
-    left = KeyCode.from_symbol('Left')
-    page_down = KeyCode.from_symbol('Page_Down')
-    page_up = KeyCode.from_symbol('Page_Up')
-    right = KeyCode.from_symbol('Right')
-    shift = KeyCode.from_symbol('Shift_L')
-    shift_l = KeyCode.from_symbol('Shift_L')
-    shift_r = KeyCode.from_symbol('Shift_R')
-    space = KeyCode(vk=Xlib.XK.string_to_keysym('space'), char=' ')
-    tab = KeyCode.from_symbol('Tab')
-    up = KeyCode.from_symbol('Up')
+    alt = KeyCode._from_symbol('Alt_L')
+    alt_l = KeyCode._from_symbol('Alt_L')
+    alt_r = KeyCode._from_symbol('Alt_R')
+    alt_gr = KeyCode._from_symbol('Mode_switch')
+    backspace = KeyCode._from_symbol('BackSpace')
+    caps_lock = KeyCode._from_symbol('Caps_Lock')
+    cmd = KeyCode._from_symbol('Super_L')
+    cmd_l = KeyCode._from_symbol('Super_L')
+    cmd_r = KeyCode._from_symbol('Super_R')
+    ctrl = KeyCode._from_symbol('Control_L')
+    ctrl_l = KeyCode._from_symbol('Control_L')
+    ctrl_r = KeyCode._from_symbol('Control_R')
+    delete = KeyCode._from_symbol('Delete')
+    down = KeyCode._from_symbol('Down')
+    end = KeyCode._from_symbol('End')
+    enter = KeyCode._from_symbol('Return')
+    esc = KeyCode._from_symbol('Escape')
+    f1 = KeyCode._from_symbol('F1')
+    f2 = KeyCode._from_symbol('F2')
+    f3 = KeyCode._from_symbol('F3')
+    f4 = KeyCode._from_symbol('F4')
+    f5 = KeyCode._from_symbol('F5')
+    f6 = KeyCode._from_symbol('F6')
+    f7 = KeyCode._from_symbol('F7')
+    f8 = KeyCode._from_symbol('F8')
+    f9 = KeyCode._from_symbol('F9')
+    f10 = KeyCode._from_symbol('F10')
+    f11 = KeyCode._from_symbol('F11')
+    f12 = KeyCode._from_symbol('F12')
+    f13 = KeyCode._from_symbol('F13')
+    f14 = KeyCode._from_symbol('F14')
+    f15 = KeyCode._from_symbol('F15')
+    f16 = KeyCode._from_symbol('F16')
+    f17 = KeyCode._from_symbol('F17')
+    f18 = KeyCode._from_symbol('F18')
+    f19 = KeyCode._from_symbol('F19')
+    f20 = KeyCode._from_symbol('F20')
+    home = KeyCode._from_symbol('Home')
+    left = KeyCode._from_symbol('Left')
+    page_down = KeyCode._from_symbol('Page_Down')
+    page_up = KeyCode._from_symbol('Page_Up')
+    right = KeyCode._from_symbol('Right')
+    shift = KeyCode._from_symbol('Shift_L')
+    shift_l = KeyCode._from_symbol('Shift_L')
+    shift_r = KeyCode._from_symbol('Shift_R')
+    space = KeyCode._from_symbol('space', char=' ')
+    tab = KeyCode._from_symbol('Tab')
+    up = KeyCode._from_symbol('Up')
 
-    insert = KeyCode.from_symbol('Insert')
-    menu = KeyCode.from_symbol('Menu')
-    num_lock = KeyCode.from_symbol('Num_Lock')
-    pause = KeyCode.from_symbol('Pause')
-    print_screen = KeyCode.from_symbol('Print')
-    scroll_lock = KeyCode.from_symbol('Scroll_Lock')
+    insert = KeyCode._from_symbol('Insert')
+    menu = KeyCode._from_symbol('Menu')
+    num_lock = KeyCode._from_symbol('Num_Lock')
+    pause = KeyCode._from_symbol('Pause')
+    print_screen = KeyCode._from_symbol('Print')
+    scroll_lock = KeyCode._from_symbol('Scroll_Lock')
 
 
 class Controller(NotifierMixin, _base.Controller):

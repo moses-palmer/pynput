@@ -1,19 +1,19 @@
 # coding=utf-8
 # pynput
-# Copyright (C) 2015 Moses Palmér
+# Copyright (C) 2015-2016 Moses Palmér
 #
 # This program is free software: you can redistribute it and/or modify it under
-# the terms of the GNU General Public License as published by the Free Software
-# Foundation, either version 3 of the License, or (at your option) any later
-# version.
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
 #
 # This program is distributed in the hope that it will be useful, but WITHOUT
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+# FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
 # details.
 #
-# You should have received a copy of the GNU General Public License along with
-# this program. If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import enum
 
@@ -23,8 +23,14 @@ from . import _base
 
 
 class KeyCode(_base.KeyCode):
-    def parameters(self, is_press):
+    def _parameters(self, is_press):
         """The parameters to pass to ``SendInput`` to generate this key.
+
+        :param bool is_press: Whether to generate a press event.
+
+        :return: all arguments to pass to ``SendInput`` for this key
+
+        :rtype: dict
         """
         if self.vk:
             vk = self.vk
@@ -92,7 +98,7 @@ class Key(enum.Enum):
     shift = KeyCode.from_vk(0xA0)
     shift_l = KeyCode.from_vk(0xA0)
     shift_r = KeyCode.from_vk(0xA1)
-    space = KeyCode(vk=0x20, char=' ')
+    space = KeyCode.from_vk(0x20, char=' ')
     tab = KeyCode.from_vk(0x09)
     up = KeyCode.from_vk(0x26)
 
@@ -114,7 +120,7 @@ class Controller(NotifierMixin, _base.Controller):
             ctypes.byref(INPUT(
                 type=INPUT.KEYBOARD,
                 value=INPUT_union(
-                    ki=KEYBDINPUT(**key.parameters(is_press))))),
+                    ki=KEYBDINPUT(**key._parameters(is_press))))),
             ctypes.sizeof(INPUT))
 
         # Notify any running listeners

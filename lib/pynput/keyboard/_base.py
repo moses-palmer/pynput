@@ -1,19 +1,19 @@
 # coding=utf-8
 # pynput
-# Copyright (C) 2015 Moses Palmér
+# Copyright (C) 2015-2016 Moses Palmér
 #
 # This program is free software: you can redistribute it and/or modify it under
-# the terms of the GNU General Public License as published by the Free Software
-# Foundation, either version 3 of the License, or (at your option) any later
-# version.
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
 #
 # This program is distributed in the hope that it will be useful, but WITHOUT
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+# FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
 # details.
 #
-# You should have received a copy of the GNU General Public License along with
-# this program. If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import contextlib
 import enum
@@ -53,7 +53,7 @@ class KeyCode(object):
         if not isinstance(other, self.__class__):
             return False
         if self.char is not None and other.char is not None:
-            return self.char == other.char
+            return self.char == other.char and self.is_dead == other.is_dead
         else:
             return self.vk == other.vk
 
@@ -63,17 +63,22 @@ class KeyCode(object):
         Joining a dead key with space (``' '``) or itself yields the non-dead
         version of this key, if one exists; for example,
         ``KeyCode.from_dead('~').join(KeyCode.from_char(' '))`` equals
-        ``KeyCode.from_char('~')``.
+        ``KeyCode.from_char('~')`` and
+        ``KeyCode.from_dead('~').join(KeyCode.from_dead('~'))``.
 
-        :param KeyCode key: The key to join with the dead key.
+        :param KeyCode key: The key to join with this key.
 
         :return: a key code
 
         :raises ValueError: if the keys cannot be joined
         """
+        # A non-dead key cannot be joined
+        if not self.is_dead:
+            raise ValueError(self)
+
         # Joining two of the same keycodes, or joining with space, yields the
         # non-dead version of the key
-        if key.char == ' ' or (key.is_dead and key.char == self.char):
+        if key.char == ' ' or self == key:
             return self.from_char(self.char)
 
         # Otherwise we combine the characters
@@ -87,14 +92,16 @@ class KeyCode(object):
         raise ValueError(key)
 
     @classmethod
-    def from_vk(self, vk):
+    def from_vk(self, vk, **kwargs):
         """Creates a key from a virtual key code.
 
         :param vk: The virtual key code.
 
+        :param kwargs: Any other parameters to pass.
+
         :return: a key code
         """
-        return self(vk=vk)
+        return self(vk=vk, **kwargs)
 
     @classmethod
     def from_char(self, char):
@@ -172,7 +179,7 @@ class Key(enum.Enum):
     #: The Delete key.
     delete = 0
 
-    #: A down array key.
+    #: A down arrow key.
     down = 0
 
     #: The End key.
@@ -212,10 +219,10 @@ class Key(enum.Enum):
     #: A left arrow key.
     left = 0
 
-    #: Trhe PageDown key.
+    #: The PageDown key.
     page_down = 0
 
-    #: The Pageup key.
+    #: The PageUp key.
     page_up = 0
 
     #: A right arrow key.
@@ -242,7 +249,7 @@ class Key(enum.Enum):
     #: The Insert key. This may be undefined for some platforms.
     insert = 0
 
-    #: The Menu key. This may be udefined for some platforms.
+    #: The Menu key. This may be undefined for some platforms.
     menu = 0
 
     #: The NumLock key. This may be undefined for some platforms.
@@ -425,9 +432,22 @@ class Controller(object):
     @contextlib.contextmanager
     def modifiers(self):
         """The currently pressed modifier keys.
+
+        Only the generic modifiers will be set; when pressing either
+        :attr:`Key.shift_l`, :attr:`Key.shift_r` or :attr:`Key.shift`, only
+        :attr:`Key.shift` will be present.
+
+        Use this property within a context block thus::
+
+            with controller.modifiers as modifiers:
+                with_block()
+
+        This ensures that the modifiers cannot be modified by another thread.
         """
         with self._modifiers_lock:
-            yield self._modifiers
+            yield set(
+                self._as_modifier(modifier)
+                for modifier in self._modifiers)
 
     @property
     def alt_pressed(self):
@@ -463,6 +483,9 @@ class Controller(object):
     def _resolve(self, key):
         """Resolves a key to a :class:`KeyCode` instance.
 
+        This method will convert any key representing a character to uppercase
+        if a shift modifier is active.
+
         :param key: The key to resolve.
 
         :return: a key code, or ``None`` if it cannot be resolved
@@ -480,7 +503,7 @@ class Controller(object):
         # Assume this is a proper key
         if isinstance(key, self._KeyCode):
             if key.char is not None and self.shift_pressed:
-                return self._KeyCode.from_char(key.char.upper())
+                return self._KeyCode(vk=key.vk, char=key.char.upper())
             else:
                 return key
 
@@ -492,19 +515,18 @@ class Controller(object):
         :param key: The key being pressed or released.
         """
         # Check whether the key is a modifier
-        modifier = self._as_modifier(key)
-        if modifier:
-            with self.modifiers as modifiers:
+        if self._as_modifier(key):
+            with self._modifiers_lock:
                 if is_press:
-                    modifiers.add(modifier)
+                    self._modifiers.add(key)
                 else:
                     try:
-                        modifiers.remove(modifier)
+                        self._modifiers.remove(key)
                     except KeyError:
                         pass
 
     def _as_modifier(self, key):
-        """Returns a key as the modifier used internally is defined.
+        """Returns a key as the modifier used internally if defined.
 
         This method will convert values like :attr:`Key.alt_r.value` and
         :attr:`Key.shift_l.value` to :attr:`Key.alt` and :attr:`Key.shift`.
@@ -542,6 +564,9 @@ class Listener(AbstractListener):
             with_statements()
         finally:
             listener.stop()
+
+    This class inherits from :class:`threading.Thread` and supports all its
+    methods. It will set :attr:`daemon` to ``True`` when created.
 
     :param callable on_press: The callback to call when a button is pressed.
 

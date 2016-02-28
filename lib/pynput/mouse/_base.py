@@ -1,19 +1,19 @@
 # coding=utf-8
 # pynput
-# Copyright (C) 2015 Moses Palmér
+# Copyright (C) 2015-2016 Moses Palmér
 #
 # This program is free software: you can redistribute it and/or modify it under
-# the terms of the GNU General Public License as published by the Free Software
-# Foundation, either version 3 of the License, or (at your option) any later
-# version.
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
 #
 # This program is distributed in the hope that it will be useful, but WITHOUT
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+# FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
 # details.
 #
-# You should have received a copy of the GNU General Public License along with
-# this program. If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import enum
 
@@ -44,7 +44,7 @@ class Controller(object):
     def position(self):
         """The current position of the mouse pointer.
 
-        This is the tuple ``(x, y)``.
+        This is the tuple ``(x, y)``, and setting it will move the pointer.
         """
         return self._position_get()
 
@@ -164,6 +164,9 @@ class Listener(AbstractListener):
             with_statements()
         finally:
             listener.stop()
+
+    This class inherits from :class:`threading.Thread` and supports all its
+    methods. It will set :attr:`daemon` to ``True`` when created.
 
     :param callable on_move: The callback to call when mouse move events occur.
 

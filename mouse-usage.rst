@@ -67,3 +67,7 @@ from the thread.
 Call ``pynput.mouse.Listener.stop`` from anywhere, or raise
 ``pynput.mouse.Listener.StopException`` or return ``False`` from a callback to
 stop the listener.
+
+On *Windows*, virtual events sent by *other* processes may not be received.
+This library takes precautions, however, to dispatch any virtual events
+generated to all currently running listeners of the current process.
