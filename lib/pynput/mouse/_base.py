@@ -44,7 +44,7 @@ class Controller(object):
     def position(self):
         """The current position of the mouse pointer.
 
-        This is the tuple ``(x, y)``.
+        This is the tuple ``(x, y)``, and setting it will move the pointer.
         """
         return self._position_get()
 

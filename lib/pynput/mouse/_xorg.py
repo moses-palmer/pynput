@@ -59,14 +59,12 @@ class Controller(_base.Controller):
     def _scroll(self, dx, dy):
         if dy:
             self.click(
-                button=Button.scroll_up if dy > 0
-                else Button.scroll_down,
+                button=Button.scroll_up if dy > 0 else Button.scroll_down,
                 count=abs(dy))
 
         if dx:
             self.click(
-                button=Button.scroll_right if dx > 0
-                else Button.scroll_left,
+                button=Button.scroll_right if dx > 0 else Button.scroll_left,
                 count=abs(dx))
 
     def _press(self, button):

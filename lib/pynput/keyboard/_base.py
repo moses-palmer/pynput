@@ -63,9 +63,10 @@ class KeyCode(object):
         Joining a dead key with space (``' '``) or itself yields the non-dead
         version of this key, if one exists; for example,
         ``KeyCode.from_dead('~').join(KeyCode.from_char(' '))`` equals
-        ``KeyCode.from_char('~')``.
+        ``KeyCode.from_char('~')`` and
+        ``KeyCode.from_dead('~').join(KeyCode.from_dead('~'))``.
 
-        :param KeyCode key: The key to join with the dead key.
+        :param KeyCode key: The key to join with this key.
 
         :return: a key code
 
@@ -178,7 +179,7 @@ class Key(enum.Enum):
     #: The Delete key.
     delete = 0
 
-    #: A down array key.
+    #: A down arrow key.
     down = 0
 
     #: The End key.
@@ -218,10 +219,10 @@ class Key(enum.Enum):
     #: A left arrow key.
     left = 0
 
-    #: Trhe PageDown key.
+    #: The PageDown key.
     page_down = 0
 
-    #: The Pageup key.
+    #: The PageUp key.
     page_up = 0
 
     #: A right arrow key.
@@ -248,7 +249,7 @@ class Key(enum.Enum):
     #: The Insert key. This may be undefined for some platforms.
     insert = 0
 
-    #: The Menu key. This may be udefined for some platforms.
+    #: The Menu key. This may be undefined for some platforms.
     menu = 0
 
     #: The NumLock key. This may be undefined for some platforms.
@@ -482,6 +483,9 @@ class Controller(object):
     def _resolve(self, key):
         """Resolves a key to a :class:`KeyCode` instance.
 
+        This method will convert any key representing a character to uppercase
+        if a shift modifier is active.
+
         :param key: The key to resolve.
 
         :return: a key code, or ``None`` if it cannot be resolved
@@ -522,7 +526,7 @@ class Controller(object):
                         pass
 
     def _as_modifier(self, key):
-        """Returns a key as the modifier used internally is defined.
+        """Returns a key as the modifier used internally if defined.
 
         This method will convert values like :attr:`Key.alt_r.value` and
         :attr:`Key.shift_l.value` to :attr:`Key.alt` and :attr:`Key.shift`.

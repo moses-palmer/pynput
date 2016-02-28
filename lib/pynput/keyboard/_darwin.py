@@ -25,6 +25,16 @@ from . import _base
 
 class KeyCode(_base.KeyCode):
     def _event(self, modifiers, mapping, is_pressed):
+        """This key as a *Quartz* event.
+
+        :param set modifiers: The currently active modifiers.
+
+        :param mapping: The current keyboard mapping.
+
+        :param bool is_press: Whether to generate a press event.
+
+        :return: a *Quartz* event
+        """
         vk = self.vk or mapping.get(self.char, 0)
         result = Quartz.CGEventCreateKeyboardEvent(None, vk, is_pressed)
 

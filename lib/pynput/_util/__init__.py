@@ -43,7 +43,8 @@ class AbstractListener(threading.Thread):
         """If an event listener callback raises this exception, the current
         listener is stopped.
 
-        Its first argument must be set to the :class:`Listener` to stop.
+        Its first argument must be set to the :class:`AbstractListener` to
+        stop.
         """
         pass
 
@@ -132,7 +133,7 @@ class AbstractListener(threading.Thread):
         self._condition.release()
 
     def _run(self):
-        """The implementation of the :meth:`start` method.
+        """The implementation of the :meth:`run` method.
 
         This is a platform dependent implementation.
         """

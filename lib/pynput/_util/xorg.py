@@ -67,6 +67,12 @@ def display_manager(display):
 
 def _find_mask(display, symbol):
     """Returns the mode flags to use for a modifier symbol.
+
+    :param Xlib.display.Display display: The *X* display.
+
+    :param str symbol: The name of the symbol.
+
+    :return: the modifier mask
     """
     # Get the key code for the symbol
     modifier_keycode = display.keysym_to_keycode(
@@ -85,6 +91,10 @@ def alt_mask(display):
 
     The first time this function is called for a display, the value is cached.
     Subsequent calls will return the cached value.
+
+    :param Xlib.display.Display display: The *X* display.
+
+    :return: the modifier mask
     """
     if not hasattr(display, '__alt_mask'):
         display.__alt_mask = _find_mask(display, 'Alt_L')
@@ -96,6 +106,10 @@ def alt_gr_mask(display):
 
     The first time this function is called for a display, the value is cached.
     Subsequent calls will return the cached value.
+
+    :param Xlib.display.Display display: The *X* display.
+
+    :return: the modifier mask
     """
     if not hasattr(display, '__altgr_mask'):
         display.__altgr_mask = _find_mask(display, 'Mode_switch')
@@ -104,12 +118,20 @@ def alt_gr_mask(display):
 
 def keysym_is_latin_upper(keysym):
     """Determines whether a *keysym* is an upper case *latin* character.
+
+    This is true only if ``XK_A`` <= ``keysym`` <= ` XK_Z``.
+
+    :param in keysym: The *keysym* to check.
     """
     return Xlib.XK.XK_A <= keysym <= Xlib.XK.XK_Z
 
 
 def keysym_is_latin_lower(keysym):
     """Determines whether a *keysym* is a lower case *latin* character.
+
+    This is true only if ``XK_a`` <= ``keysym`` <= ` XK_z``.
+
+    :param in keysym: The *keysym* to check.
     """
     return Xlib.XK.XK_a <= keysym <= Xlib.XK.XK_z
 
@@ -274,6 +296,8 @@ def keyboard_mapping(display):
                 shift_state = 0 \
                     | (shift_mask if shift else 0) \
                     | (group_mask if group else 0)
+
+                # Prefer already known lesser shift states
                 if keysym in mapping and mapping[keysym][1] < shift_state:
                     continue
                 mapping[keysym] = (key_code, shift_state)
@@ -365,6 +389,9 @@ class ListenerMixin(object):
 
         This method will parse the response and call the callbacks registered
         on initialisation.
+
+        :param events: The events passed by *X*. This is a binary block
+            parsable by :attr:`_EVENT_PARSER`.
         """
         # If
         if not self.running:

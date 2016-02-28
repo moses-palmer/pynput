@@ -25,6 +25,12 @@ from . import _base
 class KeyCode(_base.KeyCode):
     def _parameters(self, is_press):
         """The parameters to pass to ``SendInput`` to generate this key.
+
+        :param bool is_press: Whether to generate a press event.
+
+        :return: all arguments to pass to ``SendInput`` for this key
+
+        :rtype: dict
         """
         if self.vk:
             vk = self.vk
