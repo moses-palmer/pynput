@@ -91,14 +91,16 @@ class KeyCode(object):
         raise ValueError(key)
 
     @classmethod
-    def from_vk(self, vk):
+    def from_vk(self, vk, **kwargs):
         """Creates a key from a virtual key code.
 
         :param vk: The virtual key code.
 
+        :param kwargs: Any other parameters to pass.
+
         :return: a key code
         """
-        return self(vk=vk)
+        return self(vk=vk, **kwargs)
 
     @classmethod
     def from_char(self, char):

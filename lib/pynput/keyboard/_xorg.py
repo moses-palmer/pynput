@@ -32,7 +32,7 @@ from . import _base
 
 class KeyCode(_base.KeyCode):
     @classmethod
-    def from_symbol(self, symbol):
+    def from_symbol(self, symbol, **kwargs):
         """Creates a key from a symbol.
 
         :param str symbol: The symbol name.
@@ -42,16 +42,18 @@ class KeyCode(_base.KeyCode):
         # First try simple translation
         keysym = Xlib.XK.string_to_keysym(symbol)
         if keysym:
-            return self.from_vk(keysym)
+            return self.from_vk(keysym, **kwargs)
 
         # If that fails, try checking a module attribute of Xlib.keysymdef.xkb
         if not keysym:
             try:
                 return self.from_vk(
-                    getattr(Xlib.keysymdef.xkb, 'XK_' + symbol, 0))
+                    getattr(Xlib.keysymdef.xkb, 'XK_' + symbol, 0),
+                    **kwargs)
             except:
                 return self.from_vk(
-                    SYMBOLS.get(symbol, (0,))[0])
+                    SYMBOLS.get(symbol, (0,))[0],
+                    **kwargs)
 
 
 class Key(enum.Enum):
@@ -101,7 +103,7 @@ class Key(enum.Enum):
     shift = KeyCode.from_symbol('Shift_L')
     shift_l = KeyCode.from_symbol('Shift_L')
     shift_r = KeyCode.from_symbol('Shift_R')
-    space = KeyCode(vk=Xlib.XK.string_to_keysym('space'), char=' ')
+    space = KeyCode.from_symbol('space', char=' ')
     tab = KeyCode.from_symbol('Tab')
     up = KeyCode.from_symbol('Up')
 

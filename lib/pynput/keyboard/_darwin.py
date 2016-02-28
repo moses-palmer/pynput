@@ -96,7 +96,7 @@ class Key(enum.Enum):
     shift = KeyCode.from_vk(0x38)
     shift_l = KeyCode.from_vk(0x38)
     shift_r = KeyCode.from_vk(0x3C)
-    space = KeyCode(vk=0x31, char=' ')
+    space = KeyCode.from_vk(0x31, char=' ')
     tab = KeyCode.from_vk(0x30)
     up = KeyCode.from_vk(0x7E)
 
