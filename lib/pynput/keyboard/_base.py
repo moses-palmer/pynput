@@ -499,7 +499,7 @@ class Controller(object):
         # Assume this is a proper key
         if isinstance(key, self._KeyCode):
             if key.char is not None and self.shift_pressed:
-                return self._KeyCode.from_char(key.char.upper())
+                return self._KeyCode(vk=key.vk, char=key.char.upper())
             else:
                 return key
 
