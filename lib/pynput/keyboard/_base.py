@@ -53,7 +53,7 @@ class KeyCode(object):
         if not isinstance(other, self.__class__):
             return False
         if self.char is not None and other.char is not None:
-            return self.char == other.char
+            return self.char == other.char and self.is_dead == other.is_dead
         else:
             return self.vk == other.vk
 
