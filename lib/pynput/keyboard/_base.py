@@ -71,9 +71,13 @@ class KeyCode(object):
 
         :raises ValueError: if the keys cannot be joined
         """
+        # A non-dead key cannot be joined
+        if not self.is_dead:
+            raise ValueError(self)
+
         # Joining two of the same keycodes, or joining with space, yields the
         # non-dead version of the key
-        if key.char == ' ' or (key.is_dead and key.char == self.char):
+        if key.char == ' ' or self == key:
             return self.from_char(self.char)
 
         # Otherwise we combine the characters
