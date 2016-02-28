@@ -543,6 +543,9 @@ class Listener(AbstractListener):
         finally:
             listener.stop()
 
+    This class inherits from :class:`threading.Thread` and supports all its
+    methods. It will set :attr:`daemon` to ``True`` when created.
+
     :param callable on_press: The callback to call when a button is pressed.
 
         It will be called with the argument ``(key)``, where ``key`` is a

@@ -61,6 +61,8 @@ class AbstractListener(threading.Thread):
         self._condition = threading.Condition()
         self._ready = False
 
+        self.daemon = True
+
         for name, callback in kwargs.items():
             setattr(self, name, wrapper(callback or (lambda *a: None)))
 

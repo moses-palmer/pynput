@@ -165,6 +165,9 @@ class Listener(AbstractListener):
         finally:
             listener.stop()
 
+    This class inherits from :class:`threading.Thread` and supports all its
+    methods. It will set :attr:`daemon` to ``True`` when created.
+
     :param callable on_move: The callback to call when mouse move events occur.
 
         It will be called with the arguments ``(x, y)``, which is the new
