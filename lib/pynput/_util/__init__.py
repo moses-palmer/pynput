@@ -124,7 +124,7 @@ class AbstractListener(threading.Thread):
         until this method is called.
         """
         self._condition.acquire()
-        self._running = True
+        self._ready = True
         self._condition.notify()
         self._condition.release()
 
