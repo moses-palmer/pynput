@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+import contextlib
 import itertools
 import Xlib.display
 import Xlib.XK
@@ -36,6 +37,7 @@ class X11Error(Exception):
     pass
 
 
+@contextlib.contextmanager
 def display_manager(display):
     """Traps *X* errors and raises an :class:``X11Error`` at the end if any
     error occurred.
@@ -48,25 +50,19 @@ def display_manager(display):
     :return: the display
     :rtype: Xlib.display.Display
     """
-    from contextlib import contextmanager
+    errors = []
 
-    @contextmanager
-    def manager():
-        errors = []
+    def handler(*args):
+        errors.append(args)
 
-        def handler(*args):
-            errors.append(args)
-
-        old_handler = display.set_error_handler(handler)
-        try:
-            yield display
-            display.sync()
-        finally:
-            display.set_error_handler(old_handler)
-        if errors:
-            raise X11Error(errors)
-
-    return manager()
+    old_handler = display.set_error_handler(handler)
+    try:
+        yield display
+        display.sync()
+    finally:
+        display.set_error_handler(old_handler)
+    if errors:
+        raise X11Error(errors)
 
 
 def _find_mask(display, symbol):
