@@ -431,9 +431,22 @@ class Controller(object):
     @contextlib.contextmanager
     def modifiers(self):
         """The currently pressed modifier keys.
+
+        Only the generic modifiers will be set; when pressing either
+        :attr:`Key.shift_l`, :attr:`Key.shift_r` or :attr:`Key.shift`, only
+        :attr:`Key.shift` will be present.
+
+        Use this property within a context block thus::
+
+            with controller.modifiers as modifiers:
+                with_block()
+
+        This ensures that the modifiers cannot be modified by another thread.
         """
         with self._modifiers_lock:
-            yield self._modifiers
+            yield set(
+                self._as_modifier(modifier)
+                for modifier in self._modifiers)
 
     @property
     def alt_pressed(self):
@@ -498,14 +511,13 @@ class Controller(object):
         :param key: The key being pressed or released.
         """
         # Check whether the key is a modifier
-        modifier = self._as_modifier(key)
-        if modifier:
-            with self.modifiers as modifiers:
+        if self._as_modifier(key):
+            with self._modifiers_lock:
                 if is_press:
-                    modifiers.add(modifier)
+                    self._modifiers.add(key)
                 else:
                     try:
-                        modifiers.remove(modifier)
+                        self._modifiers.remove(key)
                     except KeyError:
                         pass
 
