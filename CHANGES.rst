@@ -1,6 +1,12 @@
 Release Notes
 =============
 
+v1.0 - Stable Release
+---------------------
+*  Changed license to *LGPL*.
+*  Corrected minor bugs and inconsistencies.
+*  Corrected and extended documentation.
+
 
 v0.6 - Keyboard Monitor
 -----------------------
