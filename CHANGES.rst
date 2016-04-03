@@ -1,6 +1,11 @@
 Release Notes
 =============
 
+v1.0.1 - Fixes for Python 3
+---------------------------
+*  Corrected bugs which prevented the library to be used on *Python 3*.
+
+
 v1.0 - Stable Release
 ---------------------
 *  Changed license to *LGPL*.
