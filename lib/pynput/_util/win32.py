@@ -102,7 +102,7 @@ class MessageLoop(object):
         """
         self._event.wait()
         self._PostThreadMessage(self._threadid, self.WM_STOP, 0, 0)
-        if self.thread != threading.current_thread():
+        if self.thread.ident != threading.current_thread().ident:
             self.thread.join()
 
 
