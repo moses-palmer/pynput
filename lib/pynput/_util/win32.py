@@ -129,7 +129,7 @@ class SystemHook(object):
         self._hook = None
 
     def __enter__(self):
-        key = threading.current_thread()
+        key = threading.current_thread().ident
         assert key not in self._HOOKS
 
         # Add ourself to lookup table and install the hook
@@ -143,7 +143,7 @@ class SystemHook(object):
         return self
 
     def __exit__(self, type, value, traceback):
-        key = threading.current_thread()
+        key = threading.current_thread().ident
         assert key in self._HOOKS
 
         if self._hook is not None:
@@ -154,7 +154,7 @@ class SystemHook(object):
     @staticmethod
     @_HOOKPROC
     def _handler(code, msg, lpdata):
-        key = threading.current_thread()
+        key = threading.current_thread().ident
         self = SystemHook._HOOKS.get(key, None)
         try:
             if self:
