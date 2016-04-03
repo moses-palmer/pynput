@@ -1,6 +1,11 @@
 Release Notes
 =============
 
+v1.0.2 - Fixes for thread identifiers
+-------------------------------------
+*  Use thread identifiers to identify threads, not Thread instances.
+
+
 v1.0.1 - Fixes for Python 3
 ---------------------------
 *  Corrected bugs which prevented the library to be used on *Python 3*.
