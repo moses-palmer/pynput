@@ -381,7 +381,11 @@ class ListenerMixin(object):
     def _stop(self):
         if not hasattr(self, '_context'):
             self.wait()
-        self._display_stop.record_disable_context(self._context)
+        try:
+            self._display_stop.record_disable_context(self._context)
+        except:
+            # Ignore errors at this point
+            pass
 
     @AbstractListener._emitter
     def _handler(self, events):
