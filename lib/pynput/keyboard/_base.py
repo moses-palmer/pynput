@@ -57,6 +57,9 @@ class KeyCode(object):
         else:
             return self.vk == other.vk
 
+    def __hash__(self):
+        return hash(repr(self))
+
     def join(self, key):
         """Applies this dead key to another key and returns the result.
 

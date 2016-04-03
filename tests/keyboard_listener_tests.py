@@ -70,7 +70,7 @@ class KeyboardListenerTest(EventTest):
                     for key in event[0]),
                 is_pressed)
 
-        remaining = map(normalize, args)
+        remaining = [normalize(arg) for arg in args]
 
         time.sleep(1)
 
