@@ -113,7 +113,7 @@ class SystemHook(object):
     _UnhookWindowsHookEx = windll.user32.UnhookWindowsHookEx
     _CallNextHookEx = windll.user32.CallNextHookEx
 
-    _HOOKPROC = wintypes.WINFUNCTYPE(
+    _HOOKPROC = ctypes.WINFUNCTYPE(
         wintypes.LPARAM,
         ctypes.c_int32, wintypes.WPARAM, wintypes.LPARAM)
 
