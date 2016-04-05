@@ -1,6 +1,11 @@
 Release Notes
 =============
 
+v1.0.3 - Fixes for Python 3 on Windows
+--------------------------------------
+*  Corrected use of ``ctypes`` on Windows.
+
+
 v1.0.2 - Fixes for thread identifiers
 -------------------------------------
 *  Use thread identifiers to identify threads, not Thread instances.
