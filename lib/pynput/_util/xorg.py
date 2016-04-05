@@ -18,6 +18,7 @@
 import contextlib
 import itertools
 import Xlib.display
+import Xlib.threaded
 import Xlib.XK
 
 from . import AbstractListener
