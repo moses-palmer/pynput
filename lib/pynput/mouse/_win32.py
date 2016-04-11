@@ -52,7 +52,7 @@ class Controller(NotifierMixin, _base.Controller):
                 ctypes.byref(INPUT(
                     type=INPUT.MOUSE,
                     value=INPUT_union(
-                        mouse=MOUSEINPUT(
+                        mi=MOUSEINPUT(
                             dwFlags=MOUSEINPUT.WHEEL,
                             mouseData=dy)))),
                 ctypes.sizeof(INPUT))
@@ -63,7 +63,7 @@ class Controller(NotifierMixin, _base.Controller):
                 ctypes.byref(INPUT(
                     type=INPUT.MOUSE,
                     value=INPUT_union(
-                        mouse=MOUSEINPUT(
+                        mi=MOUSEINPUT(
                             dwFlags=MOUSEINPUT.HWHEEL,
                             mouseData=dy)))),
                 ctypes.sizeof(INPUT))
@@ -78,7 +78,7 @@ class Controller(NotifierMixin, _base.Controller):
             ctypes.byref(INPUT(
                 type=INPUT.MOUSE,
                 value=INPUT_union(
-                    mouse=MOUSEINPUT(
+                    mi=MOUSEINPUT(
                         dwFlags=button.value[0])))),
             ctypes.sizeof(INPUT))
         x, y = self.position
@@ -90,7 +90,7 @@ class Controller(NotifierMixin, _base.Controller):
             ctypes.byref(INPUT(
                 type=INPUT.MOUSE,
                 value=INPUT_union(
-                    mouse=MOUSEINPUT(
+                    mi=MOUSEINPUT(
                         dwFlags=button.value[1])))),
             ctypes.sizeof(INPUT))
         x, y = self.position
