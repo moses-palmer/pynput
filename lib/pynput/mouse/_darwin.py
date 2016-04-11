@@ -50,6 +50,9 @@ class Button(enum.Enum):
 
 
 class Controller(_base.Controller):
+    #: The scroll speed
+    _SCROLL_SPEED = 5
+
     def __init__(self, *args, **kwargs):
         super(Controller, self).__init__(*args, **kwargs)
         self._click = None
@@ -88,8 +91,8 @@ class Controller(_base.Controller):
                     None,
                     Quartz.kCGScrollEventUnitPixel,
                     2,
-                    yval * 1,
-                    xval * 1))
+                    yval * self._SCROLL_SPEED,
+                    xval * self._SCROLL_SPEED))
 
     def _press(self, button):
         (press, release, drag), mouse_button = button.value
