@@ -1,6 +1,11 @@
 Release Notes
 =============
 
+v1.0.4 - Fixes for clicking and scrolling on Windows
+----------------------------------------------------
+*  Corrected name of mouse input field when sending click and scroll events.
+
+
 v1.0.3 - Fixes for Python 3 on Windows
 --------------------------------------
 *  Corrected use of ``ctypes`` on Windows.
