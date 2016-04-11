@@ -1,6 +1,12 @@
 Release Notes
 =============
 
+v1.0.5 - Fixes for dragging on OSX
+----------------------------------
+*  Corrected dragging on *OSX*.
+*  Added scroll speed constant for *OSX* to correct slow scroll speed.
+
+
 v1.0.4 - Fixes for clicking and scrolling on Windows
 ----------------------------------------------------
 *  Corrected name of mouse input field when sending click and scroll events.
@@ -18,7 +24,7 @@ v1.0.2 - Fixes for thread identifiers
 
 v1.0.1 - Fixes for Python 3
 ---------------------------
-*  Corrected bugs which prevented the library to be used on *Python 3*.
+*  Corrected bugs which prevented the library from being used on *Python 3*.
 
 
 v1.0 - Stable Release
