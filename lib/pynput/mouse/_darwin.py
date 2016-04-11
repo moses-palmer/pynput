@@ -65,8 +65,8 @@ class Controller(_base.Controller):
 
     def _position_set(self, pos):
         try:
-            (_, _, mouse_type), mouse_button = self._drag_button
-        except TypeError:
+            (_, _, mouse_type), mouse_button = self._drag_button.value
+        except AttributeError:
             mouse_type = Quartz.kCGEventMouseMoved
             mouse_button = 0
 
