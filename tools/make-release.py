@@ -204,6 +204,7 @@ def upload_to_pypi():
             os.path.join(os.path.dirname(__file__), os.pardir, 'setup.py'),
             'build_sphinx',
             'upload_docs',
+            'bdist_egg',
             'bdist_wheel',
             'upload'],
         stdout=subprocess.PIPE,
