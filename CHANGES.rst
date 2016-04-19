@@ -1,6 +1,11 @@
 Release Notes
 =============
 
+v1.0.6 - Universal wheel
+------------------------
+*  Make sure to build a universal wheel for all python versions.
+
+
 v1.0.5 - Fixes for dragging on OSX
 ----------------------------------
 *  Corrected dragging on *OSX*.
