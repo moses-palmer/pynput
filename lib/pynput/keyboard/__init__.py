@@ -39,6 +39,10 @@ else:
     if not KeyCode and not Key and not Controller and not Listener:
         try:
             from ._xorg import KeyCode, Key, Controller, Listener
+        except ImportError:
+            # For now, since we only support Xlib anyway, we re-raise these
+            # errors to allow users to determine the cause of failures to import
+            raise
         except:
             pass
 

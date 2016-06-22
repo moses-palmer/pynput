@@ -38,6 +38,10 @@ else:
     if not Button and not Controller and not Listener:
         try:
             from ._xorg import Button, Controller, Listener
+        except ImportError:
+            # For now, since we only support Xlib anyway, we re-raise these
+            # errors to allow users to determine the cause of failures to import
+            raise
         except:
             pass
 
