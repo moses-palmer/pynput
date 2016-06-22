@@ -1,6 +1,13 @@
 Release Notes
 =============
 
+v1.1 - Simplified usage on *Linux*
+----------------------------------
+*  Propagate import errors raised on Linux to help troubleshoot missing
+   ``Xlib`` module.
+*  Declare ``python3-xlib`` as dependency on *Linux* for *Python 3*.
+
+
 v1.0.6 - Universal wheel
 ------------------------
 *  Make sure to build a universal wheel for all python versions.
