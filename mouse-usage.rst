@@ -50,7 +50,7 @@ Use ``pynput.mouse.Listener`` like this::
             # Stop listener
             return False
 
-    def on_scroll(dx, dy):
+    def on_scroll(x, y, dx, dy):
         print('Scrolled {0}'.format(
             (x, y)))
 
