@@ -91,7 +91,7 @@ class MessageLoop(object):
         lpmsg = ctypes.byref(msg)
         self._PeekMessage(lpmsg, None, 0x0400, 0x0400, self.PM_NOREMOVE)
 
-        # Let the called perform initialisation
+        # Let the caller perform initialisation
         self._initialize(self)
 
         # Set the event to signal to other threads that the loop is created
