@@ -17,7 +17,7 @@
 
 import enum
 
-from pynput._util import NotifierMixin
+from pynput._util import AbstractListener, NotifierMixin
 from pynput._util.win32 import *
 from pynput._util.win32_vks import *
 from . import _base
@@ -167,16 +167,22 @@ class Listener(ListenerMixin, _base.Listener):
         super(Listener, self).__init__(*args, **kwargs)
         self._translator = KeyTranslator()
 
-    def _handle(self, code, msg, lpdata):
+    def _convert(self, code, msg, lpdata):
         if code != SystemHook.HC_ACTION:
             return
 
         data = ctypes.cast(lpdata, self._LPKBDLLHOOKSTRUCT).contents
+        return (msg, data.vkCode)
+
+    @AbstractListener._emitter
+    def _process(self, wparam, lparam):
+        msg = wparam
+        vk = lparam
 
         # Convert the event to a KeyCode; this may fail, and in that case we
         # pass None
         try:
-            key = self._event_to_key(msg, data)
+            key = self._event_to_key(msg, vk)
         except OSError:
             key = None
         except:
@@ -199,12 +205,12 @@ class Listener(ListenerMixin, _base.Listener):
         (self.on_press if is_press else self.on_release)(
             self._SPECIAL_KEYS.get(key.vk, key))
 
-    def _event_to_key(self, msg, data):
+    def _event_to_key(self, msg, vk):
         """Converts an :class:`_KBDLLHOOKSTRUCT` to a :class:`KeyCode`.
 
         :param msg: The message received.
 
-        :param data: The data to convert.
+        :param vk: The virtual key code to convert.
 
         :return: a :class:`pynput.keyboard.KeyCode`
 
@@ -213,12 +219,12 @@ class Listener(ListenerMixin, _base.Listener):
         # We must always call self._translate to keep the keyboard state up to
         # date
         key = KeyCode(**self._translate(
-            data.vkCode,
+            vk,
             msg in self._PRESS_MESSAGES))
 
         # If the virtual key code corresponds to a Key value, we prefer that
-        if data.vkCode in self._SPECIAL_KEYS:
-            return self._SPECIAL_KEYS[data.vkCode]
+        if vk in self._SPECIAL_KEYS:
+            return self._SPECIAL_KEYS[vk]
         else:
             return key
 
