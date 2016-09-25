@@ -369,7 +369,7 @@ class KeyTranslator(object):
     _MAPVK_VK_TO_CHAR = 2
 
     def __init__(self):
-        self.__state = (ctypes.c_byte * 255)()
+        self.__state = (ctypes.c_ubyte * 255)()
         self._cache = {}
         self._reinject_arguments = None
 
@@ -422,7 +422,7 @@ class KeyTranslator(object):
                 vk,
                 layout,
                 scan,
-                (ctypes.c_byte * 255)(*state))
+                (ctypes.c_ubyte * 255)(*state))
 
         # Otherwise we just clear any previous dead key state
         else:
