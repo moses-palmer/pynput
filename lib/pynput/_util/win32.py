@@ -210,6 +210,17 @@ class MessageLoop(object):
         if self.thread.ident != threading.current_thread().ident:
             self.thread.join()
 
+    def post(self, msg, wparam, lparam):
+        """Posts a message to this message loop.
+
+        :param ctypes.wintypes.UINT msg: The message.
+
+        :param ctypes.wintypes.WPARAM wparam: The value of ``wParam``.
+
+        :param ctypes.wintypes.LPARAM lparam: The value of ``lParam``.
+        """
+        self._PostThreadMessage(self._threadid, msg, wparam, lparam)
+
 
 class SystemHook(object):
     """A class to handle Windows hooks.
@@ -295,6 +306,9 @@ class ListenerMixin(object):
     #: The Windows hook ID for the events to capture
     _EVENTS = None
 
+    #: The window message used to signal that an even should be handled
+    _WM_PROCESS = 0x410
+
     def _run(self):
         self._message_loop = MessageLoop()
         with self._receive():
@@ -306,6 +320,8 @@ class ListenerMixin(object):
                 for msg in self._message_loop:
                     if not self.running:
                         break
+                    if msg.message == self._WM_PROCESS:
+                        self._process(msg.wParam, msg.lParam)
 
     def _stop(self):
         try:
@@ -318,15 +334,39 @@ class ListenerMixin(object):
     def _handler(self, code, msg, lpdata):
         """The callback registered with *Windows* for events.
 
-        This method will call the callbacks registered on initialisation.
+        This method will post the message :attr:`_WM_HANDLE` to the message loop
+        started with this listener using :meth:`MessageLoop.post`. The
+        parameters are retrieved with a call to :meth:`_handle`.
         """
-        self._handle(code, msg, lpdata)
+        try:
+            converted = self._convert(code, msg, lpdata)
+            if converted is not None:
+                self._message_loop.post(self._WM_PROCESS, *converted)
+        except NotImplementedError:
+            self._handle(code, msg, lpdata)
+
+    def _convert(self, code, msg, lpdata):
+        """The device specific callback handler.
+
+        This method converts a low-level message and data to a
+        ``WPARAM`` / ``LPARAM`` pair.
+        """
+        raise NotImplementedError()
+
+    def _process(self, wparam, lparam):
+        """The device specific callback handler.
+
+        This method performs the actual dispatching of events.
+        """
+        raise NotImplementedError()
 
     def _handle(self, code, msg, lpdata):
         """The device specific callback handler.
 
         This method calls the appropriate callback registered when this
         listener was created based on the event.
+
+        This method is only called if :meth:`_convert` is not implemented.
         """
         raise NotImplementedError()
 
