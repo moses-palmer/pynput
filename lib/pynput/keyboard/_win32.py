@@ -149,33 +149,6 @@ class Listener(ListenerMixin, _base.Listener):
         key.value.vk: key
         for key in Key}
 
-    def __init__(self, *args, **kwargs):
-        super(Listener, self).__init__(*args, **kwargs)
-        self._translate = KeyTranslator()
-
-    def _event_to_key(self, msg, data):
-        """Converts an :class:`_KBDLLHOOKSTRUCT` to a :class:`KeyCode`.
-
-        :param msg: The message received.
-
-        :param data: The data to convert.
-
-        :return: a :class:`pynput.keyboard.KeyCode`
-
-        :raises OSError: if the message and data could not be converted
-        """
-        # We must always call self._translate to keep the keyboard state up to
-        # date
-        key = KeyCode(**self._translate(
-            data.vkCode,
-            msg in self._PRESS_MESSAGES))
-
-        # If the virtual key code corresponds to a Key value, we prefer that
-        if data.vkCode in self._SPECIAL_KEYS:
-            return self._SPECIAL_KEYS[data.vkCode]
-        else:
-            return key
-
     class _KBDLLHOOKSTRUCT(ctypes.Structure):
         """Contains information about a mouse event passed to a
         ``WH_KEYBOARD_LL`` hook procedure, ``LowLevelKeyboardProc``.
@@ -189,6 +162,10 @@ class Listener(ListenerMixin, _base.Listener):
 
     #: A pointer to a :class:`KBDLLHOOKSTRUCT`
     _LPKBDLLHOOKSTRUCT = ctypes.POINTER(_KBDLLHOOKSTRUCT)
+
+    def __init__(self, *args, **kwargs):
+        super(Listener, self).__init__(*args, **kwargs)
+        self._translator = KeyTranslator()
 
     def _handle(self, code, msg, lpdata):
         if code != SystemHook.HC_ACTION:
@@ -221,3 +198,39 @@ class Listener(ListenerMixin, _base.Listener):
         """
         (self.on_press if is_press else self.on_release)(
             self._SPECIAL_KEYS.get(key.vk, key))
+
+    def _event_to_key(self, msg, data):
+        """Converts an :class:`_KBDLLHOOKSTRUCT` to a :class:`KeyCode`.
+
+        :param msg: The message received.
+
+        :param data: The data to convert.
+
+        :return: a :class:`pynput.keyboard.KeyCode`
+
+        :raises OSError: if the message and data could not be converted
+        """
+        # We must always call self._translate to keep the keyboard state up to
+        # date
+        key = KeyCode(**self._translate(
+            data.vkCode,
+            msg in self._PRESS_MESSAGES))
+
+        # If the virtual key code corresponds to a Key value, we prefer that
+        if data.vkCode in self._SPECIAL_KEYS:
+            return self._SPECIAL_KEYS[data.vkCode]
+        else:
+            return key
+
+    def _translate(self, vk, is_press):
+        """Translates a virtual key code to a parameter list passable to
+        :class:`pynput.keyboard.KeyCode`.
+
+        :param int vk: The virtual key code.
+
+        :param bool is_press: Whether this is a press event.
+
+        :return: a paramter list to the :class:`pynput.keyboard.KeyCode`
+            constructor
+        """
+        return self._translator(vk, is_press)
