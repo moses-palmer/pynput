@@ -167,32 +167,6 @@ class Listener(ListenerMixin, _base.Listener):
             finally:
                 self._context = None
 
-    def _event_to_key(self, event):
-        """Converts a *Quartz* event to a :class:`KeyCode`.
-
-        :param event: The event to convert.
-
-        :return: a :class:`pynput.keyboard.KeyCode`
-
-        :raises IndexError: if the key code is invalid
-        """
-        vk = Quartz.CGEventGetIntegerValueField(
-            event, Quartz.kCGKeyboardEventKeycode)
-
-        # First try special keys...
-        if vk in self._SPECIAL_KEYS:
-            return self._SPECIAL_KEYS[vk]
-
-        # ...then try characters...
-        # TODO: Use Quartz.CGEventKeyboardGetUnicodeString instead
-        char = keycode_to_string(
-            self._context, vk, Quartz.CGEventGetFlags(event))
-        if char:
-            return KeyCode.from_char(char)
-
-        # ...and fall back on a virtual key code
-        return KeyCode.from_vk(vk)
-
     def _handle(self, proxy, event_type, event, refcon):
         # Convert the event to a KeyCode; this may fail, and in that case we
         # pass None
@@ -234,3 +208,29 @@ class Listener(ListenerMixin, _base.Listener):
             # Store the current flag mask to be able to detect modifier state
             # changes
             self._flags = Quartz.CGEventGetFlags(event)
+
+    def _event_to_key(self, event):
+        """Converts a *Quartz* event to a :class:`KeyCode`.
+
+        :param event: The event to convert.
+
+        :return: a :class:`pynput.keyboard.KeyCode`
+
+        :raises IndexError: if the key code is invalid
+        """
+        vk = Quartz.CGEventGetIntegerValueField(
+            event, Quartz.kCGKeyboardEventKeycode)
+
+        # First try special keys...
+        if vk in self._SPECIAL_KEYS:
+            return self._SPECIAL_KEYS[vk]
+
+        # ...then try characters...
+        # TODO: Use Quartz.CGEventKeyboardGetUnicodeString instead
+        char = keycode_to_string(
+            self._context, vk, Quartz.CGEventGetFlags(event))
+        if char:
+            return KeyCode.from_char(char)
+
+        # ...and fall back on a virtual key code
+        return KeyCode.from_vk(vk)
