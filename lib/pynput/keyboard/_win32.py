@@ -38,7 +38,7 @@ class KeyCode(_base.KeyCode):
             scan = 0
             flags = 0
         else:
-            r = VkKeyScan(ord(self.char))
+            r = VkKeyScan(self.char)
             if (r >> 8) & 0xFF == 0:
                 vk = r & 0xFF
                 scan = 0
