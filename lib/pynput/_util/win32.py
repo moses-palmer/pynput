@@ -25,6 +25,11 @@ from ctypes import windll, wintypes
 from . import AbstractListener
 
 
+# LPDWORD is not in ctypes.wintypes on Python 2
+if not hasattr(wintypes, 'LPDWORD'):
+    wintypes.LPDWORD = ctypes.POINTER(wintypes.DWORD)
+
+
 class MOUSEINPUT(ctypes.Structure):
     """Contains information about a simulated mouse event.
     """
