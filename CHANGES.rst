@@ -1,6 +1,11 @@
 Release Notes
 =============
 
+v1.1.2 - Added missing type for Python 2
+----------------------------------------
+*  Added missing ``LPDWORD`` for *Python 2* on *Windows*.
+
+
 v1.1.1 - Fixes for listeners and controllers on Windows
 -------------------------------------------------------
 *  Corrected keyboard listener on *Windows*. Modifier keys and other keys
