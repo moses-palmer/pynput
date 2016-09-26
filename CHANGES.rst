@@ -1,8 +1,16 @@
 Release Notes
 =============
 
-v1.1 - Simplified usage on *Linux*
-----------------------------------
+v1.1.1 - Fixes for listeners and controllers on Windows
+-------------------------------------------------------
+*  Corrected keyboard listener on *Windows*. Modifier keys and other keys
+   changing the state of the keyboard are now handled correctly.
+*  Corrected mouse click and release on *Windows*.
+*  Corrected code samples.
+
+
+v1.1 - Simplified usage on Linux
+--------------------------------
 *  Propagate import errors raised on Linux to help troubleshoot missing
    ``Xlib`` module.
 *  Declare ``python3-xlib`` as dependency on *Linux* for *Python 3*.
