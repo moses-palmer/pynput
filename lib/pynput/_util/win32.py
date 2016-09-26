@@ -25,146 +25,6 @@ from ctypes import windll, wintypes
 from . import AbstractListener
 
 
-SendInput = windll.user32.SendInput
-VkKeyScan = windll.user32.VkKeyScanW
-
-GetCurrentThreadId = windll.kernel32.GetCurrentThreadId
-
-
-class MessageLoop(object):
-    """A class representing a message loop.
-    """
-    #: The message that signals this loop to terminate
-    WM_STOP = 0x0401
-
-    _GetMessage = windll.user32.GetMessageW
-    _PeekMessage = windll.user32.PeekMessageW
-    _PostThreadMessage = windll.user32.PostThreadMessageW
-
-    PM_NOREMOVE = 0
-
-    def __init__(
-            self,
-            initialize=lambda message_loop: None,
-            finalize=lambda message_loop: None):
-        self._threadid = None
-        self._initialize = initialize
-        self._finalize = finalize
-        self._event = threading.Event()
-        self.thread = None
-
-    def __iter__(self):
-        """Initialises the message loop and yields all messages until
-        :meth:`stop` is called.
-
-        :raises AssertionError: if :meth:`start` has not been called
-        """
-        assert self._threadid is not None
-
-        try:
-            # Pump messages until WM_STOP
-            while True:
-                msg = wintypes.MSG()
-                lpmsg = ctypes.byref(msg)
-                r = self._GetMessage(lpmsg, None, 0, 0)
-                if r <= 0 or msg.message == self.WM_STOP:
-                    break
-                else:
-                    yield msg
-
-        finally:
-            self._finalize(self)
-            self._threadid = None
-            self.thread = None
-
-    def start(self):
-        """Starts the message loop.
-
-        This method must be called before iterating over messages, and it must
-        be called from the same thread.
-        """
-        self._threadid = GetCurrentThreadId()
-        self.thread = threading.current_thread()
-
-        # Create the message loop
-        msg = wintypes.MSG()
-        lpmsg = ctypes.byref(msg)
-        self._PeekMessage(lpmsg, None, 0x0400, 0x0400, self.PM_NOREMOVE)
-
-        # Let the called perform initialisation
-        self._initialize(self)
-
-        # Set the event to signal to other threads that the loop is created
-        self._event.set()
-
-    def stop(self):
-        """Stops the message loop.
-        """
-        self._event.wait()
-        self._PostThreadMessage(self._threadid, self.WM_STOP, 0, 0)
-        if self.thread.ident != threading.current_thread().ident:
-            self.thread.join()
-
-
-class SystemHook(object):
-    """A class to handle Windows hooks.
-    """
-    _SetWindowsHookEx = windll.user32.SetWindowsHookExW
-    _UnhookWindowsHookEx = windll.user32.UnhookWindowsHookEx
-    _CallNextHookEx = windll.user32.CallNextHookEx
-
-    _HOOKPROC = ctypes.WINFUNCTYPE(
-        wintypes.LPARAM,
-        ctypes.c_int32, wintypes.WPARAM, wintypes.LPARAM)
-
-    #: The registered hook procedures
-    _HOOKS = {}
-
-    #: The hook action value for actions we should check
-    HC_ACTION = 0
-
-    def __init__(self, hook_id, on_hook=lambda code, msg, lpdata: None):
-        self.hook_id = hook_id
-        self.on_hook = on_hook
-        self._hook = None
-
-    def __enter__(self):
-        key = threading.current_thread().ident
-        assert key not in self._HOOKS
-
-        # Add ourself to lookup table and install the hook
-        self._HOOKS[key] = self
-        self._hook = self._SetWindowsHookEx(
-            self.hook_id,
-            self._handler,
-            None,
-            0)
-
-        return self
-
-    def __exit__(self, type, value, traceback):
-        key = threading.current_thread().ident
-        assert key in self._HOOKS
-
-        if self._hook is not None:
-            # Uninstall the hook and remove ourself from lookup table
-            self._UnhookWindowsHookEx(self._hook)
-            del self._HOOKS[key]
-
-    @staticmethod
-    @_HOOKPROC
-    def _handler(code, msg, lpdata):
-        key = threading.current_thread().ident
-        self = SystemHook._HOOKS.get(key, None)
-        try:
-            if self:
-                self.on_hook(code, msg, lpdata)
-
-        finally:
-            # Always call the next hook
-            return SystemHook._CallNextHookEx(0, code, msg, lpdata)
-
-
 class MOUSEINPUT(ctypes.Structure):
     """Contains information about a simulated mouse event.
     """
@@ -241,6 +101,198 @@ class INPUT(ctypes.Structure):
         ('value', INPUT_union)]
 
 
+LPINPUT = ctypes.POINTER(INPUT)
+
+VkKeyScan = windll.user32.VkKeyScanW
+VkKeyScan.argtypes = (
+    wintypes.WCHAR,)
+
+SendInput = windll.user32.SendInput
+SendInput.argtypes = (
+    wintypes.UINT,
+    LPINPUT,
+    ctypes.c_int)
+
+GetCurrentThreadId = windll.kernel32.GetCurrentThreadId
+GetCurrentThreadId.restype = wintypes.DWORD
+
+
+class MessageLoop(object):
+    """A class representing a message loop.
+    """
+    #: The message that signals this loop to terminate
+    WM_STOP = 0x0401
+
+    _LPMSG = ctypes.POINTER(wintypes.MSG)
+
+    _GetMessage = windll.user32.GetMessageW
+    _GetMessage.argtypes = (
+        _LPMSG,
+        wintypes.HWND,
+        wintypes.UINT,
+        wintypes.UINT)
+    _PeekMessage = windll.user32.PeekMessageW
+    _PeekMessage.argtypes = (
+        _LPMSG,
+        wintypes.HWND,
+        wintypes.UINT,
+        wintypes.UINT,
+        wintypes.UINT)
+    _PostThreadMessage = windll.user32.PostThreadMessageW
+    _PostThreadMessage.argtypes = (
+        wintypes.DWORD,
+        wintypes.UINT,
+        wintypes.WPARAM,
+        wintypes.LPARAM)
+
+    PM_NOREMOVE = 0
+
+    def __init__(
+            self,
+            initialize=lambda message_loop: None,
+            finalize=lambda message_loop: None):
+        self._threadid = None
+        self._initialize = initialize
+        self._finalize = finalize
+        self._event = threading.Event()
+        self.thread = None
+
+    def __iter__(self):
+        """Initialises the message loop and yields all messages until
+        :meth:`stop` is called.
+
+        :raises AssertionError: if :meth:`start` has not been called
+        """
+        assert self._threadid is not None
+
+        try:
+            # Pump messages until WM_STOP
+            while True:
+                msg = wintypes.MSG()
+                lpmsg = ctypes.byref(msg)
+                r = self._GetMessage(lpmsg, None, 0, 0)
+                if r <= 0 or msg.message == self.WM_STOP:
+                    break
+                else:
+                    yield msg
+
+        finally:
+            self._finalize(self)
+            self._threadid = None
+            self.thread = None
+
+    def start(self):
+        """Starts the message loop.
+
+        This method must be called before iterating over messages, and it must
+        be called from the same thread.
+        """
+        self._threadid = GetCurrentThreadId()
+        self.thread = threading.current_thread()
+
+        # Create the message loop
+        msg = wintypes.MSG()
+        lpmsg = ctypes.byref(msg)
+        self._PeekMessage(lpmsg, None, 0x0400, 0x0400, self.PM_NOREMOVE)
+
+        # Let the caller perform initialisation
+        self._initialize(self)
+
+        # Set the event to signal to other threads that the loop is created
+        self._event.set()
+
+    def stop(self):
+        """Stops the message loop.
+        """
+        self._event.wait()
+        if self._threadid:
+            self._PostThreadMessage(self._threadid, self.WM_STOP, 0, 0)
+        if self.thread.ident != threading.current_thread().ident:
+            self.thread.join()
+
+    def post(self, msg, wparam, lparam):
+        """Posts a message to this message loop.
+
+        :param ctypes.wintypes.UINT msg: The message.
+
+        :param ctypes.wintypes.WPARAM wparam: The value of ``wParam``.
+
+        :param ctypes.wintypes.LPARAM lparam: The value of ``lParam``.
+        """
+        self._PostThreadMessage(self._threadid, msg, wparam, lparam)
+
+
+class SystemHook(object):
+    """A class to handle Windows hooks.
+    """
+    #: The hook action value for actions we should check
+    HC_ACTION = 0
+
+    _HOOKPROC = ctypes.WINFUNCTYPE(
+        wintypes.LPARAM,
+        ctypes.c_int32, wintypes.WPARAM, wintypes.LPARAM)
+
+    _SetWindowsHookEx = windll.user32.SetWindowsHookExW
+    _SetWindowsHookEx.argtypes = (
+        ctypes.c_int,
+        _HOOKPROC,
+        wintypes.HINSTANCE,
+        wintypes.DWORD)
+    _UnhookWindowsHookEx = windll.user32.UnhookWindowsHookEx
+    _UnhookWindowsHookEx.argtypes = (
+        wintypes.HHOOK,)
+    _CallNextHookEx = windll.user32.CallNextHookEx
+    _CallNextHookEx.argtypes = (
+        wintypes.HHOOK,
+        ctypes.c_int,
+        wintypes.WPARAM,
+        wintypes.LPARAM)
+
+    #: The registered hook procedures
+    _HOOKS = {}
+
+    def __init__(self, hook_id, on_hook=lambda code, msg, lpdata: None):
+        self.hook_id = hook_id
+        self.on_hook = on_hook
+        self._hook = None
+
+    def __enter__(self):
+        key = threading.current_thread().ident
+        assert key not in self._HOOKS
+
+        # Add ourself to lookup table and install the hook
+        self._HOOKS[key] = self
+        self._hook = self._SetWindowsHookEx(
+            self.hook_id,
+            self._handler,
+            None,
+            0)
+
+        return self
+
+    def __exit__(self, type, value, traceback):
+        key = threading.current_thread().ident
+        assert key in self._HOOKS
+
+        if self._hook is not None:
+            # Uninstall the hook and remove ourself from lookup table
+            self._UnhookWindowsHookEx(self._hook)
+            del self._HOOKS[key]
+
+    @staticmethod
+    @_HOOKPROC
+    def _handler(code, msg, lpdata):
+        key = threading.current_thread().ident
+        self = SystemHook._HOOKS.get(key, None)
+        try:
+            if self:
+                self.on_hook(code, msg, lpdata)
+
+        finally:
+            # Always call the next hook
+            return SystemHook._CallNextHookEx(0, code, msg, lpdata)
+
+
 class ListenerMixin(object):
     """A mixin for *win32* event listeners.
 
@@ -254,6 +306,9 @@ class ListenerMixin(object):
     #: The Windows hook ID for the events to capture
     _EVENTS = None
 
+    #: The window message used to signal that an even should be handled
+    _WM_PROCESS = 0x410
+
     def _run(self):
         self._message_loop = MessageLoop()
         with self._receive():
@@ -265,6 +320,8 @@ class ListenerMixin(object):
                 for msg in self._message_loop:
                     if not self.running:
                         break
+                    if msg.message == self._WM_PROCESS:
+                        self._process(msg.wParam, msg.lParam)
 
     def _stop(self):
         try:
@@ -277,15 +334,39 @@ class ListenerMixin(object):
     def _handler(self, code, msg, lpdata):
         """The callback registered with *Windows* for events.
 
-        This method will call the callbacks registered on initialisation.
+        This method will post the message :attr:`_WM_HANDLE` to the message loop
+        started with this listener using :meth:`MessageLoop.post`. The
+        parameters are retrieved with a call to :meth:`_handle`.
         """
-        self._handle(code, msg, lpdata)
+        try:
+            converted = self._convert(code, msg, lpdata)
+            if converted is not None:
+                self._message_loop.post(self._WM_PROCESS, *converted)
+        except NotImplementedError:
+            self._handle(code, msg, lpdata)
+
+    def _convert(self, code, msg, lpdata):
+        """The device specific callback handler.
+
+        This method converts a low-level message and data to a
+        ``WPARAM`` / ``LPARAM`` pair.
+        """
+        raise NotImplementedError()
+
+    def _process(self, wparam, lparam):
+        """The device specific callback handler.
+
+        This method performs the actual dispatching of events.
+        """
+        raise NotImplementedError()
 
     def _handle(self, code, msg, lpdata):
         """The device specific callback handler.
 
         This method calls the appropriate callback registered when this
         listener was created based on the event.
+
+        This method is only called if :meth:`_convert` is not implemented.
         """
         raise NotImplementedError()
 
@@ -294,18 +375,41 @@ class KeyTranslator(object):
     """A class to translate virtual key codes to characters.
     """
     _AttachThreadInput = ctypes.windll.user32.AttachThreadInput
+    _AttachThreadInput.argtypes = (
+        wintypes.DWORD,
+        wintypes.DWORD,
+        wintypes.BOOL)
     _GetForegroundWindow = ctypes.windll.user32.GetForegroundWindow
     _GetKeyboardLayout = ctypes.windll.user32.GetKeyboardLayout
+    _GetKeyboardLayout.argtypes = (
+        wintypes.DWORD,)
     _GetKeyboardState = ctypes.windll.user32.GetKeyboardState
+    _GetKeyboardState.argtypes = (
+        ctypes.c_voidp,)
     _GetWindowThreadProcessId = ctypes.windll.user32.GetWindowThreadProcessId
+    _GetWindowThreadProcessId.argtypes = (
+        wintypes.HWND,
+        wintypes.LPDWORD)
     _MapVirtualKeyEx = ctypes.windll.user32.MapVirtualKeyExW
+    _MapVirtualKeyEx.argtypes = (
+        wintypes.UINT,
+        wintypes.UINT,
+        wintypes.HKL)
     _ToUnicodeEx = ctypes.windll.user32.ToUnicodeEx
+    _ToUnicodeEx.argtypes = (
+        wintypes.UINT,
+        wintypes.UINT,
+        ctypes.c_voidp,
+        ctypes.c_voidp,
+        ctypes.c_int,
+        wintypes.UINT,
+        wintypes.HKL)
 
     _MAPVK_VK_TO_VSC = 0
     _MAPVK_VK_TO_CHAR = 2
 
     def __init__(self):
-        self.__state = (ctypes.c_byte * 255)()
+        self.__state = (ctypes.c_ubyte * 255)()
         self._cache = {}
         self._reinject_arguments = None
 
@@ -358,7 +462,7 @@ class KeyTranslator(object):
                 vk,
                 layout,
                 scan,
-                (ctypes.c_byte * 255)(*state))
+                (ctypes.c_ubyte * 255)(*state))
 
         # Otherwise we just clear any previous dead key state
         else:

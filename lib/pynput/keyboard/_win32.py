@@ -17,8 +17,9 @@
 
 import enum
 
-from pynput._util import NotifierMixin
+from pynput._util import AbstractListener, NotifierMixin
 from pynput._util.win32 import *
+from pynput._util.win32_vks import *
 from . import _base
 
 
@@ -37,7 +38,7 @@ class KeyCode(_base.KeyCode):
             scan = 0
             flags = 0
         else:
-            r = VkKeyScan(ord(self.char))
+            r = VkKeyScan(self.char)
             if (r >> 8) & 0xFF == 0:
                 vk = r & 0xFF
                 scan = 0
@@ -53,61 +54,61 @@ class KeyCode(_base.KeyCode):
 
 
 class Key(enum.Enum):
-    alt = KeyCode.from_vk(0x12)
-    alt_l = KeyCode.from_vk(0xA4)
-    alt_r = KeyCode.from_vk(0xA5)
-    alt_gr = KeyCode.from_vk(0xA5)
-    backspace = KeyCode.from_vk(0x08)
-    caps_lock = KeyCode.from_vk(0x14)
-    cmd = KeyCode.from_vk(0x5B)
-    cmd_l = KeyCode.from_vk(0x5B)
-    cmd_r = KeyCode.from_vk(0xA4)
-    ctrl = KeyCode.from_vk(0x11)
-    ctrl_l = KeyCode.from_vk(0xA2)
-    ctrl_r = KeyCode.from_vk(0xA3)
-    delete = KeyCode.from_vk(0x2E)
-    down = KeyCode.from_vk(0x28)
-    end = KeyCode.from_vk(0x23)
-    enter = KeyCode.from_vk(0x0D)
-    esc = KeyCode.from_vk(0x1B)
-    f1 = KeyCode.from_vk(0x70)
-    f2 = KeyCode.from_vk(0x71)
-    f3 = KeyCode.from_vk(0x72)
-    f4 = KeyCode.from_vk(0x73)
-    f5 = KeyCode.from_vk(0x74)
-    f6 = KeyCode.from_vk(0x75)
-    f7 = KeyCode.from_vk(0x76)
-    f8 = KeyCode.from_vk(0x77)
-    f9 = KeyCode.from_vk(0x78)
-    f10 = KeyCode.from_vk(0x79)
-    f11 = KeyCode.from_vk(0x7A)
-    f12 = KeyCode.from_vk(0x7B)
-    f13 = KeyCode.from_vk(0x7C)
-    f14 = KeyCode.from_vk(0x7D)
-    f15 = KeyCode.from_vk(0x7E)
-    f16 = KeyCode.from_vk(0x7F)
-    f17 = KeyCode.from_vk(0x80)
-    f18 = KeyCode.from_vk(0x81)
-    f19 = KeyCode.from_vk(0x82)
-    f20 = KeyCode.from_vk(0x83)
-    home = KeyCode.from_vk(0x24)
-    left = KeyCode.from_vk(0x25)
-    page_down = KeyCode.from_vk(0x22)
-    page_up = KeyCode.from_vk(0x21)
-    right = KeyCode.from_vk(0x27)
-    shift = KeyCode.from_vk(0xA0)
-    shift_l = KeyCode.from_vk(0xA0)
-    shift_r = KeyCode.from_vk(0xA1)
-    space = KeyCode.from_vk(0x20, char=' ')
-    tab = KeyCode.from_vk(0x09)
-    up = KeyCode.from_vk(0x26)
+    alt = KeyCode.from_vk(VK_MENU)
+    alt_l = KeyCode.from_vk(VK_LMENU)
+    alt_r = KeyCode.from_vk(VK_RMENU)
+    alt_gr = KeyCode.from_vk(VK_RMENU)
+    backspace = KeyCode.from_vk(VK_BACK)
+    caps_lock = KeyCode.from_vk(VK_CAPITAL)
+    cmd = KeyCode.from_vk(VK_LWIN)
+    cmd_l = KeyCode.from_vk(VK_LWIN)
+    cmd_r = KeyCode.from_vk(VK_RWIN)
+    ctrl = KeyCode.from_vk(VK_CONTROL)
+    ctrl_l = KeyCode.from_vk(VK_LCONTROL)
+    ctrl_r = KeyCode.from_vk(VK_RCONTROL)
+    delete = KeyCode.from_vk(VK_DELETE)
+    down = KeyCode.from_vk(VK_DOWN)
+    end = KeyCode.from_vk(VK_END)
+    enter = KeyCode.from_vk(VK_RETURN)
+    esc = KeyCode.from_vk(VK_ESCAPE)
+    f1 = KeyCode.from_vk(VK_F1)
+    f2 = KeyCode.from_vk(VK_F2)
+    f3 = KeyCode.from_vk(VK_F3)
+    f4 = KeyCode.from_vk(VK_F4)
+    f5 = KeyCode.from_vk(VK_F5)
+    f6 = KeyCode.from_vk(VK_F6)
+    f7 = KeyCode.from_vk(VK_F7)
+    f8 = KeyCode.from_vk(VK_F8)
+    f9 = KeyCode.from_vk(VK_F9)
+    f10 = KeyCode.from_vk(VK_F10)
+    f11 = KeyCode.from_vk(VK_F11)
+    f12 = KeyCode.from_vk(VK_F12)
+    f13 = KeyCode.from_vk(VK_F13)
+    f14 = KeyCode.from_vk(VK_F14)
+    f15 = KeyCode.from_vk(VK_F15)
+    f16 = KeyCode.from_vk(VK_F16)
+    f17 = KeyCode.from_vk(VK_F17)
+    f18 = KeyCode.from_vk(VK_F18)
+    f19 = KeyCode.from_vk(VK_F19)
+    f20 = KeyCode.from_vk(VK_F20)
+    home = KeyCode.from_vk(VK_HOME)
+    left = KeyCode.from_vk(VK_LEFT)
+    page_down = KeyCode.from_vk(VK_NEXT)
+    page_up = KeyCode.from_vk(VK_PRIOR)
+    right = KeyCode.from_vk(VK_RIGHT)
+    shift = KeyCode.from_vk(VK_LSHIFT)
+    shift_l = KeyCode.from_vk(VK_LSHIFT)
+    shift_r = KeyCode.from_vk(VK_RSHIFT)
+    space = KeyCode.from_vk(VK_SPACE, char=' ')
+    tab = KeyCode.from_vk(VK_TAB)
+    up = KeyCode.from_vk(VK_UP)
 
-    insert = KeyCode.from_vk(0x2D)
-    menu = KeyCode.from_vk(0x5D)
-    num_lock = KeyCode.from_vk(0x90)
-    pause = KeyCode.from_vk(0x13)
-    print_screen = KeyCode.from_vk(0x2C)
-    scroll_lock = KeyCode.from_vk(0x91)
+    insert = KeyCode.from_vk(VK_INSERT)
+    menu = KeyCode.from_vk(VK_APPS)
+    num_lock = KeyCode.from_vk(VK_NUMLOCK)
+    pause = KeyCode.from_vk(VK_PAUSE)
+    print_screen = KeyCode.from_vk(VK_SNAPSHOT)
+    scroll_lock = KeyCode.from_vk(VK_SCROLL)
 
 
 class Controller(NotifierMixin, _base.Controller):
@@ -148,33 +149,6 @@ class Listener(ListenerMixin, _base.Listener):
         key.value.vk: key
         for key in Key}
 
-    def __init__(self, *args, **kwargs):
-        super(Listener, self).__init__(*args, **kwargs)
-        self._translate = KeyTranslator()
-
-    def _event_to_key(self, msg, data):
-        """Converts an :class:`_KBDLLHOOKSTRUCT` to a :class:`KeyCode`.
-
-        :param msg: The message received.
-
-        :param data: The data to convert.
-
-        :return: a :class:`pynput.keyboard.KeyCode`
-
-        :raises OSError: if the message and data could not be converted
-        """
-        # We must always call self._translate to keep the keyboard state up to
-        # date
-        key = KeyCode(**self._translate(
-            data.vkCode,
-            msg in self._PRESS_MESSAGES))
-
-        # If the virtual key code corresponds to a Key value, we prefer that
-        if data.vkCode in self._SPECIAL_KEYS:
-            return self._SPECIAL_KEYS[data.vkCode]
-        else:
-            return key
-
     class _KBDLLHOOKSTRUCT(ctypes.Structure):
         """Contains information about a mouse event passed to a
         ``WH_KEYBOARD_LL`` hook procedure, ``LowLevelKeyboardProc``.
@@ -189,16 +163,26 @@ class Listener(ListenerMixin, _base.Listener):
     #: A pointer to a :class:`KBDLLHOOKSTRUCT`
     _LPKBDLLHOOKSTRUCT = ctypes.POINTER(_KBDLLHOOKSTRUCT)
 
-    def _handle(self, code, msg, lpdata):
+    def __init__(self, *args, **kwargs):
+        super(Listener, self).__init__(*args, **kwargs)
+        self._translator = KeyTranslator()
+
+    def _convert(self, code, msg, lpdata):
         if code != SystemHook.HC_ACTION:
             return
 
         data = ctypes.cast(lpdata, self._LPKBDLLHOOKSTRUCT).contents
+        return (msg, data.vkCode)
+
+    @AbstractListener._emitter
+    def _process(self, wparam, lparam):
+        msg = wparam
+        vk = lparam
 
         # Convert the event to a KeyCode; this may fail, and in that case we
         # pass None
         try:
-            key = self._event_to_key(msg, data)
+            key = self._event_to_key(msg, vk)
         except OSError:
             key = None
         except:
@@ -220,3 +204,39 @@ class Listener(ListenerMixin, _base.Listener):
         """
         (self.on_press if is_press else self.on_release)(
             self._SPECIAL_KEYS.get(key.vk, key))
+
+    def _event_to_key(self, msg, vk):
+        """Converts an :class:`_KBDLLHOOKSTRUCT` to a :class:`KeyCode`.
+
+        :param msg: The message received.
+
+        :param vk: The virtual key code to convert.
+
+        :return: a :class:`pynput.keyboard.KeyCode`
+
+        :raises OSError: if the message and data could not be converted
+        """
+        # We must always call self._translate to keep the keyboard state up to
+        # date
+        key = KeyCode(**self._translate(
+            vk,
+            msg in self._PRESS_MESSAGES))
+
+        # If the virtual key code corresponds to a Key value, we prefer that
+        if vk in self._SPECIAL_KEYS:
+            return self._SPECIAL_KEYS[vk]
+        else:
+            return key
+
+    def _translate(self, vk, is_press):
+        """Translates a virtual key code to a parameter list passable to
+        :class:`pynput.keyboard.KeyCode`.
+
+        :param int vk: The virtual key code.
+
+        :param bool is_press: Whether this is a press event.
+
+        :return: a paramter list to the :class:`pynput.keyboard.KeyCode`
+            constructor
+        """
+        return self._translator(vk, is_press)

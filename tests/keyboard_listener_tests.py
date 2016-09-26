@@ -157,3 +157,16 @@ class KeyboardListenerTest(EventTest):
                     pynput.keyboard.Key.shift_r),
                 True),
             *tuple(self.string_to_events('TEST')))
+
+    def test_modifier_and_normal(self):
+        """Tests that the modifier keys do not stick"""
+        from pynput.keyboard import Key
+        self.notify('Press a, <ctrl>, a')
+        self.assert_keys(
+            'Failed to register event',
+            ('a', True),
+            ('a', False),
+            ((Key.ctrl, Key.ctrl_l, Key.ctrl_r), True),
+            ((Key.ctrl, Key.ctrl_l, Key.ctrl_r), False),
+            ('a', True),
+            ('a', False))

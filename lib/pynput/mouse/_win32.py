@@ -79,10 +79,9 @@ class Controller(NotifierMixin, _base.Controller):
                 type=INPUT.MOUSE,
                 value=INPUT_union(
                     mi=MOUSEINPUT(
-                        dwFlags=button.value[0])))),
+                        dwFlags=button.value[1])))),
             ctypes.sizeof(INPUT))
         x, y = self.position
-        self._emit('on_click', x, y, button, True)
 
     def _release(self, button):
         SendInput(
@@ -91,10 +90,9 @@ class Controller(NotifierMixin, _base.Controller):
                 type=INPUT.MOUSE,
                 value=INPUT_union(
                     mi=MOUSEINPUT(
-                        dwFlags=button.value[1])))),
+                        dwFlags=button.value[0])))),
             ctypes.sizeof(INPUT))
         x, y = self.position
-        self._emit('on_click', x, y, button, False)
 
 
 @Controller._receiver
