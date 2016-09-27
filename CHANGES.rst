@@ -1,6 +1,11 @@
 Release Notes
 =============
 
+v1.1.3 - Changed Xlib backend library
+-------------------------------------
+*  Changed *Xlib* library.
+
+
 v1.1.2 - Added missing type for Python 2
 ----------------------------------------
 *  Added missing ``LPDWORD`` for *Python 2* on *Windows*.
