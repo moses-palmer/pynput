@@ -5,82 +5,46 @@ import re
 import subprocess
 import sys
 
-PACKAGE_NAME = 'pynput'
+DESCRIPTION='''Makes a full release.
+
+This script will update the version number of the package and perform all steps
+necessary to make a full release.
+'''
+
+ROOT = os.path.join(
+    os.path.dirname(__file__),
+    os.pardir)
+
+LIB_DIR = os.path.join(ROOT, 'lib')
+
+PACKAGE_NAME = next(
+    name
+    for name in os.listdir(LIB_DIR)
+    if name[0] != '_')
+
+PACKAGE_DIR = os.path.join(LIB_DIR, PACKAGE_NAME)
 
 
-def git(*args):
-    """Executes ``git`` with the command line arguments given.
-
-    :param args: The arguments to ``git``.
-
-    :return: stdout of ``git``
-
-    :raises RuntimeError: if ``git`` returns non-zero
-    """
-    g = subprocess.Popen(
-        ['git'] + list(args),
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE)
-
-    stdout, stderr = g.communicate()
-    if g.returncode != 0:
-        raise RuntimeError(
-            'Failed to call git %s (%d): %s',
-            ' '.join(args),
-            g.returncode, stderr)
-    else:
-        return stdout
-
-
-def get_version():
-    """Returns the version to set, read from the command line.
-
-    :return: the tuple (v1, v2,...)
-    """
+def main(version):
+    assert_current_branch_is_clean()
+    update_info(version)
+    check_readme()
+    check_release_notes(version)
+    commit_changes(version)
     try:
-        return tuple(int(p) for p in sys.argv[1].split('.'))
-    except IndexError:
-        raise RuntimeError('You must pass the version as the first argument')
+        tag_release(version)
     except:
-        raise RuntimeError('Invalid version: %s', sys.argv[1])
+        commit_changes.undo()
+        raise
+    push_to_origin()
+    upload_to_pypi()
 
 
-def gsub(path, regex, group, replacement):
-    """Runs a regular expression on the contents of a file and replaces a
-    group.
-
-    :param str path: The path to the file.
-
-    :param regex: The regular expression to use.
-
-    :param int group: The group of the regular expression to replace.
-
-    :param str replacement: The replacement string.
-    """
-    with open(path) as f:
-        data = f.read()
-
-    def sub(match):
-        full = match.group(0)
-        o = match.start(0)
-        return full[:match.start(group) - o] \
-            + replacement \
-            + full[match.end(group) - o:]
-
-    with open(path, 'w') as f:
-        f.write(regex.sub(sub, data))
-
-
-def assert_current_branch_is_master_and_clean():
-    """Asserts that the current branch is *master* and contains no local
-    changes.
-
-    :raises AssertionError: if the current branch is not master
+def assert_current_branch_is_clean():
+    """Asserts that the current branch contains no local changes.
 
     :raises RuntimeError: if the repository contains local changes
     """
-    assert git('rev-parse', '--abbrev-ref', 'HEAD').strip() == 'master', \
-        'The current branch is not master'
     try:
         git('diff-index', '--quiet', 'HEAD', '--')
     except RuntimeError as e:
@@ -94,10 +58,7 @@ def update_info(version):
     :param tuple version: The version to set.
     """
     gsub(
-        os.path.join(
-            os.path.dirname(__file__),
-            os.pardir,
-            'lib', PACKAGE_NAME, '_info.py'),
+        os.path.join(PACKAGE_DIR, '_info.py'),
         re.compile(r'__version__\s*=\s*(\([0-9]+(\s*,\s*[0-9]+)*\))'),
         1,
         repr(version))
@@ -106,8 +67,7 @@ def update_info(version):
 def check_readme():
     """Verifies that the ``README`` is *reStructuredText* compliant.
     """
-    subprocess.check_call([
-        'python', 'setup.py', 'check', '--restructuredtext', '--strict'])
+    python('setup.py', 'check', '--restructuredtext', '--strict')
 
 
 def check_release_notes(version):
@@ -116,10 +76,7 @@ def check_release_notes(version):
 
     :param tuple version: The version that is being released.
     """
-    CHANGES = os.path.join(
-        os.path.dirname(__file__),
-        os.pardir,
-        'CHANGES.rst')
+    CHANGES = os.path.join(ROOT, 'CHANGES.rst')
     header = 'v%s' % '.'.join(str(v) for v in version)
 
     # Read the release notes
@@ -148,6 +105,7 @@ def check_release_notes(version):
                 '  %s' % release_note
                 for release_note in release_notes) + '\n')
         sys.stdout.write('Is this correct [yes/no]? ')
+        sys.stdout.flush()
         response = sys.stdin.readline().strip()
         if response in ('yes', 'y'):
             break
@@ -198,45 +156,102 @@ def upload_to_pypi():
     """
     print('Uploading to PyPi...')
 
+    python(
+        os.path.join(ROOT, 'setup.py'),
+        'build_sphinx',
+        'upload_docs',
+        'bdist_egg',
+        'bdist_wheel',
+        'upload')
+
+
+def git(*args):
+    """Executes ``git`` with the command line arguments given.
+
+    :param args: The arguments to ``git``.
+
+    :return: stdout of ``git``
+
+    :raises RuntimeError: if ``git`` returns non-zero
+    """
+    return command('git', *args)
+
+
+def python(*args):
+    """Executes *Python* with the command line arguments given.
+
+    The *Python* used is the one executing the current script.
+
+    :param args: The arguments to *Python*.
+
+    :return: stdout of *Python*
+
+    :raises RuntimeError: if *Python* returns non-zero
+    """
+    return command(sys.executable, *args)
+
+
+def gsub(path, regex, group, replacement):
+    """Runs a regular expression on the contents of a file and replaces a
+    group.
+
+    :param str path: The path to the file.
+
+    :param regex: The regular expression to use.
+
+    :param int group: The group of the regular expression to replace.
+
+    :param str replacement: The replacement string.
+    """
+    with open(path) as f:
+        data = f.read()
+
+    def sub(match):
+        full = match.group(0)
+        o = match.start(0)
+        return full[:match.start(group) - o] \
+            + replacement \
+            + full[match.end(group) - o:]
+
+    with open(path, 'w') as f:
+        f.write(regex.sub(sub, data))
+
+
+def command(*args):
+    """Executes a command.
+
+    :param args: The command and arguments.
+
+    :return: stdout of the command
+
+    :raises RuntimeError: if the command returns non-zero
+    """
     g = subprocess.Popen(
-        [
-            'python',
-            os.path.join(os.path.dirname(__file__), os.pardir, 'setup.py'),
-            'build_sphinx',
-            'upload_docs',
-            'bdist_egg',
-            'bdist_wheel',
-            'upload'],
+        args,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE)
 
     stdout, stderr = g.communicate()
     if g.returncode != 0:
         raise RuntimeError(
-            'Failed to upload to PyPi (%d): %s',
+            'Failed to execute <%s> (%d): %s',
+            ' '.join(args),
             g.returncode, stderr)
-
-
-def main():
-    version = get_version()
-
-    assert_current_branch_is_master_and_clean()
-    update_info(version)
-    check_readme()
-    check_release_notes(version)
-    commit_changes(version)
-    try:
-        tag_release(version)
-    except:
-        commit_changes.undo()
-        raise
-    push_to_origin()
-    upload_to_pypi()
+    else:
+        return stdout.decode('utf-8')
 
 
 if __name__ == '__main__':
+    import argparse
+
+    parser = argparse.ArgumentParser(description=DESCRIPTION)
+
+    parser.add_argument(
+        'version',
+        type=lambda s: tuple(int(v) for v in s.split('.')))
+
     try:
-        main()
+        main(**vars(parser.parse_args()))
     except Exception as e:
         try:
             sys.stderr.write(e.args[0] % e.args[1:] + '\n')
