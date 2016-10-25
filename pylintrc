@@ -65,7 +65,7 @@ confidence=
 # --enable=similarities". If you want to run only the classes checker, but have
 # no Warning level messages displayed, use"--disable=all --enable=classes
 # --disable=W"
-disable=unicode-builtin,delslice-method,zip-builtin-not-iterating,indexing-exception,coerce-method,map-builtin-not-iterating,raising-string,backtick,nonzero-method,filter-builtin-not-iterating,old-octal-literal,old-ne-operator,xrange-builtin,file-builtin,cmp-method,long-suffix,coerce-builtin,cmp-builtin,apply-builtin,buffer-builtin,reload-builtin,reduce-builtin,raw_input-builtin,using-cmp-argument,old-division,long-builtin,suppressed-message,unpacking-in-except,metaclass-assignment,setslice-method,basestring-builtin,import-star-module-level,dict-view-method,useless-suppression,execfile-builtin,unichr-builtin,hex-method,parameter-unpacking,oct-method,old-raise-syntax,getslice-method,range-builtin-not-iterating,dict-iter-method,input-builtin,intern-builtin,standarderror-builtin,next-method-called,print-statement,no-absolute-import,round-builtin
+disable=suppressed-message,cmp-method,next-method-called,buffer-builtin,dict-iter-method,old-raise-syntax,coerce-builtin,reload-builtin,round-builtin,file-builtin,using-cmp-argument,print-statement,basestring-builtin,range-builtin-not-iterating,zip-builtin-not-iterating,filter-builtin-not-iterating,old-division,parameter-unpacking,coerce-method,cmp-builtin,unpacking-in-except,import-star-module-level,long-suffix,standarderror-builtin,metaclass-assignment,oct-method,intern-builtin,backtick,apply-builtin,hex-method,setslice-method,delslice-method,indexing-exception,raw_input-builtin,dict-view-method,old-octal-literal,unicode-builtin,raising-string,getslice-method,unichr-builtin,nonzero-method,old-ne-operator,map-builtin-not-iterating,execfile-builtin,input-builtin,no-absolute-import,long-builtin,xrange-builtin,reduce-builtin,useless-suppression
 
 
 [REPORTS]
@@ -106,7 +106,7 @@ logging-modules=logging
 [FORMAT]
 
 # Maximum number of characters on a single line.
-max-line-length=100
+max-line-length=80
 
 # Regexp for a line that is allowed to be longer than the limit.
 ignore-long-lines=^\s*(# )?<?https?://\S+>?$
@@ -132,7 +132,7 @@ indent-string='    '
 indent-after-paren=4
 
 # Expected format of line ending, e.g. empty (any line ending), LF or CRLF.
-expected-line-ending-format=
+expected-line-ending-format=LF
 
 
 [SIMILARITIES]
@@ -157,7 +157,7 @@ init-import=no
 
 # A regular expression matching the name of dummy variables (i.e. expectedly
 # not used).
-dummy-variables-rgx=(_+[a-zA-Z0-9]*?$)|dummy
+dummy-variables-rgx=(dummy)?(_+[a-zA-Z0-9]*?$)
 
 # List of additional names supposed to be defined in builtins. Remember that
 # you should avoid to define new builtins when possible.
@@ -175,7 +175,7 @@ redefining-builtins-modules=six.moves,future.builtins
 [BASIC]
 
 # Good variable names which should always be accepted, separated by a comma
-good-names=i,j,k,ex,Run,_
+good-names=e,f,i,j,k,ex,Run,_
 
 # Bad variable names which should always be refused, separated by a comma
 bad-names=foo,bar,baz,toto,tutu,tata
@@ -191,47 +191,41 @@ include-naming-hint=no
 # to this list to register other decorators that produce valid properties.
 property-classes=abc.abstractproperty
 
-# Regular expression matching correct module names
-module-rgx=(([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9]+))$
-
-# Naming hint for module names
-module-name-hint=(([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9]+))$
-
-# Regular expression matching correct argument names
-argument-rgx=[a-z_][a-z0-9_]{2,30}$
-
-# Naming hint for argument names
-argument-name-hint=[a-z_][a-z0-9_]{2,30}$
-
-# Regular expression matching correct attribute names
-attr-rgx=[a-z_][a-z0-9_]{2,30}$
-
-# Naming hint for attribute names
-attr-name-hint=[a-z_][a-z0-9_]{2,30}$
-
-# Regular expression matching correct class attribute names
-class-attribute-rgx=([A-Za-z_][A-Za-z0-9_]{2,30}|(__.*__))$
-
-# Naming hint for class attribute names
-class-attribute-name-hint=([A-Za-z_][A-Za-z0-9_]{2,30}|(__.*__))$
-
-# Regular expression matching correct method names
-method-rgx=[a-z_][a-z0-9_]{2,30}$
-
-# Naming hint for method names
-method-name-hint=[a-z_][a-z0-9_]{2,30}$
-
 # Regular expression matching correct variable names
-variable-rgx=[a-z_][a-z0-9_]{2,30}$
+variable-rgx=[a-z_][a-z0-9_]{1,30}$
 
 # Naming hint for variable names
-variable-name-hint=[a-z_][a-z0-9_]{2,30}$
+variable-name-hint=[a-z_][a-z0-9_]{1,30}$
+
+# Regular expression matching correct inline iteration names
+inlinevar-rgx=[A-Za-z_][A-Za-z0-9_]*$
+
+# Naming hint for inline iteration names
+inlinevar-name-hint=[A-Za-z_][A-Za-z0-9_]*$
 
 # Regular expression matching correct class names
 class-rgx=[A-Z_][a-zA-Z0-9]+$
 
 # Naming hint for class names
 class-name-hint=[A-Z_][a-zA-Z0-9]+$
+
+# Regular expression matching correct module names
+module-rgx=(([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9]+))$
+
+# Naming hint for module names
+module-name-hint=(([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9]+))$
+
+# Regular expression matching correct class attribute names
+class-attribute-rgx=([A-Za-z_][A-Za-z0-9_]{1,30}|(__.*__))$
+
+# Naming hint for class attribute names
+class-attribute-name-hint=([A-Za-z_][A-Za-z0-9_]{1,30}|(__.*__))$
+
+# Regular expression matching correct argument names
+argument-rgx=[a-z_][a-z0-9_]{1,30}$
+
+# Naming hint for argument names
+argument-name-hint=[a-z_][a-z0-9_]{1,30}$
 
 # Regular expression matching correct function names
 function-rgx=[a-z_][a-z0-9_]{2,30}$
@@ -245,15 +239,21 @@ const-rgx=(([A-Z_][A-Z0-9_]*)|(__.*__))$
 # Naming hint for constant names
 const-name-hint=(([A-Z_][A-Z0-9_]*)|(__.*__))$
 
-# Regular expression matching correct inline iteration names
-inlinevar-rgx=[A-Za-z_][A-Za-z0-9_]*$
+# Regular expression matching correct attribute names
+attr-rgx=[a-z_][a-z0-9_]{1,30}$
 
-# Naming hint for inline iteration names
-inlinevar-name-hint=[A-Za-z_][A-Za-z0-9_]*$
+# Naming hint for attribute names
+attr-name-hint=[a-z_][a-z0-9_]{1,30}$
+
+# Regular expression matching correct method names
+method-rgx=[a-z_][a-z0-9_]{2,30}$
+
+# Naming hint for method names
+method-name-hint=[a-z_][a-z0-9_]{2,30}$
 
 # Regular expression which should only match function or class names that do
 # not require a docstring.
-no-docstring-rgx=^_
+no-docstring-rgx=^_|inner|wrapper
 
 # Minimum line length for functions/classes that require docstrings, shorter
 # ones are exempt.
@@ -309,7 +309,7 @@ ignored-classes=optparse.Values,thread._local,_thread._local
 # List of members which are set dynamically and missed by pylint inference
 # system, and so shouldn't trigger E1101 when accessed. Python regular
 # expressions are accepted.
-generated-members=
+generated-members=_receive,on_click,on_move,on_press,on_release,on_scroll
 
 # List of decorators that produce context managers, such as
 # contextlib.contextmanager. Add to this list to register other decorators that
@@ -344,7 +344,7 @@ known-third-party=enchant
 # Analyse import fallback blocks. This can be used to support both Python 2 and
 # 3 compatible code, which means that the block might have code that exists
 # only in one or another interpreter, leading to false positives when analysed.
-analyse-fallback-blocks=no
+analyse-fallback-blocks=yes
 
 
 [DESIGN]
@@ -397,7 +397,7 @@ valid-metaclass-classmethod-first-arg=mcs
 
 # List of member names, which should be excluded from the protected access
 # warning.
-exclude-protected=_asdict,_fields,_replace,_source,_make
+exclude-protected=_asdict,_fields,_replace,_source,_make,__altgr_mask,__alt_mask,_emitter,_event,_from_symbol,_objc,_parameters,_receiver
 
 
 [EXCEPTIONS]
