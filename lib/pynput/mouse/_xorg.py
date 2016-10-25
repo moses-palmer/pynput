@@ -59,8 +59,8 @@ class Controller(_base.Controller):
 
     def _position_get(self):
         with display_manager(self._display) as dm:
-            data = dm.screen().root.query_pointer()._data
-            return (data["root_x"], data["root_y"])
+            qp = dm.screen().root.query_pointer()
+            return (qp.root_x, qp.root_y)
 
     def _position_set(self, pos):
         px, py = pos
