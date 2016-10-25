@@ -101,7 +101,6 @@ class Controller(NotifierMixin, _base.Controller):
                     mi=MOUSEINPUT(
                         dwFlags=button.value[1])))),
             ctypes.sizeof(INPUT))
-        x, y = self.position
 
     def _release(self, button):
         SendInput(
@@ -112,7 +111,6 @@ class Controller(NotifierMixin, _base.Controller):
                     mi=MOUSEINPUT(
                         dwFlags=button.value[0])))),
             ctypes.sizeof(INPUT))
-        x, y = self.position
 
 
 @Controller._receiver
