@@ -149,7 +149,7 @@ class Controller(_base.Controller):
         self._click = 0
         return self
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, exc_type, value, traceback):
         self._click = None
 
 
@@ -165,7 +165,7 @@ class Listener(ListenerMixin, _base.Listener):
         Quartz.CGEventMaskBit(Quartz.kCGEventOtherMouseUp) |
         Quartz.CGEventMaskBit(Quartz.kCGEventScrollWheel))
 
-    def _handle(self, proxy, event_type, event, refcon):
+    def _handle(self, dummy_proxy, event_type, event, dummy_refcon):
         """The callback registered with *Mac OSX* for mouse events.
 
         This method will call the callbacks registered on initialisation.

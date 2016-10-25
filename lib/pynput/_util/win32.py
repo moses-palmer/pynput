@@ -287,7 +287,7 @@ class SystemHook(object):
 
         return self
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, exc_type, value, traceback):
         key = threading.current_thread().ident
         assert key in self._HOOKS
 

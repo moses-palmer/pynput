@@ -99,7 +99,7 @@ class Listener(ListenerMixin, _base.Listener):
         Xlib.X.ButtonPressMask,
         Xlib.X.ButtonReleaseMask)
 
-    def _handle(self, display, event):
+    def _handle(self, dummy_display, event):
         x = event.root_x
         y = event.root_y
 

@@ -180,7 +180,7 @@ class Listener(ListenerMixin, _base.Listener):
             finally:
                 self._context = None
 
-    def _handle(self, proxy, event_type, event, refcon):
+    def _handle(self, dummy_proxy, event_type, event, dummy_refcon):
         # pylint: disable=W0702; we want to ignore errors
         # Convert the event to a KeyCode; this may fail, and in that case we
         # pass None

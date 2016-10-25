@@ -121,7 +121,7 @@ class Controller(object):
         """
         return self
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, exc_type, value, traceback):
         """Ends a series of clicks.
         """
         pass

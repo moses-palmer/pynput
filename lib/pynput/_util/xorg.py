@@ -143,7 +143,7 @@ def keysym_is_latin_lower(keysym):
     return Xlib.XK.XK_a <= keysym <= Xlib.XK.XK_z
 
 
-def keysym_group(a, b):
+def keysym_group(ks1, ks2):
     """Generates a group from two *keysyms*.
 
     The implementation of this function comes from:
@@ -162,21 +162,21 @@ def keysym_group(a, b):
     appears to be consistent with observations of the return values from
     ``XGetKeyboardMapping``.
 
-    :param a: The first *keysym*.
+    :param ks1: The first *keysym*.
 
-    :param b: The second *keysym*.
+    :param ks2: The second *keysym*.
 
     :return: a tuple conforming to the description above
     """
-    if b == Xlib.XK.NoSymbol:
-        if keysym_is_latin_upper(a):
-            return (Xlib.XK.XK_a + a - Xlib.XK.XK_A, a)
-        elif keysym_is_latin_lower(a):
-            return (a, Xlib.XK.XK_A + a - Xlib.XK.XK_a)
+    if ks2 == Xlib.XK.NoSymbol:
+        if keysym_is_latin_upper(ks1):
+            return (Xlib.XK.XK_a + ks1 - Xlib.XK.XK_A, ks1)
+        elif keysym_is_latin_lower(ks1):
+            return (ks1, Xlib.XK.XK_A + ks1 - Xlib.XK.XK_a)
         else:
-            return (a, a)
+            return (ks1, ks1)
     else:
-        return (a, b)
+        return (ks1, ks2)
 
 
 def keysym_normalize(keysym):

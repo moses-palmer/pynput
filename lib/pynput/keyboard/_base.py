@@ -105,7 +105,7 @@ class KeyCode(object):
         raise ValueError(key)
 
     @classmethod
-    def from_vk(self, vk, **kwargs):
+    def from_vk(cls, vk, **kwargs):
         """Creates a key from a virtual key code.
 
         :param vk: The virtual key code.
@@ -114,20 +114,20 @@ class KeyCode(object):
 
         :return: a key code
         """
-        return self(vk=vk, **kwargs)
+        return cls(vk=vk, **kwargs)
 
     @classmethod
-    def from_char(self, char):
+    def from_char(cls, char):
         """Creates a key from a character.
 
         :param str char: The character.
 
         :return: a key code
         """
-        return self(char=char)
+        return cls(char=char)
 
     @classmethod
-    def from_dead(self, char):
+    def from_dead(cls, char):
         """Creates a dead key.
 
         :param char: The dead key. This should be the unicode character
@@ -136,7 +136,7 @@ class KeyCode(object):
 
         :return: a key code
         """
-        return self(char=char, is_dead=True)
+        return cls(char=char, is_dead=True)
 
 
 class Key(enum.Enum):
