@@ -35,10 +35,10 @@ from . import AbstractListener
 
 
 #: The objc module as a library handle
-_objc = ctypes.PyDLL(objc._objc.__file__)
+OBJC = ctypes.PyDLL(objc._objc.__file__)
 
-_objc.PyObjCObject_New.restype = ctypes.py_object
-_objc.PyObjCObject_New.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int]
+OBJC.PyObjCObject_New.restype = ctypes.py_object
+OBJC.PyObjCObject_New.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int]
 
 
 def _wrap_value(value):
@@ -48,7 +48,7 @@ def _wrap_value(value):
 
     :return: a wrapped value
     """
-    return _objc.PyObjCObject_New(value, 0, 1)
+    return OBJC.PyObjCObject_New(value, 0, 1)
 
 
 @contextlib.contextmanager

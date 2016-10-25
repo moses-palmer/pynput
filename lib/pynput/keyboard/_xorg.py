@@ -229,13 +229,13 @@ class Controller(NotifierMixin, _base.Controller):
         :param int shift_state: The shift state. The actual value used is
             :attr:`shift_state` or'd with this value.
         """
-        with display_manager(self._display) as d, self.modifiers as modifiers:
-            window = d.get_input_focus().focus
+        with display_manager(self._display) as dm, self.modifiers as modifiers:
+            window = dm.get_input_focus().focus
             window.send_event(event(
                 detail=keycode,
                 state=shift_state | self._shift_mask(modifiers),
                 time=0,
-                root=d.screen().root,
+                root=dm.screen().root,
                 window=window,
                 same_screen=0,
                 child=Xlib.X.NONE,
@@ -317,7 +317,7 @@ class Controller(NotifierMixin, _base.Controller):
         if keysym is None:
             return None
 
-        keyboard_mapping = self._display.get_keyboard_mapping(8, 255 - 8)
+        mapping = self._display.get_keyboard_mapping(8, 255 - 8)
 
         def i2kc(index):
             return index + 8
@@ -327,8 +327,8 @@ class Controller(NotifierMixin, _base.Controller):
 
         #: Finds a keycode and index by looking at already used keycodes
         def reuse():
-            for keysym, (keycode, _, _) in self._borrows.items():
-                keycodes = keyboard_mapping[kc2i(keycode)]
+            for _, (keycode, _, _) in self._borrows.items():
+                keycodes = mapping[kc2i(keycode)]
 
                 # Only the first four items are addressable by X
                 for index in range(4):
@@ -337,7 +337,7 @@ class Controller(NotifierMixin, _base.Controller):
 
         #: Finds a keycode and index by using a new keycode
         def borrow():
-            for i, keycodes in enumerate(keyboard_mapping):
+            for i, keycodes in enumerate(mapping):
                 if not any(keycodes):
                     return i2kc(i), 0
 
@@ -349,19 +349,19 @@ class Controller(NotifierMixin, _base.Controller):
                     return keycode, index
 
         #: Registers a keycode for a specific key and modifier state
-        def register(keycode, index):
+        def register(dm, keycode, index):
             i = kc2i(keycode)
-            keyboard_mapping[i][index] = keysym
-            d.change_keyboard_mapping(
+            mapping[i][index] = keysym
+            dm.change_keyboard_mapping(
                 keycode,
-                keyboard_mapping[i:i + 1])
+                mapping[i:i + 1])
             self._borrows[keysym] = (keycode, index, 0)
 
         try:
-            with display_manager(self._display) as d, self._borrow_lock:
+            with display_manager(self._display) as dm, self._borrow_lock as _:
                 # First try an already used keycode, then try a new one, and
                 # fall back on reusing one that is not currently pressed
-                register(*(
+                register(dm, *(
                     reuse() or
                     borrow() or
                     overwrite()))
@@ -414,8 +414,8 @@ class Controller(NotifierMixin, _base.Controller):
     def _update_keyboard_mapping(self):
         """Updates the keyboard mapping.
         """
-        with display_manager(self._display) as d:
-            self._keyboard_mapping = keyboard_mapping(d)
+        with display_manager(self._display) as dm:
+            self._keyboard_mapping = keyboard_mapping(dm)
 
 
 @Controller._receiver

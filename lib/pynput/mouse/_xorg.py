@@ -58,14 +58,14 @@ class Controller(_base.Controller):
             self._display.close()
 
     def _position_get(self):
-        with display_manager(self._display) as d:
-            data = d.screen().root.query_pointer()._data
+        with display_manager(self._display) as dm:
+            data = dm.screen().root.query_pointer()._data
             return (data["root_x"], data["root_y"])
 
     def _position_set(self, pos):
-        x, y = pos
-        with display_manager(self._display) as d:
-            Xlib.ext.xtest.fake_input(d, Xlib.X.MotionNotify, x=x, y=y)
+        px, py = pos
+        with display_manager(self._display) as dm:
+            Xlib.ext.xtest.fake_input(dm, Xlib.X.MotionNotify, x=px, y=py)
 
     def _scroll(self, dx, dy):
         if dy:
@@ -79,12 +79,12 @@ class Controller(_base.Controller):
                 count=abs(dx))
 
     def _press(self, button):
-        with display_manager(self._display) as d:
-            Xlib.ext.xtest.fake_input(d, Xlib.X.ButtonPress, button.value)
+        with display_manager(self._display) as dm:
+            Xlib.ext.xtest.fake_input(dm, Xlib.X.ButtonPress, button.value)
 
     def _release(self, button):
-        with display_manager(self._display) as d:
-            Xlib.ext.xtest.fake_input(d, Xlib.X.ButtonRelease, button.value)
+        with display_manager(self._display) as dm:
+            Xlib.ext.xtest.fake_input(dm, Xlib.X.ButtonRelease, button.value)
 
 
 class Listener(ListenerMixin, _base.Listener):
@@ -100,22 +100,22 @@ class Listener(ListenerMixin, _base.Listener):
         Xlib.X.ButtonReleaseMask)
 
     def _handle(self, dummy_display, event):
-        x = event.root_x
-        y = event.root_y
+        px = event.root_x
+        py = event.root_y
 
         if event.type == Xlib.X.ButtonPress:
             # Scroll events are sent as button presses with the scroll
             # button codes
             scroll = self._SCROLL_BUTTONS.get(event.detail, None)
             if scroll:
-                self.on_scroll(x, y, *scroll)
+                self.on_scroll(px, py, *scroll)
             else:
-                self.on_click(x, y, Button(event.detail), True)
+                self.on_click(px, py, Button(event.detail), True)
 
         elif event.type == Xlib.X.ButtonRelease:
             # Send an event only if this was not a scroll event
             if event.detail not in self._SCROLL_BUTTONS:
-                self.on_click(x, y, Button(event.detail), False)
+                self.on_click(px, py, Button(event.detail), False)
 
         else:
-            self.on_move(x, y)
+            self.on_move(px, py)

@@ -310,7 +310,7 @@ class Controller(object):
         self._caps_lock = False
         self._dead_key = None
 
-        K = self._Key
+        kc = self._Key
 
         # pylint: disable=C0103; this is treated as a class scope constant, but
         # we cannot set it in the class scope, as _Key is overridden by platform
@@ -319,11 +319,11 @@ class Controller(object):
         #: The keys used as modifiers; the first value in each tuple is the
         #: base modifier to use for subsequent modifiers.
         self._MODIFIER_KEYS = (
-            (K.alt_gr, (K.alt_gr.value,)),
-            (K.alt,    (K.alt.value,   K.alt_l.value,   K.alt_r.value)),
-            (K.cmd,    (K.cmd.value,   K.cmd_l.value,   K.cmd_r.value)),
-            (K.ctrl,   (K.ctrl.value,  K.ctrl_l.value,  K.ctrl_r.value)),
-            (K.shift,  (K.shift.value, K.shift_l.value, K.shift_r.value)))
+            (kc.alt_gr, (kc.alt_gr.value,)),
+            (kc.alt,    (kc.alt.value,   kc.alt_l.value,   kc.alt_r.value)),
+            (kc.cmd,    (kc.cmd.value,   kc.cmd_l.value,   kc.cmd_r.value)),
+            (kc.ctrl,   (kc.ctrl.value,  kc.ctrl_l.value,  kc.ctrl_r.value)),
+            (kc.shift,  (kc.shift.value, kc.shift_l.value, kc.shift_r.value)))
         # pylint: enable=C0103,C0326
 
     def press(self, key):

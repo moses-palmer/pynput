@@ -59,9 +59,9 @@ class KeyCode(_base.KeyCode):
             scan = 0
             flags = 0
         else:
-            r = VkKeyScan(self.char)
-            if (r >> 8) & 0xFF == 0:
-                vk = r & 0xFF
+            res = VkKeyScan(self.char)
+            if (res >> 8) & 0xFF == 0:
+                vk = res & 0xFF
                 scan = 0
                 flags = 0
             else:

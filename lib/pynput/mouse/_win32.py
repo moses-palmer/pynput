@@ -89,8 +89,8 @@ class Controller(NotifierMixin, _base.Controller):
                 ctypes.sizeof(INPUT))
 
         if dx or dy:
-            x, y = self._position_get()
-            self._emit('on_scroll', x, y, dx, dy)
+            px, py = self._position_get()
+            self._emit('on_scroll', px, py, dx, dy)
 
     def _press(self, button):
         SendInput(
@@ -171,5 +171,5 @@ class Listener(ListenerMixin, _base.Listener):
 
         elif msg in self._SCROLL_BUTTONS:
             mx, my = self._SCROLL_BUTTONS[msg]
-            d = wintypes.SHORT(data.mouseData >> 16).value // self._WHEEL_DELTA
-            self.on_scroll(data.pt.x, data.pt.y, d * mx, d * my)
+            dd = wintypes.SHORT(data.mouseData >> 16).value // self._WHEEL_DELTA
+            self.on_scroll(data.pt.x, data.pt.y, dd * mx, dd * my)

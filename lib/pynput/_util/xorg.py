@@ -356,8 +356,8 @@ class ListenerMixin(object):
     def _run(self):
         self._display_stop = Xlib.display.Display()
         self._display_record = Xlib.display.Display()
-        with display_manager(self._display_record) as d:
-            self._context = d.record_create_context(
+        with display_manager(self._display_record) as dm:
+            self._context = dm.record_create_context(
                 0,
                 [Xlib.ext.record.AllClients],
                 [{
