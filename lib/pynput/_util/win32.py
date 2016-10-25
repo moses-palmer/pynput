@@ -26,10 +26,13 @@ Utility functions and classes for the *win32* backend.
 
 import contextlib
 import ctypes
-import six
 import threading
 
-from ctypes import windll, wintypes
+from ctypes import (
+    windll,
+    wintypes)
+
+import six
 
 from . import AbstractListener
 

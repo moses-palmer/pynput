@@ -28,7 +28,7 @@ import Xlib.threaded
 import Xlib.XK
 
 from . import AbstractListener
-from .xorg_keysyms import *
+from .xorg_keysyms import SYMBOLS
 
 
 # Create a display to verify that we have an X connection

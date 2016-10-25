@@ -24,10 +24,21 @@ The mouse implementation for *Windows*.
 # pylint: disable=R0903
 # We implement stubs
 
+import ctypes
 import enum
 
+from ctypes import (
+    windll,
+    wintypes)
+
 from pynput._util import NotifierMixin
-from pynput._util.win32 import *
+from pynput._util.win32 import (
+    INPUT,
+    INPUT_union,
+    ListenerMixin,
+    MOUSEINPUT,
+    SendInput,
+    SystemHook)
 from . import _base
 
 

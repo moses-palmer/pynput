@@ -76,7 +76,7 @@ def main():
 ''' % (
         datetime.date.today().year,
         '\n'.join(
-            'VK_%s = %d' % (name, vk)
+            '%s = %d' % (name, vk)
             for name, vk in definitions(data))))
 
 main()

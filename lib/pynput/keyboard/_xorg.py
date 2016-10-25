@@ -35,7 +35,20 @@ import Xlib.XK
 import Xlib.protocol
 
 from pynput._util import NotifierMixin
-from pynput._util.xorg import *
+from pynput._util.xorg import (
+    alt_mask,
+    alt_gr_mask,
+    display_manager,
+    index_to_shift,
+    keyboard_mapping,
+    ListenerMixin,
+    shift_to_index,
+    symbol_to_keysym)
+from pynput._util.xorg_keysyms import (
+    CHARS,
+    DEAD_KEYS,
+    KEYSYMS,
+    SYMBOLS)
 from . import _base
 
 

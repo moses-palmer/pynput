@@ -26,9 +26,10 @@ is located in a platform dependent module.
 
 import contextlib
 import enum
-import six
 import threading
 import unicodedata
+
+import six
 
 from pynput._util import AbstractListener
 
