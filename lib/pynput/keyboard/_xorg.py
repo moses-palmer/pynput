@@ -430,6 +430,10 @@ class Listener(ListenerMixin, _base.Listener):
         key.value.vk: key
         for key in Key}
 
+    def __init__(self, *args, **kwargs):
+        super(Listener, self).__init__(*args, **kwargs)
+        self._keyboard_mapping = None
+
     def _run(self):
         with self._receive():
             super(Listener, self)._run()

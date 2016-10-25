@@ -50,8 +50,6 @@ else:
             # For now, since we only support Xlib anyway, we re-raise these
             # errors to allow users to determine the cause of failures to import
             raise
-        except:
-            pass
 
 
 if not Button or not Controller or not Listener:

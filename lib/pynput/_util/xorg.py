@@ -32,9 +32,11 @@ from .xorg_keysyms import SYMBOLS
 
 
 # Create a display to verify that we have an X connection
-display = Xlib.display.Display()
-display.close()
-del display
+def _check():
+    display = Xlib.display.Display()
+    display.close()
+_check()
+del _check
 
 
 class X11Error(Exception):
@@ -60,6 +62,8 @@ def display_manager(display):
     errors = []
 
     def handler(*args):
+        """The *Xlib* error handler.
+        """
         errors.append(args)
 
     old_handler = display.set_error_handler(handler)
@@ -328,7 +332,7 @@ def symbol_to_keysym(symbol):
     if not keysym:
         try:
             return getattr(Xlib.keysymdef.xkb, 'XK_' + symbol, 0)
-        except:
+        except AttributeError:
             return SYMBOLS.get(symbol, (0,))[0]
 
 
