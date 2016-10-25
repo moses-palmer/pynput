@@ -14,6 +14,11 @@
 #
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
+"""
+The module containing mouse classes.
+
+See the documentation for more information.
+"""
 
 import os
 import sys

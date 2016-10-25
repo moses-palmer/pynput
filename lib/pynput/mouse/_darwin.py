@@ -14,6 +14,9 @@
 #
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
+"""
+The mouse implementation for *OSX*.
+"""
 
 import enum
 import Quartz

@@ -14,6 +14,9 @@
 #
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
+"""
+Utility functions and classes for the *Xorg* backend.
+"""
 
 import contextlib
 import itertools

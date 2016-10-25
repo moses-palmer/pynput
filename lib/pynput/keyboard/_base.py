@@ -14,6 +14,12 @@
 #
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
+"""
+This module contains the base implementation.
+
+The actual interface to keyboard classes is defined here, but the implementation
+is located in a platform dependent module.
+"""
 
 import contextlib
 import enum
