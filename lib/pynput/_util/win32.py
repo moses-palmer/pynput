@@ -508,7 +508,7 @@ class KeyTranslator(object):
             if not self._GetKeyboardState(ctypes.byref(self.__state)):
                 raise OSError(
                     'GetKeyboardState failed: %d',
-                    ctypes.wintypse.get_last_error())
+                    ctypes.wintypes.get_last_error())
 
         # Get the keyboard layout for the thread for which we retrieved the
         # state
