@@ -18,6 +18,9 @@
 Utility functions and classes for the *Xorg* backend.
 """
 
+# pylint: disable=R0903
+# We implement stubs
+
 import contextlib
 import itertools
 import Xlib.display
@@ -385,11 +388,12 @@ class ListenerMixin(object):
     def _stop(self):
         if not hasattr(self, '_context'):
             self.wait()
+        # pylint: disable=W0702; we must ignore errors
         try:
             self._display_stop.record_disable_context(self._context)
         except:
-            # Ignore errors at this point
             pass
+        # pylint: enable=W0702
 
     @AbstractListener._emitter
     def _handler(self, events):

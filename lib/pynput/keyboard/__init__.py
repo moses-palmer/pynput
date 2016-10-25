@@ -20,6 +20,9 @@ The module containing keyboard classes.
 See the documentation for more information.
 """
 
+# pylint: disable=C0103
+# KeyCode, Key, Controller and Listener are not constants
+
 import os
 import sys
 

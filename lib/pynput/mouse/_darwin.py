@@ -18,6 +18,12 @@
 The mouse implementation for *OSX*.
 """
 
+# pylint: disable=C0111
+# The documentation is extracted from the base classes
+
+# pylint: disable=R0903
+# We implement stubs
+
 import enum
 import Quartz
 

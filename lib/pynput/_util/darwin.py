@@ -18,6 +18,10 @@
 Utility functions and classes for the *Darwin* backend.
 """
 
+# pylint: disable=C0103
+# pylint: disable=R0903
+# This module contains wrapper classes
+
 import contextlib
 import ctypes
 import ctypes.util

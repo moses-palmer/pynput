@@ -18,6 +18,12 @@
 The mouse implementation for *Windows*.
 """
 
+# pylint: disable=C0111
+# The documentation is extracted from the base classes
+
+# pylint: disable=R0903
+# We implement stubs
+
 import enum
 
 from pynput._util import NotifierMixin

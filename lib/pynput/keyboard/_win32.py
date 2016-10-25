@@ -18,6 +18,12 @@
 The keyboard implementation for *Windows*.
 """
 
+# pylint: disable=C0111
+# The documentation is extracted from the base classes
+
+# pylint: disable=R0903
+# We implement stubs
+
 import enum
 
 from pynput._util import AbstractListener, NotifierMixin
@@ -182,6 +188,7 @@ class Listener(ListenerMixin, _base.Listener):
         msg = wparam
         vk = lparam
 
+        # pylint: disable=W0702; we want to ignore errors
         # Convert the event to a KeyCode; this may fail, and in that case we
         # pass None
         try:
@@ -191,6 +198,7 @@ class Listener(ListenerMixin, _base.Listener):
         except:
             # TODO: Error reporting
             return
+        # pylint: enable=W0702
 
         if msg in self._PRESS_MESSAGES:
             self.on_press(key)

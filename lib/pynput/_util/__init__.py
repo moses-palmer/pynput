@@ -18,6 +18,12 @@
 General utility functions and classes.
 """
 
+# pylint: disable=R0903
+# We implement minimal mixins
+
+# pylint: disable=W0212
+# We implement an internal API
+
 import contextlib
 import functools
 import threading

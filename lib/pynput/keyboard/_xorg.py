@@ -18,6 +18,12 @@
 The keyboard implementation for *Xorg*.
 """
 
+# pylint: disable=C0111
+# The documentation is extracted from the base classes
+
+# pylint: disable=R0903
+# We implement stubs
+
 import enum
 import threading
 
@@ -49,6 +55,7 @@ class KeyCode(_base.KeyCode):
 
         # If that fails, try checking a module attribute of Xlib.keysymdef.xkb
         if not keysym:
+            # pylint: disable=W0702; we want to ignore errors
             try:
                 return self.from_vk(
                     getattr(Xlib.keysymdef.xkb, 'XK_' + symbol, 0),
@@ -57,6 +64,7 @@ class KeyCode(_base.KeyCode):
                 return self.from_vk(
                     SYMBOLS.get(symbol, (0,))[0],
                     **kwargs)
+            # pylint: enable=W0702
 
 
 class Key(enum.Enum):
@@ -135,8 +143,11 @@ class Controller(NotifierMixin, _base.Controller):
         self._borrows = {}
         self._borrow_lock = threading.RLock()
 
+        # pylint: disable=C0103; this is treated as a class scope constant, but
+        # we cannot set it in the class scope, as it requires a Display instance
         self.ALT_MASK = alt_mask(self._display)
         self.ALT_GR_MASK = alt_gr_mask(self._display)
+        # pylint: enable=C0103
 
     def __del__(self):
         if self._display:
@@ -222,10 +233,12 @@ class Controller(NotifierMixin, _base.Controller):
 
         :param str identifier: The identifier to resolve.
         """
+        # pylint: disable=W0702; we want to ignore errors
         try:
             keysym, _ = SYMBOLS[CHARS[key.combining]]
         except:
             return None
+        # pylint: enable=W0702
 
         if keysym not in self.keyboard_mapping:
             return None
@@ -356,6 +369,7 @@ class Controller(NotifierMixin, _base.Controller):
         if symbol is None:
             return None
 
+        # pylint: disable=W0702; we want to ignore errors
         try:
             return symbol_to_keysym(symbol)
         except:
@@ -363,6 +377,7 @@ class Controller(NotifierMixin, _base.Controller):
                 return SYMBOLS[symbol][0]
             except:
                 return None
+        # pylint: enable=W0702
 
     def _shift_mask(self, modifiers):
         """The *X* modifier mask to apply for a set of modifiers.
@@ -414,6 +429,7 @@ class Listener(ListenerMixin, _base.Listener):
             min_keycode, keycode_count)
 
     def _handle(self, display, event):
+        # pylint: disable=W0702; we want to ignore errors
         # Convert the event to a KeyCode; this may fail, and in that case we
         # pass None
         try:
@@ -423,6 +439,7 @@ class Listener(ListenerMixin, _base.Listener):
         except:
             # TODO: Error reporting
             return
+        # pylint: enable=W0702
 
         if event.type == Xlib.X.KeyPress:
             self.on_press(key)

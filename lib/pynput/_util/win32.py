@@ -18,6 +18,12 @@
 Utility functions and classes for the *win32* backend.
 """
 
+# pylint: disable=C0103
+# We want to make it obvious how structs are related
+
+# pylint: disable=R0903
+# This module contains a number of structs
+
 import contextlib
 import ctypes
 import six
@@ -292,13 +298,14 @@ class SystemHook(object):
     def _handler(code, msg, lpdata):
         key = threading.current_thread().ident
         self = SystemHook._HOOKS.get(key, None)
+        # pylint: disable=W0150; always call the next hook
         try:
             if self:
                 self.on_hook(code, msg, lpdata)
 
         finally:
-            # Always call the next hook
             return SystemHook._CallNextHookEx(0, code, msg, lpdata)
+        # pylint: enable=W0150
 
 
 class ListenerMixin(object):

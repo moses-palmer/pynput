@@ -21,6 +21,9 @@ The actual interface to mouse classes is defined here, but the implementation is
 located in a platform dependent module.
 """
 
+# pylint: disable=R0903
+# We implement stubs
+
 import enum
 
 from pynput._util import AbstractListener

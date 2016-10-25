@@ -18,6 +18,12 @@
 The keyboard implementation for *OSX*.
 """
 
+# pylint: disable=C0111
+# The documentation is extracted from the base classes
+
+# pylint: disable=R0903
+# We implement stubs
+
 import enum
 
 import Quartz
@@ -171,6 +177,7 @@ class Listener(ListenerMixin, _base.Listener):
                 self._context = None
 
     def _handle(self, proxy, event_type, event, refcon):
+        # pylint: disable=W0702; we want to ignore errors
         # Convert the event to a KeyCode; this may fail, and in that case we
         # pass None
         try:
@@ -180,6 +187,7 @@ class Listener(ListenerMixin, _base.Listener):
         except:
             # TODO: Error reporting
             return
+        # pylint: enable=W0702
 
         try:
             if event_type == Quartz.kCGEventKeyDown:

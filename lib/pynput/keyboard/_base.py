@@ -21,6 +21,9 @@ The actual interface to keyboard classes is defined here, but the implementation
 is located in a platform dependent module.
 """
 
+# pylint: disable=R0903
+# We implement stubs
+
 import contextlib
 import enum
 import six
@@ -308,6 +311,10 @@ class Controller(object):
 
         K = self._Key
 
+        # pylint: disable=C0103; this is treated as a class scope constant, but
+        # we cannot set it in the class scope, as _Key is overridden by platform
+        # implementations
+        # pylint: disable=C0326; it is easier to read column aligned keys
         #: The keys used as modifiers; the first value in each tuple is the
         #: base modifier to use for subsequent modifiers.
         self._MODIFIER_KEYS = (
@@ -316,6 +323,7 @@ class Controller(object):
             (K.cmd,    (K.cmd.value,   K.cmd_l.value,   K.cmd_r.value)),
             (K.ctrl,   (K.ctrl.value,  K.ctrl_l.value,  K.ctrl_r.value)),
             (K.shift,  (K.shift.value, K.shift_l.value, K.shift_r.value)))
+        # pylint: enable=C0103,C0326
 
     def press(self, key):
         """Presses a key.
