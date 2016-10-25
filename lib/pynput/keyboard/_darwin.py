@@ -53,17 +53,18 @@ class KeyCode(_base.KeyCode):
 
         Quartz.CGEventSetFlags(
             result,
-            (Quartz.kCGEventFlagMaskAlternate
-                if Key.alt in modifiers else 0) |
+            0
+            | (Quartz.kCGEventFlagMaskAlternate
+               if Key.alt in modifiers else 0)
 
-            (Quartz.kCGEventFlagMaskCommand
-                if Key.cmd in modifiers else 0) |
+            | (Quartz.kCGEventFlagMaskCommand
+               if Key.cmd in modifiers else 0)
 
-            (Quartz.kCGEventFlagMaskControl
-                if Key.ctrl in modifiers else 0) |
+            | (Quartz.kCGEventFlagMaskControl
+               if Key.ctrl in modifiers else 0)
 
-            (Quartz.kCGEventFlagMaskShift
-                if Key.shift in modifiers else 0))
+            | (Quartz.kCGEventFlagMaskShift
+               if Key.shift in modifiers else 0))
 
         if not vk and self.char is not None:
             Quartz.CGEventKeyboardSetUnicodeString(

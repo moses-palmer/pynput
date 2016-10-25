@@ -399,17 +399,18 @@ class Controller(NotifierMixin, _base.Controller):
             shift mask.
         """
         return (
-            (self.ALT_MASK
-                if Key.alt in modifiers else 0) |
+            0
+            | (self.ALT_MASK
+               if Key.alt in modifiers else 0)
 
-            (self.ALT_GR_MASK
-                if Key.alt_gr in modifiers else 0) |
+            | (self.ALT_GR_MASK
+               if Key.alt_gr in modifiers else 0)
 
-            (self.CTRL_MASK
-                if Key.ctrl in modifiers else 0) |
+            | (self.CTRL_MASK
+               if Key.ctrl in modifiers else 0)
 
-            (self.SHIFT_MASK
-                if Key.shift in modifiers else 0))
+            | (self.SHIFT_MASK
+               if Key.shift in modifiers else 0))
 
     def _update_keyboard_mapping(self):
         """Updates the keyboard mapping.
@@ -491,7 +492,7 @@ class Listener(ListenerMixin, _base.Listener):
         elif index & 0x2:
             return self._keycode_to_keysym(display, keycode, index & ~0x2)
         elif index & 0x1:
-             return self._keycode_to_keysym(display, keycode, index & ~0x1)
+            return self._keycode_to_keysym(display, keycode, index & ~0x1)
         else:
             return 0
 
