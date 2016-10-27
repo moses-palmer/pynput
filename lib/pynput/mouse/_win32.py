@@ -14,11 +14,31 @@
 #
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
+"""
+The mouse implementation for *Windows*.
+"""
 
+# pylint: disable=C0111
+# The documentation is extracted from the base classes
+
+# pylint: disable=R0903
+# We implement stubs
+
+import ctypes
 import enum
 
+from ctypes import (
+    windll,
+    wintypes)
+
 from pynput._util import NotifierMixin
-from pynput._util.win32 import *
+from pynput._util.win32 import (
+    INPUT,
+    INPUT_union,
+    ListenerMixin,
+    MOUSEINPUT,
+    SendInput,
+    SystemHook)
 from . import _base
 
 
@@ -69,8 +89,8 @@ class Controller(NotifierMixin, _base.Controller):
                 ctypes.sizeof(INPUT))
 
         if dx or dy:
-            x, y = self._position_get()
-            self._emit('on_scroll', x, y, dx, dy)
+            px, py = self._position_get()
+            self._emit('on_scroll', px, py, dx, dy)
 
     def _press(self, button):
         SendInput(
@@ -81,7 +101,6 @@ class Controller(NotifierMixin, _base.Controller):
                     mi=MOUSEINPUT(
                         dwFlags=button.value[1])))),
             ctypes.sizeof(INPUT))
-        x, y = self.position
 
     def _release(self, button):
         SendInput(
@@ -92,7 +111,6 @@ class Controller(NotifierMixin, _base.Controller):
                     mi=MOUSEINPUT(
                         dwFlags=button.value[0])))),
             ctypes.sizeof(INPUT))
-        x, y = self.position
 
 
 @Controller._receiver
@@ -151,5 +169,5 @@ class Listener(ListenerMixin, _base.Listener):
 
         elif msg in self._SCROLL_BUTTONS:
             mx, my = self._SCROLL_BUTTONS[msg]
-            d = wintypes.SHORT(data.mouseData >> 16).value // self._WHEEL_DELTA
-            self.on_scroll(data.pt.x, data.pt.y, d * mx, d * my)
+            dd = wintypes.SHORT(data.mouseData >> 16).value // self._WHEEL_DELTA
+            self.on_scroll(data.pt.x, data.pt.y, dd * mx, dd * my)

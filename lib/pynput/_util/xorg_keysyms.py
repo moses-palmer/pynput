@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+# pylint: disable=C0111,C0302
+
 SYMBOLS = {
     'dead_grave': (0xfe50, u'\u0300'),
     'dead_acute': (0xfe51, u'\u0301'),

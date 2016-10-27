@@ -70,11 +70,13 @@ def main():
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+# pylint: disable=C0111,C0302
+
 %s
 ''' % (
         datetime.date.today().year,
         '\n'.join(
-            'VK_%s = %d' % (name, vk)
+            '%s = %d' % (name, vk)
             for name, vk in definitions(data))))
 
 main()

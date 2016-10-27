@@ -14,12 +14,33 @@
 #
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
+"""
+The keyboard implementation for *Windows*.
+"""
 
+# pylint: disable=C0111
+# The documentation is extracted from the base classes
+
+# pylint: disable=R0903
+# We implement stubs
+
+import ctypes
 import enum
 
+from ctypes import wintypes
+
+import pynput._util.win32_vks as VK
+
 from pynput._util import AbstractListener, NotifierMixin
-from pynput._util.win32 import *
-from pynput._util.win32_vks import *
+from pynput._util.win32 import (
+    INPUT,
+    INPUT_union,
+    KEYBDINPUT,
+    KeyTranslator,
+    ListenerMixin,
+    SendInput,
+    SystemHook,
+    VkKeyScan)
 from . import _base
 
 
@@ -38,9 +59,9 @@ class KeyCode(_base.KeyCode):
             scan = 0
             flags = 0
         else:
-            r = VkKeyScan(self.char)
-            if (r >> 8) & 0xFF == 0:
-                vk = r & 0xFF
+            res = VkKeyScan(self.char)
+            if (res >> 8) & 0xFF == 0:
+                vk = res & 0xFF
                 scan = 0
                 flags = 0
             else:
@@ -54,61 +75,61 @@ class KeyCode(_base.KeyCode):
 
 
 class Key(enum.Enum):
-    alt = KeyCode.from_vk(VK_MENU)
-    alt_l = KeyCode.from_vk(VK_LMENU)
-    alt_r = KeyCode.from_vk(VK_RMENU)
-    alt_gr = KeyCode.from_vk(VK_RMENU)
-    backspace = KeyCode.from_vk(VK_BACK)
-    caps_lock = KeyCode.from_vk(VK_CAPITAL)
-    cmd = KeyCode.from_vk(VK_LWIN)
-    cmd_l = KeyCode.from_vk(VK_LWIN)
-    cmd_r = KeyCode.from_vk(VK_RWIN)
-    ctrl = KeyCode.from_vk(VK_CONTROL)
-    ctrl_l = KeyCode.from_vk(VK_LCONTROL)
-    ctrl_r = KeyCode.from_vk(VK_RCONTROL)
-    delete = KeyCode.from_vk(VK_DELETE)
-    down = KeyCode.from_vk(VK_DOWN)
-    end = KeyCode.from_vk(VK_END)
-    enter = KeyCode.from_vk(VK_RETURN)
-    esc = KeyCode.from_vk(VK_ESCAPE)
-    f1 = KeyCode.from_vk(VK_F1)
-    f2 = KeyCode.from_vk(VK_F2)
-    f3 = KeyCode.from_vk(VK_F3)
-    f4 = KeyCode.from_vk(VK_F4)
-    f5 = KeyCode.from_vk(VK_F5)
-    f6 = KeyCode.from_vk(VK_F6)
-    f7 = KeyCode.from_vk(VK_F7)
-    f8 = KeyCode.from_vk(VK_F8)
-    f9 = KeyCode.from_vk(VK_F9)
-    f10 = KeyCode.from_vk(VK_F10)
-    f11 = KeyCode.from_vk(VK_F11)
-    f12 = KeyCode.from_vk(VK_F12)
-    f13 = KeyCode.from_vk(VK_F13)
-    f14 = KeyCode.from_vk(VK_F14)
-    f15 = KeyCode.from_vk(VK_F15)
-    f16 = KeyCode.from_vk(VK_F16)
-    f17 = KeyCode.from_vk(VK_F17)
-    f18 = KeyCode.from_vk(VK_F18)
-    f19 = KeyCode.from_vk(VK_F19)
-    f20 = KeyCode.from_vk(VK_F20)
-    home = KeyCode.from_vk(VK_HOME)
-    left = KeyCode.from_vk(VK_LEFT)
-    page_down = KeyCode.from_vk(VK_NEXT)
-    page_up = KeyCode.from_vk(VK_PRIOR)
-    right = KeyCode.from_vk(VK_RIGHT)
-    shift = KeyCode.from_vk(VK_LSHIFT)
-    shift_l = KeyCode.from_vk(VK_LSHIFT)
-    shift_r = KeyCode.from_vk(VK_RSHIFT)
-    space = KeyCode.from_vk(VK_SPACE, char=' ')
-    tab = KeyCode.from_vk(VK_TAB)
-    up = KeyCode.from_vk(VK_UP)
+    alt = KeyCode.from_vk(VK.MENU)
+    alt_l = KeyCode.from_vk(VK.LMENU)
+    alt_r = KeyCode.from_vk(VK.RMENU)
+    alt_gr = KeyCode.from_vk(VK.RMENU)
+    backspace = KeyCode.from_vk(VK.BACK)
+    caps_lock = KeyCode.from_vk(VK.CAPITAL)
+    cmd = KeyCode.from_vk(VK.LWIN)
+    cmd_l = KeyCode.from_vk(VK.LWIN)
+    cmd_r = KeyCode.from_vk(VK.RWIN)
+    ctrl = KeyCode.from_vk(VK.CONTROL)
+    ctrl_l = KeyCode.from_vk(VK.LCONTROL)
+    ctrl_r = KeyCode.from_vk(VK.RCONTROL)
+    delete = KeyCode.from_vk(VK.DELETE)
+    down = KeyCode.from_vk(VK.DOWN)
+    end = KeyCode.from_vk(VK.END)
+    enter = KeyCode.from_vk(VK.RETURN)
+    esc = KeyCode.from_vk(VK.ESCAPE)
+    f1 = KeyCode.from_vk(VK.F1)
+    f2 = KeyCode.from_vk(VK.F2)
+    f3 = KeyCode.from_vk(VK.F3)
+    f4 = KeyCode.from_vk(VK.F4)
+    f5 = KeyCode.from_vk(VK.F5)
+    f6 = KeyCode.from_vk(VK.F6)
+    f7 = KeyCode.from_vk(VK.F7)
+    f8 = KeyCode.from_vk(VK.F8)
+    f9 = KeyCode.from_vk(VK.F9)
+    f10 = KeyCode.from_vk(VK.F10)
+    f11 = KeyCode.from_vk(VK.F11)
+    f12 = KeyCode.from_vk(VK.F12)
+    f13 = KeyCode.from_vk(VK.F13)
+    f14 = KeyCode.from_vk(VK.F14)
+    f15 = KeyCode.from_vk(VK.F15)
+    f16 = KeyCode.from_vk(VK.F16)
+    f17 = KeyCode.from_vk(VK.F17)
+    f18 = KeyCode.from_vk(VK.F18)
+    f19 = KeyCode.from_vk(VK.F19)
+    f20 = KeyCode.from_vk(VK.F20)
+    home = KeyCode.from_vk(VK.HOME)
+    left = KeyCode.from_vk(VK.LEFT)
+    page_down = KeyCode.from_vk(VK.NEXT)
+    page_up = KeyCode.from_vk(VK.PRIOR)
+    right = KeyCode.from_vk(VK.RIGHT)
+    shift = KeyCode.from_vk(VK.LSHIFT)
+    shift_l = KeyCode.from_vk(VK.LSHIFT)
+    shift_r = KeyCode.from_vk(VK.RSHIFT)
+    space = KeyCode.from_vk(VK.SPACE, char=' ')
+    tab = KeyCode.from_vk(VK.TAB)
+    up = KeyCode.from_vk(VK.UP)
 
-    insert = KeyCode.from_vk(VK_INSERT)
-    menu = KeyCode.from_vk(VK_APPS)
-    num_lock = KeyCode.from_vk(VK_NUMLOCK)
-    pause = KeyCode.from_vk(VK_PAUSE)
-    print_screen = KeyCode.from_vk(VK_SNAPSHOT)
-    scroll_lock = KeyCode.from_vk(VK_SCROLL)
+    insert = KeyCode.from_vk(VK.INSERT)
+    menu = KeyCode.from_vk(VK.APPS)
+    num_lock = KeyCode.from_vk(VK.NUMLOCK)
+    pause = KeyCode.from_vk(VK.PAUSE)
+    print_screen = KeyCode.from_vk(VK.SNAPSHOT)
+    scroll_lock = KeyCode.from_vk(VK.SCROLL)
 
 
 class Controller(NotifierMixin, _base.Controller):
@@ -179,6 +200,7 @@ class Listener(ListenerMixin, _base.Listener):
         msg = wparam
         vk = lparam
 
+        # pylint: disable=W0702; we want to ignore errors
         # Convert the event to a KeyCode; this may fail, and in that case we
         # pass None
         try:
@@ -188,6 +210,7 @@ class Listener(ListenerMixin, _base.Listener):
         except:
             # TODO: Error reporting
             return
+        # pylint: enable=W0702
 
         if msg in self._PRESS_MESSAGES:
             self.on_press(key)

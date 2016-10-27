@@ -14,13 +14,25 @@
 #
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
+"""
+Utility functions and classes for the *win32* backend.
+"""
+
+# pylint: disable=C0103
+# We want to make it obvious how structs are related
+
+# pylint: disable=R0903
+# This module contains a number of structs
 
 import contextlib
 import ctypes
-import six
 import threading
 
-from ctypes import windll, wintypes
+from ctypes import (
+    windll,
+    wintypes)
+
+import six
 
 from . import AbstractListener
 
@@ -275,7 +287,7 @@ class SystemHook(object):
 
         return self
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, exc_type, value, traceback):
         key = threading.current_thread().ident
         assert key in self._HOOKS
 
@@ -289,13 +301,14 @@ class SystemHook(object):
     def _handler(code, msg, lpdata):
         key = threading.current_thread().ident
         self = SystemHook._HOOKS.get(key, None)
+        # pylint: disable=W0150; always call the next hook
         try:
             if self:
                 self.on_hook(code, msg, lpdata)
 
         finally:
-            # Always call the next hook
             return SystemHook._CallNextHookEx(0, code, msg, lpdata)
+        # pylint: enable=W0150
 
 
 class ListenerMixin(object):
@@ -495,7 +508,7 @@ class KeyTranslator(object):
             if not self._GetKeyboardState(ctypes.byref(self.__state)):
                 raise OSError(
                     'GetKeyboardState failed: %d',
-                    ctypes.wintypse.get_last_error())
+                    ctypes.wintypes.get_last_error())
 
         # Get the keyboard layout for the thread for which we retrieved the
         # state

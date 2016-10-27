@@ -14,6 +14,12 @@
 #
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
+"""
+Utility functions and classes for the *Xorg* backend.
+"""
+
+# pylint: disable=R0903
+# We implement stubs
 
 import contextlib
 import itertools
@@ -22,13 +28,15 @@ import Xlib.threaded
 import Xlib.XK
 
 from . import AbstractListener
-from .xorg_keysyms import *
+from .xorg_keysyms import SYMBOLS
 
 
 # Create a display to verify that we have an X connection
-display = Xlib.display.Display()
-display.close()
-del display
+def _check():
+    display = Xlib.display.Display()
+    display.close()
+_check()
+del _check
 
 
 class X11Error(Exception):
@@ -54,6 +62,8 @@ def display_manager(display):
     errors = []
 
     def handler(*args):
+        """The *Xlib* error handler.
+        """
         errors.append(args)
 
     old_handler = display.set_error_handler(handler)
@@ -137,7 +147,7 @@ def keysym_is_latin_lower(keysym):
     return Xlib.XK.XK_a <= keysym <= Xlib.XK.XK_z
 
 
-def keysym_group(a, b):
+def keysym_group(ks1, ks2):
     """Generates a group from two *keysyms*.
 
     The implementation of this function comes from:
@@ -156,21 +166,21 @@ def keysym_group(a, b):
     appears to be consistent with observations of the return values from
     ``XGetKeyboardMapping``.
 
-    :param a: The first *keysym*.
+    :param ks1: The first *keysym*.
 
-    :param b: The second *keysym*.
+    :param ks2: The second *keysym*.
 
     :return: a tuple conforming to the description above
     """
-    if b == Xlib.XK.NoSymbol:
-        if keysym_is_latin_upper(a):
-            return (Xlib.XK.XK_a + a - Xlib.XK.XK_A, a)
-        elif keysym_is_latin_lower(a):
-            return (a, Xlib.XK.XK_A + a - Xlib.XK.XK_a)
+    if ks2 == Xlib.XK.NoSymbol:
+        if keysym_is_latin_upper(ks1):
+            return (Xlib.XK.XK_a + ks1 - Xlib.XK.XK_A, ks1)
+        elif keysym_is_latin_lower(ks1):
+            return (ks1, Xlib.XK.XK_A + ks1 - Xlib.XK.XK_a)
         else:
-            return (a, a)
+            return (ks1, ks1)
     else:
-        return (a, b)
+        return (ks1, ks2)
 
 
 def keysym_normalize(keysym):
@@ -322,7 +332,7 @@ def symbol_to_keysym(symbol):
     if not keysym:
         try:
             return getattr(Xlib.keysymdef.xkb, 'XK_' + symbol, 0)
-        except:
+        except AttributeError:
             return SYMBOLS.get(symbol, (0,))[0]
 
 
@@ -350,8 +360,8 @@ class ListenerMixin(object):
     def _run(self):
         self._display_stop = Xlib.display.Display()
         self._display_record = Xlib.display.Display()
-        with display_manager(self._display_record) as d:
-            self._context = d.record_create_context(
+        with display_manager(self._display_record) as dm:
+            self._context = dm.record_create_context(
                 0,
                 [Xlib.ext.record.AllClients],
                 [{
@@ -382,11 +392,12 @@ class ListenerMixin(object):
     def _stop(self):
         if not hasattr(self, '_context'):
             self.wait()
+        # pylint: disable=W0702; we must ignore errors
         try:
             self._display_stop.record_disable_context(self._context)
         except:
-            # Ignore errors at this point
             pass
+        # pylint: enable=W0702
 
     @AbstractListener._emitter
     def _handler(self, events):

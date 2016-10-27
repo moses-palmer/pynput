@@ -14,6 +14,11 @@
 #
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
+"""
+The main *pynput* module.
+
+This module imports ``keyboard`` and ``mouse``.
+"""
 
 from . import keyboard
 from . import mouse

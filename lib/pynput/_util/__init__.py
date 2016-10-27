@@ -14,6 +14,15 @@
 #
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
+"""
+General utility functions and classes.
+"""
+
+# pylint: disable=R0903
+# We implement minimal mixins
+
+# pylint: disable=W0212
+# We implement an internal API
 
 import contextlib
 import functools
@@ -87,7 +96,7 @@ class AbstractListener(threading.Thread):
         self.wait()
         return self
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, exc_type, value, traceback):
         self.stop()
 
     def wait(self):
@@ -106,7 +115,7 @@ class AbstractListener(threading.Thread):
         self._run()
 
     @classmethod
-    def _emitter(self, f):
+    def _emitter(cls, f):
         """A decorator to mark a method as the one emitting the callbacks.
 
         This decorator will wrap the method and catch :class:`StopException`.
@@ -116,7 +125,7 @@ class AbstractListener(threading.Thread):
         def inner(*args, **kwargs):
             try:
                 f(*args, **kwargs)
-            except self.StopException as e:
+            except cls.StopException as e:
                 e.args[0].stop()
 
         return inner

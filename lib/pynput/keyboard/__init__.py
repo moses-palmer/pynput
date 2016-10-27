@@ -14,6 +14,14 @@
 #
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
+"""
+The module containing keyboard classes.
+
+See the documentation for more information.
+"""
+
+# pylint: disable=C0103
+# KeyCode, Key, Controller and Listener are not constants
 
 import os
 import sys
@@ -43,8 +51,6 @@ else:
             # For now, since we only support Xlib anyway, we re-raise these
             # errors to allow users to determine the cause of failures to import
             raise
-        except:
-            pass
 
 
 if not KeyCode or not Key or not Controller or not Listener:

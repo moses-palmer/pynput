@@ -14,17 +14,31 @@
 #
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
+"""
+This module contains the base implementation.
+
+The actual interface to keyboard classes is defined here, but the implementation
+is located in a platform dependent module.
+"""
+
+# pylint: disable=R0903
+# We implement stubs
 
 import contextlib
 import enum
-import six
 import threading
 import unicodedata
+
+import six
 
 from pynput._util import AbstractListener
 
 
 class KeyCode(object):
+    """
+    A :class:`KeyCode` represents the description of a key code used by the
+    operating system.
+    """
     def __init__(self, vk=0, char=None, is_dead=False):
         self.vk = vk
         self.char = six.text_type(char) if char is not None else None
@@ -95,7 +109,7 @@ class KeyCode(object):
         raise ValueError(key)
 
     @classmethod
-    def from_vk(self, vk, **kwargs):
+    def from_vk(cls, vk, **kwargs):
         """Creates a key from a virtual key code.
 
         :param vk: The virtual key code.
@@ -104,20 +118,20 @@ class KeyCode(object):
 
         :return: a key code
         """
-        return self(vk=vk, **kwargs)
+        return cls(vk=vk, **kwargs)
 
     @classmethod
-    def from_char(self, char):
+    def from_char(cls, char):
         """Creates a key from a character.
 
         :param str char: The character.
 
         :return: a key code
         """
-        return self(char=char)
+        return cls(char=char)
 
     @classmethod
-    def from_dead(self, char):
+    def from_dead(cls, char):
         """Creates a dead key.
 
         :param char: The dead key. This should be the unicode character
@@ -126,7 +140,7 @@ class KeyCode(object):
 
         :return: a key code
         """
-        return self(char=char, is_dead=True)
+        return cls(char=char, is_dead=True)
 
 
 class Key(enum.Enum):
@@ -300,16 +314,21 @@ class Controller(object):
         self._caps_lock = False
         self._dead_key = None
 
-        K = self._Key
+        kc = self._Key
 
+        # pylint: disable=C0103; this is treated as a class scope constant, but
+        # we cannot set it in the class scope, as _Key is overridden by platform
+        # implementations
+        # pylint: disable=C0326; it is easier to read column aligned keys
         #: The keys used as modifiers; the first value in each tuple is the
         #: base modifier to use for subsequent modifiers.
         self._MODIFIER_KEYS = (
-            (K.alt_gr, (K.alt_gr.value,)),
-            (K.alt,    (K.alt.value,   K.alt_l.value,   K.alt_r.value)),
-            (K.cmd,    (K.cmd.value,   K.cmd_l.value,   K.cmd_r.value)),
-            (K.ctrl,   (K.ctrl.value,  K.ctrl_l.value,  K.ctrl_r.value)),
-            (K.shift,  (K.shift.value, K.shift_l.value, K.shift_r.value)))
+            (kc.alt_gr, (kc.alt_gr.value,)),
+            (kc.alt,    (kc.alt.value,   kc.alt_l.value,   kc.alt_r.value)),
+            (kc.cmd,    (kc.cmd.value,   kc.cmd_l.value,   kc.cmd_r.value)),
+            (kc.ctrl,   (kc.ctrl.value,  kc.ctrl_l.value,  kc.ctrl_r.value)),
+            (kc.shift,  (kc.shift.value, kc.shift_l.value, kc.shift_r.value)))
+        # pylint: enable=C0103,C0326
 
     def press(self, key):
         """Presses a key.

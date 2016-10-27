@@ -14,12 +14,25 @@
 #
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
+"""
+The keyboard implementation for *OSX*.
+"""
+
+# pylint: disable=C0111
+# The documentation is extracted from the base classes
+
+# pylint: disable=R0903
+# We implement stubs
 
 import enum
 
 import Quartz
 
-from pynput._util.darwin import *
+from pynput._util.darwin import (
+    get_unicode_to_keycode_map,
+    keycode_context,
+    keycode_to_string,
+    ListenerMixin)
 from . import _base
 
 
@@ -40,17 +53,18 @@ class KeyCode(_base.KeyCode):
 
         Quartz.CGEventSetFlags(
             result,
-            (Quartz.kCGEventFlagMaskAlternate
-                if Key.alt in modifiers else 0) |
+            0
+            | (Quartz.kCGEventFlagMaskAlternate
+               if Key.alt in modifiers else 0)
 
-            (Quartz.kCGEventFlagMaskCommand
-                if Key.cmd in modifiers else 0) |
+            | (Quartz.kCGEventFlagMaskCommand
+               if Key.cmd in modifiers else 0)
 
-            (Quartz.kCGEventFlagMaskControl
-                if Key.ctrl in modifiers else 0) |
+            | (Quartz.kCGEventFlagMaskControl
+               if Key.ctrl in modifiers else 0)
 
-            (Quartz.kCGEventFlagMaskShift
-                if Key.shift in modifiers else 0))
+            | (Quartz.kCGEventFlagMaskShift
+               if Key.shift in modifiers else 0))
 
         if not vk and self.char is not None:
             Quartz.CGEventKeyboardSetUnicodeString(
@@ -167,7 +181,8 @@ class Listener(ListenerMixin, _base.Listener):
             finally:
                 self._context = None
 
-    def _handle(self, proxy, event_type, event, refcon):
+    def _handle(self, dummy_proxy, event_type, event, dummy_refcon):
+        # pylint: disable=W0702; we want to ignore errors
         # Convert the event to a KeyCode; this may fail, and in that case we
         # pass None
         try:
@@ -177,6 +192,7 @@ class Listener(ListenerMixin, _base.Listener):
         except:
             # TODO: Error reporting
             return
+        # pylint: enable=W0702
 
         try:
             if event_type == Quartz.kCGEventKeyDown:

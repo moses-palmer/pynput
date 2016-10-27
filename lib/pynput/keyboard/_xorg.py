@@ -14,6 +14,15 @@
 #
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
+"""
+The keyboard implementation for *Xorg*.
+"""
+
+# pylint: disable=C0111
+# The documentation is extracted from the base classes
+
+# pylint: disable=R0903
+# We implement stubs
 
 import enum
 import threading
@@ -26,13 +35,26 @@ import Xlib.XK
 import Xlib.protocol
 
 from pynput._util import NotifierMixin
-from pynput._util.xorg import *
+from pynput._util.xorg import (
+    alt_mask,
+    alt_gr_mask,
+    display_manager,
+    index_to_shift,
+    keyboard_mapping,
+    ListenerMixin,
+    shift_to_index,
+    symbol_to_keysym)
+from pynput._util.xorg_keysyms import (
+    CHARS,
+    DEAD_KEYS,
+    KEYSYMS,
+    SYMBOLS)
 from . import _base
 
 
 class KeyCode(_base.KeyCode):
     @classmethod
-    def _from_symbol(self, symbol, **kwargs):
+    def _from_symbol(cls, symbol, **kwargs):
         """Creates a key from a symbol.
 
         :param str symbol: The symbol name.
@@ -42,18 +64,20 @@ class KeyCode(_base.KeyCode):
         # First try simple translation
         keysym = Xlib.XK.string_to_keysym(symbol)
         if keysym:
-            return self.from_vk(keysym, **kwargs)
+            return cls.from_vk(keysym, **kwargs)
 
         # If that fails, try checking a module attribute of Xlib.keysymdef.xkb
         if not keysym:
+            # pylint: disable=W0702; we want to ignore errors
             try:
-                return self.from_vk(
+                return cls.from_vk(
                     getattr(Xlib.keysymdef.xkb, 'XK_' + symbol, 0),
                     **kwargs)
             except:
-                return self.from_vk(
+                return cls.from_vk(
                     SYMBOLS.get(symbol, (0,))[0],
                     **kwargs)
+            # pylint: enable=W0702
 
 
 class Key(enum.Enum):
@@ -132,8 +156,11 @@ class Controller(NotifierMixin, _base.Controller):
         self._borrows = {}
         self._borrow_lock = threading.RLock()
 
+        # pylint: disable=C0103; this is treated as a class scope constant, but
+        # we cannot set it in the class scope, as it requires a Display instance
         self.ALT_MASK = alt_mask(self._display)
         self.ALT_GR_MASK = alt_gr_mask(self._display)
+        # pylint: enable=C0103
 
     def __del__(self):
         if self._display:
@@ -202,13 +229,13 @@ class Controller(NotifierMixin, _base.Controller):
         :param int shift_state: The shift state. The actual value used is
             :attr:`shift_state` or'd with this value.
         """
-        with display_manager(self._display) as d, self.modifiers as modifiers:
-            window = d.get_input_focus().focus
+        with display_manager(self._display) as dm, self.modifiers as modifiers:
+            window = dm.get_input_focus().focus
             window.send_event(event(
                 detail=keycode,
                 state=shift_state | self._shift_mask(modifiers),
                 time=0,
-                root=d.screen().root,
+                root=dm.screen().root,
                 window=window,
                 same_screen=0,
                 child=Xlib.X.NONE,
@@ -219,10 +246,12 @@ class Controller(NotifierMixin, _base.Controller):
 
         :param str identifier: The identifier to resolve.
         """
+        # pylint: disable=W0702; we want to ignore errors
         try:
             keysym, _ = SYMBOLS[CHARS[key.combining]]
         except:
             return None
+        # pylint: enable=W0702
 
         if keysym not in self.keyboard_mapping:
             return None
@@ -288,7 +317,7 @@ class Controller(NotifierMixin, _base.Controller):
         if keysym is None:
             return None
 
-        keyboard_mapping = self._display.get_keyboard_mapping(8, 255 - 8)
+        mapping = self._display.get_keyboard_mapping(8, 255 - 8)
 
         def i2kc(index):
             return index + 8
@@ -298,8 +327,8 @@ class Controller(NotifierMixin, _base.Controller):
 
         #: Finds a keycode and index by looking at already used keycodes
         def reuse():
-            for keysym, (keycode, _, _) in self._borrows.items():
-                keycodes = keyboard_mapping[kc2i(keycode)]
+            for _, (keycode, _, _) in self._borrows.items():
+                keycodes = mapping[kc2i(keycode)]
 
                 # Only the first four items are addressable by X
                 for index in range(4):
@@ -308,7 +337,7 @@ class Controller(NotifierMixin, _base.Controller):
 
         #: Finds a keycode and index by using a new keycode
         def borrow():
-            for i, keycodes in enumerate(keyboard_mapping):
+            for i, keycodes in enumerate(mapping):
                 if not any(keycodes):
                     return i2kc(i), 0
 
@@ -320,19 +349,19 @@ class Controller(NotifierMixin, _base.Controller):
                     return keycode, index
 
         #: Registers a keycode for a specific key and modifier state
-        def register(keycode, index):
+        def register(dm, keycode, index):
             i = kc2i(keycode)
-            keyboard_mapping[i][index] = keysym
-            d.change_keyboard_mapping(
+            mapping[i][index] = keysym
+            dm.change_keyboard_mapping(
                 keycode,
-                keyboard_mapping[i:i + 1])
+                mapping[i:i + 1])
             self._borrows[keysym] = (keycode, index, 0)
 
         try:
-            with display_manager(self._display) as d, self._borrow_lock:
+            with display_manager(self._display) as dm, self._borrow_lock as _:
                 # First try an already used keycode, then try a new one, and
                 # fall back on reusing one that is not currently pressed
-                register(*(
+                register(dm, *(
                     reuse() or
                     borrow() or
                     overwrite()))
@@ -353,6 +382,7 @@ class Controller(NotifierMixin, _base.Controller):
         if symbol is None:
             return None
 
+        # pylint: disable=W0702; we want to ignore errors
         try:
             return symbol_to_keysym(symbol)
         except:
@@ -360,6 +390,7 @@ class Controller(NotifierMixin, _base.Controller):
                 return SYMBOLS[symbol][0]
             except:
                 return None
+        # pylint: enable=W0702
 
     def _shift_mask(self, modifiers):
         """The *X* modifier mask to apply for a set of modifiers.
@@ -368,23 +399,24 @@ class Controller(NotifierMixin, _base.Controller):
             shift mask.
         """
         return (
-            (self.ALT_MASK
-                if Key.alt in modifiers else 0) |
+            0
+            | (self.ALT_MASK
+               if Key.alt in modifiers else 0)
 
-            (self.ALT_GR_MASK
-                if Key.alt_gr in modifiers else 0) |
+            | (self.ALT_GR_MASK
+               if Key.alt_gr in modifiers else 0)
 
-            (self.CTRL_MASK
-                if Key.ctrl in modifiers else 0) |
+            | (self.CTRL_MASK
+               if Key.ctrl in modifiers else 0)
 
-            (self.SHIFT_MASK
-                if Key.shift in modifiers else 0))
+            | (self.SHIFT_MASK
+               if Key.shift in modifiers else 0))
 
     def _update_keyboard_mapping(self):
         """Updates the keyboard mapping.
         """
-        with display_manager(self._display) as d:
-            self._keyboard_mapping = keyboard_mapping(d)
+        with display_manager(self._display) as dm:
+            self._keyboard_mapping = keyboard_mapping(dm)
 
 
 @Controller._receiver
@@ -397,6 +429,10 @@ class Listener(ListenerMixin, _base.Listener):
     _SPECIAL_KEYS = {
         key.value.vk: key
         for key in Key}
+
+    def __init__(self, *args, **kwargs):
+        super(Listener, self).__init__(*args, **kwargs)
+        self._keyboard_mapping = None
 
     def _run(self):
         with self._receive():
@@ -411,6 +447,7 @@ class Listener(ListenerMixin, _base.Listener):
             min_keycode, keycode_count)
 
     def _handle(self, display, event):
+        # pylint: disable=W0702; we want to ignore errors
         # Convert the event to a KeyCode; this may fail, and in that case we
         # pass None
         try:
@@ -420,6 +457,7 @@ class Listener(ListenerMixin, _base.Listener):
         except:
             # TODO: Error reporting
             return
+        # pylint: enable=W0702
 
         if event.type == Xlib.X.KeyPress:
             self.on_press(key)
@@ -458,7 +496,7 @@ class Listener(ListenerMixin, _base.Listener):
         elif index & 0x2:
             return self._keycode_to_keysym(display, keycode, index & ~0x2)
         elif index & 0x1:
-             return self._keycode_to_keysym(display, keycode, index & ~0x1)
+            return self._keycode_to_keysym(display, keycode, index & ~0x1)
         else:
             return 0
 

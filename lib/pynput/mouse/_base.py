@@ -14,6 +14,15 @@
 #
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
+"""
+This module contains the base implementation.
+
+The actual interface to mouse classes is defined here, but the implementation is
+located in a platform dependent module.
+"""
+
+# pylint: disable=R0903
+# We implement stubs
 
 import enum
 
@@ -112,7 +121,7 @@ class Controller(object):
         """
         return self
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, exc_type, value, traceback):
         """Ends a series of clicks.
         """
         pass
