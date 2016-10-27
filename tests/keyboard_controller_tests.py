@@ -95,7 +95,7 @@ class KeyboardControllerTest(EventTest):
             self.controller.release(pynput.keyboard.Key.space)
 
         self.assertIn(
-            ' ',
+            u' ',
             collect(),
             'Failed to press and release space')
 
@@ -106,18 +106,18 @@ class KeyboardControllerTest(EventTest):
             self.controller.touch(pynput.keyboard.Key.space, False)
 
         self.assertIn(
-            ' ',
+            u' ',
             collect(),
             'Failed to press and release space')
 
     def test_touch_dead(self):
         """Asserts that pressing dead keys generate combined characters"""
         with self.capture() as collect:
-            dead = pynput.keyboard.KeyCode.from_dead('~')
+            dead = pynput.keyboard.KeyCode.from_dead(u'~')
             self.controller.press(dead)
             self.controller.release(dead)
-            self.controller.press('a')
-            self.controller.release('a')
+            self.controller.press(u'a')
+            self.controller.release(u'a')
 
         self.assertIn(
             u'ã',
@@ -128,7 +128,7 @@ class KeyboardControllerTest(EventTest):
         """Asserts that pressing dead keys followed by space yields the
         non-dead version"""
         with self.capture() as collect:
-            dead = pynput.keyboard.KeyCode.from_dead('~')
+            dead = pynput.keyboard.KeyCode.from_dead(u'~')
             self.controller.press(dead)
             self.controller.release(dead)
             self.controller.press(pynput.keyboard.Key.space)
@@ -142,7 +142,7 @@ class KeyboardControllerTest(EventTest):
     def test_touch_dead_twice(self):
         """Asserts that pressing dead keys twice yields the non-dead version"""
         with self.capture() as collect:
-            dead = pynput.keyboard.KeyCode.from_dead('~')
+            dead = pynput.keyboard.KeyCode.from_dead(u'~')
             self.controller.press(dead)
             self.controller.release(dead)
             self.controller.press(dead)
@@ -218,8 +218,8 @@ class KeyboardControllerTest(EventTest):
         shift causes it to shift to upper case"""
         with self.capture() as collect:
             with self.controller.pressed(pynput.keyboard.Key.shift):
-                self.controller.press('a')
-                self.controller.release('a')
+                self.controller.press(u'a')
+                self.controller.release(u'a')
 
                 with self.controller.modifiers as modifiers:
                     self.assertIn(
@@ -227,7 +227,7 @@ class KeyboardControllerTest(EventTest):
                         modifiers)
 
         self.assertIn(
-            'A',
+            u'A',
             collect(),
             'shift+a did not yield "A"')
 
@@ -256,12 +256,12 @@ class KeyboardControllerTest(EventTest):
         """Tests that events sent by a controller are received correctly"""
         with self.assert_event(
                 'Failed to send press',
-                on_press=lambda k: getattr(k, 'char', None) == 'a'):
-            self.controller.press('a')
+                on_press=lambda k: getattr(k, 'char', None) == u'a'):
+            self.controller.press(u'a')
         with self.assert_event(
                 'Failed to send release',
-                on_release=lambda k: getattr(k, 'char', None) == 'a'):
-            self.controller.release('a')
+                on_release=lambda k: getattr(k, 'char', None) == u'a'):
+            self.controller.release(u'a')
 
         self.controller.press(pynput.keyboard.Key.enter)
         self.controller.release(pynput.keyboard.Key.enter)
