@@ -70,24 +70,32 @@ class KeyboardListenerTest(EventTest):
                     for key in event[0]),
                 is_pressed)
 
-        remaining = [normalize(arg) for arg in args]
+        original_expected = [normalize(arg) for arg in args]
+        remaining = list(original_expected)
 
         time.sleep(1)
 
+        actual = []
         try:
             with self.events() as events:
-                for i, event in enumerate(events):
+                for event in events:
                     if event is None:
                         break
 
                     expected = remaining.pop(0)
-                    actual = normalize(event)
+                    current = normalize(event)
+                    actual.append(current)
                     self.assertIn(
-                        actual[0][0],
-                        expected[0])
+                        current[0][0],
+                        expected[0],
+                        '%s was not found in %s' % (
+                            expected[0],
+                            current[0][0]))
                     self.assertEqual(
-                        actual[1],
-                        expected[1])
+                        current[1],
+                        expected[1],
+                        'Pressed state for %s was incorrect' % (
+                            str(current[0][0])))
 
                     if not remaining:
                         break
@@ -96,7 +104,10 @@ class KeyboardListenerTest(EventTest):
             self.assertSequenceEqual(
                 [],
                 remaining,
-                failure_message)
+                '%s ([%s] != [%s])' % (
+                    failure_message,
+                    ' '.join(str(e) for e in original_expected),
+                    ' '.join(str(a) for a in actual)))
 
         finally:
             self.notify('Press <enter> to continue...', delay=0)
