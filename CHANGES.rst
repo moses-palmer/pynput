@@ -1,6 +1,13 @@
 Release Notes
 =============
 
+v1.1.4 - Small bugfixes
+-----------------------
+*  Corrected error generation when ``GetKeyboardState`` fails.
+*  Make sure to apply shift state to borrowed keys on *X*.
+*  Use *pylint*.
+
+
 v1.1.3 - Changed Xlib backend library
 -------------------------------------
 *  Changed *Xlib* library.
