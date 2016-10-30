@@ -522,7 +522,7 @@ class Listener(ListenerMixin, _base.Listener):
         # ...then try characters...
         name = KEYSYMS[keysym]
         if name in SYMBOLS:
-            char = SYMBOLS[name][1]
+            char = SYMBOLS[name][1].upper() if index & 1 else SYMBOLS[name][1]
             if char in DEAD_KEYS:
                 return KeyCode.from_dead(DEAD_KEYS[char])
             else:
