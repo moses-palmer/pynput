@@ -178,13 +178,7 @@ class ListenerMixin(object):
     def _run(self):
         self._loop = None
         try:
-            tap = Quartz.CGEventTapCreate(
-                Quartz.kCGSessionEventTap,
-                Quartz.kCGHeadInsertEventTap,
-                Quartz.kCGEventTapOptionListenOnly,
-                self._EVENTS,
-                self._handler,
-                None)
+            tap = self._create_event_tap()
             if tap is None:
                 self._mark_ready()
                 return
@@ -220,6 +214,19 @@ class ListenerMixin(object):
         except AttributeError:
             # The loop may not have been created
             pass
+
+    def _create_event_tap(self):
+        """Creates the event tap used by the listener.
+
+        :return: an event tap
+        """
+        return Quartz.CGEventTapCreate(
+            Quartz.kCGSessionEventTap,
+            Quartz.kCGHeadInsertEventTap,
+            Quartz.kCGEventTapOptionListenOnly,
+            self._EVENTS,
+            self._handler,
+            None)
 
     @AbstractListener._emitter
     def _handler(self, proxy, event_type, event, refcon):
