@@ -205,13 +205,13 @@ class Controller(NotifierMixin, _base.Controller):
 
         try:
             keycode, shift_state = self.keyboard_mapping[keysym]
-            self._send_key(event, keycode, shift_state)
+            self._send_key(event, key, keycode, shift_state)
 
         except KeyError:
             with self._borrow_lock:
                 keycode, index, count = self._borrows[keysym]
                 self._send_key(
-                    event, keycode, index_to_shift(self._display, index))
+                    event, key, keycode, index_to_shift(self._display, index))
                 count += 1 if is_press else -1
                 self._borrows[keysym] = (keycode, index, count)
 
@@ -229,10 +229,12 @@ class Controller(NotifierMixin, _base.Controller):
             or self._resolve_borrowed(key) \
             or self._resolve_borrowing(key)
 
-    def _send_key(self, event, keycode, shift_state):
+    def _send_key(self, event, key, keycode, shift_state):
         """Sends a single keyboard event.
 
         :param event: The *X* keyboard event.
+
+        :param Key key: The actual key.
 
         :param int keycode: The keycode.
 
