@@ -39,7 +39,7 @@ class KeyCode(object):
     A :class:`KeyCode` represents the description of a key code used by the
     operating system.
     """
-    def __init__(self, vk=0, char=None, is_dead=False):
+    def __init__(self, vk=None, char=None, is_dead=False):
         self.vk = vk
         self.char = six.text_type(char) if char is not None else None
         self.is_dead = is_dead
