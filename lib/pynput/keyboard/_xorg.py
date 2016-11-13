@@ -242,16 +242,23 @@ class Controller(NotifierMixin, _base.Controller):
             :attr:`shift_state` or'd with this value.
         """
         with display_manager(self._display) as dm, self.modifiers as modifiers:
-            window = dm.get_input_focus().focus
-            window.send_event(event(
-                detail=keycode,
-                state=shift_state | self._shift_mask(modifiers),
-                time=0,
-                root=dm.screen().root,
-                window=window,
-                same_screen=0,
-                child=Xlib.X.NONE,
-                root_x=0, root_y=0, event_x=0, event_y=0))
+            if key.is_control:
+                Xlib.ext.xtest.fake_input(
+                    dm,
+                    Xlib.X.KeyPress if event == Xlib.display.event.KeyPress
+                    else Xlib.X.KeyRelease,
+                    dm.keysym_to_keycode(key.vk))
+            else:
+                window = dm.get_input_focus().focus
+                window.send_event(event(
+                    detail=keycode,
+                    state=shift_state | self._shift_mask(modifiers),
+                    time=0,
+                    root=dm.screen().root,
+                    window=window,
+                    same_screen=0,
+                    child=Xlib.X.NONE,
+                    root_x=0, root_y=0, event_x=0, event_y=0))
 
     def _resolve_dead(self, key):
         """Tries to resolve a dead key.
