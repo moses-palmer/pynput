@@ -53,10 +53,6 @@ from . import _base
 
 
 class KeyCode(_base.KeyCode):
-    def __init__(self, *args, **kwargs):
-        super(KeyCode, self).__init__(*args, **kwargs)
-        self.is_control = False
-
     @classmethod
     def _from_symbol(cls, symbol, **kwargs):
         """Creates a key from a symbol.
@@ -83,28 +79,22 @@ class KeyCode(_base.KeyCode):
                     **kwargs)
             # pylint: enable=W0702
 
-    @classmethod
-    def _control(cls, symbol, **kwargs):
-        result = cls._from_symbol(symbol, **kwargs)
-        result.is_control = True
-        return result
-
 
 class Key(enum.Enum):
     # Default keys
-    alt = KeyCode._control('Alt_L')
-    alt_l = KeyCode._control('Alt_L')
-    alt_r = KeyCode._control('Alt_R')
-    alt_gr = KeyCode._control('Mode_switch')
+    alt = KeyCode._from_symbol('Alt_L')
+    alt_l = KeyCode._from_symbol('Alt_L')
+    alt_r = KeyCode._from_symbol('Alt_R')
+    alt_gr = KeyCode._from_symbol('Mode_switch')
     backspace = KeyCode._from_symbol('BackSpace')
-    caps_lock = KeyCode._control('Caps_Lock')
-    cmd = KeyCode._control('Super_L')
-    cmd_l = KeyCode._control('Super_L')
-    cmd_r = KeyCode._control('Super_R')
-    ctrl = KeyCode._control('Control_L')
-    ctrl_l = KeyCode._control('Control_L')
-    ctrl_r = KeyCode._control('Control_R')
-    delete = KeyCode._control('Delete')
+    caps_lock = KeyCode._from_symbol('Caps_Lock')
+    cmd = KeyCode._from_symbol('Super_L')
+    cmd_l = KeyCode._from_symbol('Super_L')
+    cmd_r = KeyCode._from_symbol('Super_R')
+    ctrl = KeyCode._from_symbol('Control_L')
+    ctrl_l = KeyCode._from_symbol('Control_L')
+    ctrl_r = KeyCode._from_symbol('Control_R')
+    delete = KeyCode._from_symbol('Delete')
     down = KeyCode._from_symbol('Down')
     end = KeyCode._from_symbol('End')
     enter = KeyCode._from_symbol('Return')
@@ -134,9 +124,9 @@ class Key(enum.Enum):
     page_down = KeyCode._from_symbol('Page_Down')
     page_up = KeyCode._from_symbol('Page_Up')
     right = KeyCode._from_symbol('Right')
-    shift = KeyCode._control('Shift_L')
-    shift_l = KeyCode._control('Shift_L')
-    shift_r = KeyCode._control('Shift_R')
+    shift = KeyCode._from_symbol('Shift_L')
+    shift_l = KeyCode._from_symbol('Shift_L')
+    shift_r = KeyCode._from_symbol('Shift_R')
     space = KeyCode._from_symbol('space', char=' ')
     tab = KeyCode._from_symbol('Tab')
     up = KeyCode._from_symbol('Up')
@@ -203,17 +193,32 @@ class Controller(NotifierMixin, _base.Controller):
         if keysym is None:
             raise self.InvalidKeyException(key)
 
-        try:
-            keycode, shift_state = self.keyboard_mapping[keysym]
-            self._send_key(event, key, keycode, shift_state)
+        # If the key has a virtual key code, use that immediately with
+        # fake_input; fake input,being an X server extension, has access to more
+        # internal state that we
+        if key.vk is not None:
+            with display_manager(self._display) as dm:
+                Xlib.ext.xtest.fake_input(
+                    dm,
+                    Xlib.X.KeyPress if is_press else Xlib.X.KeyRelease,
+                    dm.keysym_to_keycode(key.vk))
 
-        except KeyError:
-            with self._borrow_lock:
-                keycode, index, count = self._borrows[keysym]
-                self._send_key(
-                    event, key, keycode, index_to_shift(self._display, index))
-                count += 1 if is_press else -1
-                self._borrows[keysym] = (keycode, index, count)
+        # Otherwise use XSendEvent; we need to use this in the general case to
+        # work around problems with keyboard layouts
+        else:
+            try:
+                keycode, shift_state = self.keyboard_mapping[keysym]
+                self._send_key(event, keycode, shift_state)
+
+            except KeyError:
+                with self._borrow_lock:
+                    keycode, index, count = self._borrows[keysym]
+                    self._send_key(
+                        event,
+                        keycode,
+                        index_to_shift(self._display, index))
+                    count += 1 if is_press else -1
+                    self._borrows[keysym] = (keycode, index, count)
 
         # Notify any running listeners
         self._emit('_on_fake_event', key, is_press)
@@ -229,36 +234,27 @@ class Controller(NotifierMixin, _base.Controller):
             or self._resolve_borrowed(key) \
             or self._resolve_borrowing(key)
 
-    def _send_key(self, event, key, keycode, shift_state):
+    def _send_key(self, event, keycode, shift_state):
         """Sends a single keyboard event.
 
         :param event: The *X* keyboard event.
 
-        :param Key key: The actual key.
-
-        :param int keycode: The keycode.
+        :param int keycode: The calculated keycode.
 
         :param int shift_state: The shift state. The actual value used is
             :attr:`shift_state` or'd with this value.
         """
         with display_manager(self._display) as dm, self.modifiers as modifiers:
-            if key.is_control:
-                Xlib.ext.xtest.fake_input(
-                    dm,
-                    Xlib.X.KeyPress if event == Xlib.display.event.KeyPress
-                    else Xlib.X.KeyRelease,
-                    dm.keysym_to_keycode(key.vk))
-            else:
-                window = dm.get_input_focus().focus
-                window.send_event(event(
-                    detail=keycode,
-                    state=shift_state | self._shift_mask(modifiers),
-                    time=0,
-                    root=dm.screen().root,
-                    window=window,
-                    same_screen=0,
-                    child=Xlib.X.NONE,
-                    root_x=0, root_y=0, event_x=0, event_y=0))
+            window = dm.get_input_focus().focus
+            window.send_event(event(
+                detail=keycode,
+                state=shift_state | self._shift_mask(modifiers),
+                time=0,
+                root=dm.screen().root,
+                window=window,
+                same_screen=0,
+                child=Xlib.X.NONE,
+                root_x=0, root_y=0, event_x=0, event_y=0))
 
     def _resolve_dead(self, key):
         """Tries to resolve a dead key.
