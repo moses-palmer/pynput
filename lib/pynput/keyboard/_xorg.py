@@ -53,10 +53,6 @@ from . import _base
 
 
 class KeyCode(_base.KeyCode):
-    def __init__(self, *args, **kwargs):
-        super(KeyCode, self).__init__(*args, **kwargs)
-        self.is_control = False
-
     @classmethod
     def _from_symbol(cls, symbol, **kwargs):
         """Creates a key from a symbol.
@@ -82,12 +78,6 @@ class KeyCode(_base.KeyCode):
                     SYMBOLS.get(symbol, (0,))[0],
                     **kwargs)
             # pylint: enable=W0702
-
-    @classmethod
-    def _control(cls, symbol, **kwargs):
-        result = cls._from_symbol(symbol, **kwargs)
-        result.is_control = True
-        return result
 
 
 class Key(enum.Enum):
