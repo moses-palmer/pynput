@@ -1,6 +1,12 @@
 Release Notes
 =============
 
+v1.1.5 - Corrected modifier key combinations on Linux
+-----------------------------------------------------
+*  Corrected handling of modifier keys to allow them to be composable on
+   *Linux*.
+
+
 v1.1.4 - Small bugfixes
 -----------------------
 *  Corrected error generation when ``GetKeyboardState`` fails.
