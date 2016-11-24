@@ -1,6 +1,12 @@
 Release Notes
 =============
 
+v1.1.6 - Corrected context manager for pressing keys
+----------------------------------------------------
+*  Corrected bug in ``pynput.keyboard.Controller.pressed`` which caused it to
+   never release the key. Many thanks to Toby Southwell!
+
+
 v1.1.5 - Corrected modifier key combinations on Linux
 -----------------------------------------------------
 *  Corrected handling of modifier keys to allow them to be composable on
