@@ -231,6 +231,26 @@ class KeyboardControllerTest(EventTest):
             collect(),
             'shift+a did not yield "A"')
 
+    def test_pressed_is_release(self):
+        """Asserts that pressed actually releases the key"""
+        with self.capture() as collect:
+            with self.controller.pressed(pynput.keyboard.Key.shift):
+                self.controller.press(u'a')
+                self.controller.release(u'a')
+
+            self.controller.press(u'a')
+            self.controller.release(u'a')
+
+            with self.controller.pressed(pynput.keyboard.Key.shift):
+                self.controller.press(u'a')
+                self.controller.release(u'a')
+
+
+        self.assertIn(
+            u'AaA',
+            collect(),
+            'Keys were not propertly released')
+
     def test_type_latin(self):
         """Asserts that type works for a Latin string"""
         self.assert_input(

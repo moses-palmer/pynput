@@ -429,7 +429,7 @@ class Controller(object):
             yield
         finally:
             for key in reversed(args):
-                self.press(key)
+                self.release(key)
 
     def type(self, string):
         """Types a string.
