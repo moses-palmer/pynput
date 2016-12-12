@@ -442,7 +442,7 @@ class NotifierMixin(object):
         if not self._listener_cache:
             return
         with self._listener_lock:
-            for listener in self._listener_cache:
+            for listener in self._list_listeners():
                 yield listener
 
     @classmethod
@@ -462,3 +462,8 @@ class NotifierMixin(object):
         """
         with cls._listener_lock:
             cls._listener_cache.remove(listener)
+
+    def _list_listeners(self):
+        """Lists all listeners applicable to this notifier instance.
+        """
+        return self._listener_cache
