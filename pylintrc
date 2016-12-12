@@ -397,7 +397,7 @@ valid-metaclass-classmethod-first-arg=mcs
 
 # List of member names, which should be excluded from the protected access
 # warning.
-exclude-protected=_asdict,_fields,_replace,_source,_make,__altgr_mask,__alt_mask,_emitter,_event,_from_symbol,_objc,_parameters,_receiver
+exclude-protected=_asdict,_fields,_replace,_source,_make,__altgr_mask,__alt_mask,_display_record,_emitter,_event,_from_symbol,_objc,_parameters,_receiver
 
 
 [EXCEPTIONS]

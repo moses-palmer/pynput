@@ -27,7 +27,9 @@ import Xlib.display
 import Xlib.threaded
 import Xlib.XK
 
-from . import AbstractListener
+from . import (
+    AbstractListener,
+    NotifierMixin as _NotifierMixin)
 from .xorg_keysyms import SYMBOLS
 
 
@@ -448,3 +450,24 @@ class ListenerMixin(object):
         :param event: The event.
         """
         pass
+
+
+class NotifierMixin(_NotifierMixin):
+    """A notifier mixin for *X* event controllers.
+
+    This implementation makes sure to create separate caches for separate
+    displays.
+
+    It makes the following assumptions:
+
+    *  All using classes will have a ``_display`` attribute, which should be an
+       instance of :class:`Xlib.display.Display`.
+    *  All instances of listener classes will have a ``_display_record``
+       attribute, which should be an instance of :class:`Xlib.display.Display`.
+    """
+    def _list_listeners(self):
+        name = self._display.get_display_name()
+        return (
+            listener
+            for listener in self._listener_cache
+            if listener._display_record.get_display_name() == name)
