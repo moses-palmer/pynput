@@ -213,8 +213,7 @@ class NotifierMixin(object):
 
         return listener_class
 
-    @classmethod
-    def _listeners(cls):
+    def _listeners(self):
         """Iterates over the set of running listeners.
 
         This method will quit without acquiring the lock if the set is empty,
@@ -222,10 +221,10 @@ class NotifierMixin(object):
         since :class:`Controller` will need to call this method for every
         control event.
         """
-        if not cls._listener_cache:
+        if not self._listener_cache:
             return
-        with cls._listener_lock:
-            for listener in cls._listener_cache:
+        with self._listener_lock:
+            for listener in self._listener_cache:
                 yield listener
 
     @classmethod
