@@ -42,7 +42,6 @@ import Xlib.XK
 import Xlib.protocol
 import Xlib.keysymdef.xkb
 
-from pynput._util import NotifierMixin
 from pynput._util.xorg import (
     alt_mask,
     alt_gr_mask,
@@ -51,6 +50,7 @@ from pynput._util.xorg import (
     index_to_shift,
     keyboard_mapping,
     ListenerMixin,
+    NotifierMixin,
     numlock_mask,
     shift_to_index,
     symbol_to_keysym)
