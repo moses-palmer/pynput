@@ -120,6 +120,8 @@ class Listener(ListenerMixin, _base.Listener):
 
     _WM_LBUTTONDOWN = 0x0201
     _WM_LBUTTONUP = 0x0202
+    _WM_MBUTTONDOWN = 0x0207
+    _WM_MBUTTONUP = 0x0208
     _WM_MOUSEMOVE = 0x0200
     _WM_MOUSEWHEEL = 0x020A
     _WM_MOUSEHWHEEL = 0x020E
