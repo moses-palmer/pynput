@@ -99,3 +99,16 @@ class MouseListenerTest(EventTest):
             'No scroll down registered',
             on_scroll=lambda x, y, dx, dy: not (
                 dy < 0))
+
+    def test_reraise(self):
+        """Tests that exception are reraised"""
+        class MyException(Exception): pass
+
+        def on_click(x, y, button, pressed):
+            raise MyException()
+
+        with self.assertRaises(MyException):
+            with pynput.mouse.Listener(
+                    on_click=on_click) as l:
+                self.notify('Click any button')
+                l.join()

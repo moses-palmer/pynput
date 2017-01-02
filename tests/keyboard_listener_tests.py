@@ -181,3 +181,16 @@ class KeyboardListenerTest(EventTest):
             ((Key.ctrl, Key.ctrl_l, Key.ctrl_r), False),
             ('a', True),
             ('a', False))
+
+    def test_reraise(self):
+        """Tests that exception are reraised"""
+        class MyException(Exception): pass
+
+        def on_press(key):
+            raise MyException()
+
+        with self.assertRaises(MyException):
+            with pynput.keyboard.Listener(
+                    on_press=on_press) as l:
+                self.notify('Press any key')
+                l.join()
