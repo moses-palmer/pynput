@@ -348,15 +348,6 @@ class ListenerMixin(object):
     #: We use this instance for parsing the binary data
     _EVENT_PARSER = Xlib.protocol.rq.EventField(None)
 
-    class _WrappedException(Exception):
-        """Raised by the handler wrapper when an exception is raised in the
-        handler, or when the listener is stopped to escape the recording.
-
-        In the former case, the root exception is passed as the first argument
-        to the constructor, and in the latter case no arguments are passed.
-        """
-        pass
-
     def _run(self):
         self._display_stop = Xlib.display.Display()
         self._display_record = Xlib.display.Display()
@@ -375,19 +366,20 @@ class ListenerMixin(object):
                     'client_started': False,
                     'client_died': False}])
 
+        # pylint: disable=W0702; we want to silence errors
         try:
             self._initialize(self._display_stop)
             self._mark_ready()
             self._display_record.record_enable_context(
                 self._context, self._handler)
-        except self._WrappedException as e:
-            if e.args:
-                # TODO: Handle
-                pass
+        except:
+            # This exception will have been passed to the main thread
+            pass
         finally:
             self._display_record.record_free_context(self._context)
             self._display_stop.close()
             self._display_record.close()
+        # pylint: enable=W0702
 
     def _stop(self):
         if not hasattr(self, '_context'):
@@ -409,23 +401,15 @@ class ListenerMixin(object):
         :param events: The events passed by *X*. This is a binary block
             parsable by :attr:`_EVENT_PARSER`.
         """
-        # If
         if not self.running:
-            raise self._WrappedException()
+            raise self.StopException()
 
-        try:
-            data = events.data
+        data = events.data
 
-            while len(data):
-                event, data = self._EVENT_PARSER.parse_binary_value(
-                    data, self._display_record.display, None, None)
-                self._handle(self._display_stop, event)
-
-        except self.StopException:
-            raise
-
-        except BaseException as e:
-            raise self._WrappedException(e)
+        while len(data):
+            event, data = self._EVENT_PARSER.parse_binary_value(
+                data, self._display_record.display, None, None)
+            self._handle(self._display_stop, event)
 
     def _initialize(self, display):
         """Initialises this listener.

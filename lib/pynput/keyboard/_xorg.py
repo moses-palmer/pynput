@@ -462,17 +462,12 @@ class Listener(ListenerMixin, _base.Listener):
             min_keycode, keycode_count)
 
     def _handle(self, display, event):
-        # pylint: disable=W0702; we want to ignore errors
         # Convert the event to a KeyCode; this may fail, and in that case we
         # pass None
         try:
             key = self._event_to_key(display, event)
         except IndexError:
             key = None
-        except:
-            # TODO: Error reporting
-            return
-        # pylint: enable=W0702
 
         if event.type == Xlib.X.KeyPress:
             self.on_press(key)
