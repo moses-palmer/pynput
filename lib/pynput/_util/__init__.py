@@ -51,9 +51,6 @@ class AbstractListener(threading.Thread):
     class StopException(Exception):
         """If an event listener callback raises this exception, the current
         listener is stopped.
-
-        Its first argument must be set to the :class:`AbstractListener` to
-        stop.
         """
         pass
 
@@ -63,7 +60,7 @@ class AbstractListener(threading.Thread):
         def wrapper(f):
             def inner(*args):
                 if f(*args) is False:
-                    raise self.StopException(self)
+                    raise self.StopException()
             return inner
 
         self._running = False
@@ -122,11 +119,11 @@ class AbstractListener(threading.Thread):
         If this exception is caught, the listener will be stopped.
         """
         @functools.wraps(f)
-        def inner(*args, **kwargs):
+        def inner(self, *args, **kwargs):
             try:
-                f(*args, **kwargs)
-            except cls.StopException as e:
-                e.args[0].stop()
+                f(self, *args, **kwargs)
+            except cls.StopException:
+                self.stop()
 
         return inner
 
