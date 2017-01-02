@@ -200,17 +200,12 @@ class Listener(ListenerMixin, _base.Listener):
         msg = wparam
         vk = lparam
 
-        # pylint: disable=W0702; we want to ignore errors
         # Convert the event to a KeyCode; this may fail, and in that case we
         # pass None
         try:
             key = self._event_to_key(msg, vk)
         except OSError:
             key = None
-        except:
-            # TODO: Error reporting
-            return
-        # pylint: enable=W0702
 
         if msg in self._PRESS_MESSAGES:
             self.on_press(key)

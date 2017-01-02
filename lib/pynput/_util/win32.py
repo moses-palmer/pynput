@@ -322,13 +322,19 @@ class ListenerMixin(object):
             self._mark_ready()
             self._message_loop.start()
 
-            with SystemHook(self._EVENTS, self._handler):
-                # Just pump messages
-                for msg in self._message_loop:
-                    if not self.running:
-                        break
-                    if msg.message == self._WM_PROCESS:
-                        self._process(msg.wParam, msg.lParam)
+            # pylint: disable=W0702; we want to silence errors
+            try:
+                with SystemHook(self._EVENTS, self._handler):
+                    # Just pump messages
+                    for msg in self._message_loop:
+                        if not self.running:
+                            break
+                        if msg.message == self._WM_PROCESS:
+                            self._process(msg.wParam, msg.lParam)
+            except:
+                # This exception will have been passed to the main thread
+                pass
+            # pylint: enable=W0702
 
     def _stop(self):
         try:
