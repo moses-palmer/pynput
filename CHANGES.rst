@@ -1,6 +1,11 @@
 Release Notes
 =============
 
+v1.1.7 - Handle middle button on Windows
+----------------------------------------
+*  Listen for and dispatch middle button mouse clicks on *Windows*.
+
+
 v1.1.6 - Corrected context manager for pressing keys
 ----------------------------------------------------
 *  Corrected bug in ``pynput.keyboard.Controller.pressed`` which caused it to
