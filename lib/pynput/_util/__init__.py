@@ -26,7 +26,12 @@ General utility functions and classes.
 
 import contextlib
 import functools
+import sys
 import threading
+
+import six
+
+from six.moves import queue
 
 
 class AbstractListener(threading.Thread):
@@ -51,9 +56,6 @@ class AbstractListener(threading.Thread):
     class StopException(Exception):
         """If an event listener callback raises this exception, the current
         listener is stopped.
-
-        Its first argument must be set to the :class:`AbstractListener` to
-        stop.
         """
         pass
 
@@ -63,13 +65,14 @@ class AbstractListener(threading.Thread):
         def wrapper(f):
             def inner(*args):
                 if f(*args) is False:
-                    raise self.StopException(self)
+                    raise self.StopException()
             return inner
 
         self._running = False
         self._thread = threading.current_thread()
         self._condition = threading.Condition()
         self._ready = False
+        self._queue = queue.Queue()
 
         self.daemon = True
 
@@ -83,7 +86,7 @@ class AbstractListener(threading.Thread):
         return self._running
 
     def stop(self):
-        """Stops listening for mouse events.
+        """Stops listening for events.
 
         When this method returns, no more events will be delivered.
         """
@@ -114,19 +117,30 @@ class AbstractListener(threading.Thread):
         self._thread = threading.current_thread()
         self._run()
 
+        # Make sure that the queue contains something
+        self._queue.put(None)
+
     @classmethod
     def _emitter(cls, f):
         """A decorator to mark a method as the one emitting the callbacks.
 
-        This decorator will wrap the method and catch :class:`StopException`.
-        If this exception is caught, the listener will be stopped.
+        This decorator will wrap the method and catch exception. If a
+        :class:`StopException` is caught, the listener will be stopped
+        gracefully. If any other exception is caught, it will be propagated to
+        the thread calling :meth:`join` and reraised there.
         """
         @functools.wraps(f)
-        def inner(*args, **kwargs):
+        def inner(self, *args, **kwargs):
+            # pylint: disable=W0702; we want to catch all exception
             try:
-                f(*args, **kwargs)
-            except cls.StopException as e:
-                e.args[0].stop()
+                f(self, *args, **kwargs)
+            except Exception as e:
+                self._queue.put(
+                    None if isinstance(e, cls.StopException)
+                    else sys.exc_info())
+                self.stop()
+                raise
+            # pylint: enable=W0702
 
         return inner
 
@@ -154,6 +168,16 @@ class AbstractListener(threading.Thread):
         This is a platform dependent implementation.
         """
         raise NotImplementedError()
+
+    def join(self, *args):
+        super(AbstractListener, self).join(*args)
+
+        # Reraise any exceptions
+        try:
+            exc_type, exc_value, exc_traceback = self._queue.get()
+        except TypeError:
+            return
+        six.reraise(exc_type, exc_value, exc_traceback)
 
 
 class NotifierMixin(object):

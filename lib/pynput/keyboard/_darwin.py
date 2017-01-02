@@ -182,17 +182,12 @@ class Listener(ListenerMixin, _base.Listener):
                 self._context = None
 
     def _handle(self, dummy_proxy, event_type, event, dummy_refcon):
-        # pylint: disable=W0702; we want to ignore errors
         # Convert the event to a KeyCode; this may fail, and in that case we
         # pass None
         try:
             key = self._event_to_key(event)
         except IndexError:
             key = None
-        except:
-            # TODO: Error reporting
-            return
-        # pylint: enable=W0702
 
         try:
             if event_type == Quartz.kCGEventKeyDown:
