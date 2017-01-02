@@ -164,13 +164,8 @@ class MessageLoop(object):
 
     PM_NOREMOVE = 0
 
-    def __init__(
-            self,
-            initialize=lambda message_loop: None,
-            finalize=lambda message_loop: None):
+    def __init__(self):
         self._threadid = None
-        self._initialize = initialize
-        self._finalize = finalize
         self._event = threading.Event()
         self.thread = None
 
@@ -194,7 +189,6 @@ class MessageLoop(object):
                     yield msg
 
         finally:
-            self._finalize(self)
             self._threadid = None
             self.thread = None
 
@@ -212,9 +206,6 @@ class MessageLoop(object):
         lpmsg = ctypes.byref(msg)
         self._PeekMessage(lpmsg, None, 0x0400, 0x0400, self.PM_NOREMOVE)
 
-        # Let the caller perform initialisation
-        self._initialize(self)
-
         # Set the event to signal to other threads that the loop is created
         self._event.set()
 
@@ -223,9 +214,7 @@ class MessageLoop(object):
         """
         self._event.wait()
         if self._threadid:
-            self._PostThreadMessage(self._threadid, self.WM_STOP, 0, 0)
-        if self.thread.ident != threading.current_thread().ident:
-            self.thread.join()
+            self.post(self.WM_STOP, 0, 0)
 
     def post(self, msg, wparam, lparam):
         """Posts a message to this message loop.
