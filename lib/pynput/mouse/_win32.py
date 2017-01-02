@@ -134,6 +134,8 @@ class Listener(ListenerMixin, _base.Listener):
     _CLICK_BUTTONS = {
         _WM_LBUTTONDOWN: (Button.left, True),
         _WM_LBUTTONUP: (Button.left, False),
+        _WM_MBUTTONDOWN: (Button.middle, True),
+        _WM_MBUTTONUP: (Button.middle, False),
         _WM_RBUTTONDOWN: (Button.right, True),
         _WM_RBUTTONUP: (Button.right, False)}
 
