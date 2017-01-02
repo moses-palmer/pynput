@@ -192,15 +192,24 @@ class ListenerMixin(object):
             Quartz.CGEventTapEnable(tap, True)
 
             self._mark_ready()
-            while self.running:
-                result = Quartz.CFRunLoopRunInMode(
-                    Quartz.kCFRunLoopDefaultMode, 1, False)
-                try:
-                    if result != Quartz.kCFRunLoopRunTimedOut:
+
+            # pylint: disable=W0702; we want to silence errors
+            try:
+                while self.running:
+                    result = Quartz.CFRunLoopRunInMode(
+                        Quartz.kCFRunLoopDefaultMode, 1, False)
+                    try:
+                        if result != Quartz.kCFRunLoopRunTimedOut:
+                            break
+                    except AttributeError:
+                        # This happens during teardown of the virtual machine
                         break
-                except AttributeError:
-                    # This happens during teardown of the virtual machine
-                    break
+
+            except:
+                # This exception will have been passed to the main thread
+                import traceback; traceback.print_exc()
+                pass
+            # pylint: enable=W0702
 
         finally:
             self._loop = None
