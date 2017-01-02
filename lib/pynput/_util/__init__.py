@@ -26,7 +26,12 @@ General utility functions and classes.
 
 import contextlib
 import functools
+import sys
 import threading
+
+import six
+
+from six.moves import queue
 
 
 class AbstractListener(threading.Thread):
@@ -67,6 +72,7 @@ class AbstractListener(threading.Thread):
         self._thread = threading.current_thread()
         self._condition = threading.Condition()
         self._ready = False
+        self._queue = queue.Queue()
 
         self.daemon = True
 
@@ -111,19 +117,30 @@ class AbstractListener(threading.Thread):
         self._thread = threading.current_thread()
         self._run()
 
+        # Make sure that the queue contains something
+        self._queue.put(None)
+
     @classmethod
     def _emitter(cls, f):
         """A decorator to mark a method as the one emitting the callbacks.
 
-        This decorator will wrap the method and catch :class:`StopException`.
-        If this exception is caught, the listener will be stopped.
+        This decorator will wrap the method and catch exception. If a
+        :class:`StopException` is caught, the listener will be stopped
+        gracefully. If any other exception is caught, it will be propagated to
+        the thread calling :meth:`join` and reraised there.
         """
         @functools.wraps(f)
         def inner(self, *args, **kwargs):
+            # pylint: disable=W0702; we want to catch all exception
             try:
                 f(self, *args, **kwargs)
-            except cls.StopException:
+            except Exception as e:
+                self._queue.put(
+                    None if isinstance(e, cls.StopException)
+                    else sys.exc_info())
                 self.stop()
+                raise
+            # pylint: enable=W0702
 
         return inner
 
@@ -151,6 +168,16 @@ class AbstractListener(threading.Thread):
         This is a platform dependent implementation.
         """
         raise NotImplementedError()
+
+    def join(self, *args):
+        super(AbstractListener, self).join(*args)
+
+        # Reraise any exceptions
+        try:
+            exc_type, exc_value, exc_traceback = self._queue.get()
+        except TypeError:
+            return
+        six.reraise(exc_type, exc_value, exc_traceback)
 
 
 class NotifierMixin(object):
