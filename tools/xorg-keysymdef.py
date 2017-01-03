@@ -135,17 +135,16 @@ def definitions(data):
                     yield (
                         name,
                         (keysym, (codepoint, codepoint)))
+                    break
 
-                elif not description or 'alias for' not in description:
-                    # If we have no code point, this is a dead key unless it
-                    # is an alias, in which case we ignore it
+                elif name.startswith(DEAD_PREFIX) and (
+                        not description or 'alias for' not in description):
                     yield (
                         name,
                         (keysym, DEAD_CODEPOINTS.get(
                             name[len(DEAD_PREFIX):],
                             (None, None))))
-
-                break
+                    break
 
 
 def main():
@@ -197,6 +196,7 @@ KEYSYMS = {
                     'u\'\\u%s\'' % first,
                     'u\'\\u%s\'' % second)
             for name, (keysym, (first, second)) in syms
-            if first and second and first != second)))
+            if name.startswith(DEAD_PREFIX)
+                and first and second and first != second)))
 
 main()
