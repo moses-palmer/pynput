@@ -149,7 +149,7 @@ def definitions(data):
 
 
 def main():
-    data = sys.stdin.read().splitlines()
+    syms = sorted(list(definitions(sys.stdin.read().splitlines())))
     sys.stdout.write('''# coding: utf-8
 # pynput
 # Copyright (C) 2015-%d Moses Palmér
@@ -191,12 +191,12 @@ KEYSYMS = {
                     name,
                     keysym,
                     'u\'\\u%s\'' % first if first else None)
-            for name, (keysym, (first, second)) in definitions(data)),
+            for name, (keysym, (first, second)) in syms),
         ',\n'.join(
             '    %s: %s' % (
                     'u\'\\u%s\'' % first,
                     'u\'\\u%s\'' % second)
-            for name, (keysym, (first, second)) in definitions(data)
+            for name, (keysym, (first, second)) in syms
             if first and second and first != second)))
 
 main()
