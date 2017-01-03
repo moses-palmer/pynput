@@ -40,12 +40,15 @@ KEYSYM_RE = re.compile(r'''(?mx)
     # description, not present
     ()''')
 
+#: The prefix used for dead keys
+DEAD_PREFIX = 'dead_'
+
 #: The regular expresion used to extract dead key values; they are on the form:
 #:
 #:     #define XK_dead_<name> <hex keysym> [/* description */]
 DEAD_KEYSYM_RE = re.compile(r'''(?mx)
     # name
-    \#define \s+ XK_dead_([a-zA-Z0-9_]+)\s+
+    \#define \s+ XK_(%s[a-zA-Z0-9_]+)\s+
 
     # keysym
     0x([0-9a-fA-F]+)\s*
@@ -54,7 +57,7 @@ DEAD_KEYSYM_RE = re.compile(r'''(?mx)
     ()
 
     # description
-    (?:/\*(.*?)\*/)?''')
+    (?:/\*(.*?)\*/)?''' % DEAD_PREFIX)
 
 
 def lookup(name):
@@ -137,8 +140,10 @@ def definitions(data):
                     # If we have no code point, this is a dead key unless it
                     # is an alias, in which case we ignore it
                     yield (
-                        'dead_' + name,
-                        (keysym, DEAD_CODEPOINTS.get(name, (None, None))))
+                        name,
+                        (keysym, DEAD_CODEPOINTS.get(
+                            name[len(DEAD_PREFIX):],
+                            (None, None))))
 
                 break
 
