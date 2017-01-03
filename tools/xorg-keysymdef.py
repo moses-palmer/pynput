@@ -59,6 +59,26 @@ DEAD_KEYSYM_RE = re.compile(r'''(?mx)
     # description
     (?:/\*(.*?)\*/)?''' % DEAD_PREFIX)
 
+#: The prefix used for keypad keys
+KEYPAD_PREFIX = 'KP_'
+
+#: The regular expresion used to extract keypad key values; they are on the
+#: form:
+#:
+#:     #define XK_KP_<name> <hex keysym> [/* description */]
+KP_KEYPAD_RE = re.compile(r'''(?mx)
+    # name
+    \#define \s+ XK_(%s[a-zA-Z0-9_]+)\s+
+
+    # keysym
+    0x([0-9a-fA-F]+)\s*
+
+    # codepoint, not present
+    ()
+
+    # description
+    (?:/\*(.*?)\*/)?''' % KEYPAD_PREFIX)
+
 
 def lookup(name):
     """Looks up a named unicode character.
@@ -119,13 +139,14 @@ def definitions(data):
 
     ``(first, second))`` is a tuple of codepoints. The first value is the one
     to use in the lookup table, and the second one is used only by dead keys to
-    indicate the non-combining version.
+    indicate the non-combining version. If both are ``None``, the keysym is a
+    keypad key.
 
     If a codepoint is ``None``, the definition is for a dead key with no
     unicode codepoint.
     """
     for line in data:
-        for regex in (KEYSYM_RE, DEAD_KEYSYM_RE):
+        for regex in (KEYSYM_RE, DEAD_KEYSYM_RE, KP_KEYPAD_RE):
             m = regex.search(line)
             if m:
                 name, keysym, codepoint, description = m.groups()
@@ -144,6 +165,12 @@ def definitions(data):
                         (keysym, DEAD_CODEPOINTS.get(
                             name[len(DEAD_PREFIX):],
                             (None, None))))
+                    break
+
+                elif name.startswith(KEYPAD_PREFIX):
+                    yield (
+                        name,
+                        (keysym, (None, None)))
                     break
 
 
@@ -174,6 +201,9 @@ SYMBOLS = {
 DEAD_KEYS = {
 %s}
 
+KEYPAD_KEYS = {
+%s}
+
 CHARS = {
     codepoint: name
     for name, (keysym, codepoint) in SYMBOLS.items()
@@ -197,6 +227,10 @@ KEYSYMS = {
                     'u\'\\u%s\'' % second)
             for name, (keysym, (first, second)) in syms
             if name.startswith(DEAD_PREFIX)
-                and first and second and first != second)))
+                and first and second and first != second),
+        ',\n'.join(
+            '    \'%s\': 0x%s' % (name, keysym)
+            for name, (keysym, (first, second)) in syms
+            if name.startswith(KEYPAD_PREFIX))))
 
 main()
