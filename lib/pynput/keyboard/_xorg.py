@@ -530,8 +530,8 @@ class Listener(ListenerMixin, _base.Listener):
             return self._SPECIAL_KEYS[keysym]
 
         # ...then try characters...
-        name = KEYSYMS[keysym]
-        if name in SYMBOLS:
+        name = KEYSYMS.get(keysym, None)
+        if name is not None and name in SYMBOLS:
             char = SYMBOLS[name][1].upper() if index & 1 else SYMBOLS[name][1]
             if char in DEAD_KEYS:
                 return KeyCode.from_dead(DEAD_KEYS[char])
