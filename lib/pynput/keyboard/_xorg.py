@@ -42,11 +42,13 @@ from pynput._util.xorg import (
     index_to_shift,
     keyboard_mapping,
     ListenerMixin,
+    numlock_mask,
     shift_to_index,
     symbol_to_keysym)
 from pynput._util.xorg_keysyms import (
     CHARS,
     DEAD_KEYS,
+    KEYPAD_KEYS,
     KEYSYMS,
     SYMBOLS)
 from . import _base
@@ -445,6 +447,42 @@ class Listener(ListenerMixin, _base.Listener):
         key.value.vk: key
         for key in Key}
 
+    #: A mapping from numeric keypad keys to keys
+    _KEYPAD_KEYS = {
+        KEYPAD_KEYS['KP_0']: KeyCode.from_char('0'),
+        KEYPAD_KEYS['KP_1']: KeyCode.from_char('1'),
+        KEYPAD_KEYS['KP_2']: KeyCode.from_char('2'),
+        KEYPAD_KEYS['KP_3']: KeyCode.from_char('3'),
+        KEYPAD_KEYS['KP_4']: KeyCode.from_char('4'),
+        KEYPAD_KEYS['KP_5']: KeyCode.from_char('5'),
+        KEYPAD_KEYS['KP_6']: KeyCode.from_char('6'),
+        KEYPAD_KEYS['KP_7']: KeyCode.from_char('7'),
+        KEYPAD_KEYS['KP_8']: KeyCode.from_char('8'),
+        KEYPAD_KEYS['KP_9']: KeyCode.from_char('9'),
+        KEYPAD_KEYS['KP_Add']: KeyCode.from_char('+'),
+        KEYPAD_KEYS['KP_Decimal']: KeyCode.from_char(','),
+        KEYPAD_KEYS['KP_Delete']: Key.delete,
+        KEYPAD_KEYS['KP_Divide']: KeyCode.from_char('/'),
+        KEYPAD_KEYS['KP_Down']: Key.down,
+        KEYPAD_KEYS['KP_End']: Key.end,
+        KEYPAD_KEYS['KP_Enter']: Key.enter,
+        KEYPAD_KEYS['KP_Equal']: KeyCode.from_char('='),
+        KEYPAD_KEYS['KP_F1']: Key.f1,
+        KEYPAD_KEYS['KP_F2']: Key.f2,
+        KEYPAD_KEYS['KP_F3']: Key.f3,
+        KEYPAD_KEYS['KP_F4']: Key.f4,
+        KEYPAD_KEYS['KP_Home']: Key.home,
+        KEYPAD_KEYS['KP_Insert']: Key.insert,
+        KEYPAD_KEYS['KP_Left']: Key.left,
+        KEYPAD_KEYS['KP_Multiply']: KeyCode.from_char('*'),
+        KEYPAD_KEYS['KP_Page_Down']: Key.page_down,
+        KEYPAD_KEYS['KP_Page_Up']: Key.page_up,
+        KEYPAD_KEYS['KP_Right']: Key.right,
+        KEYPAD_KEYS['KP_Space']: Key.space,
+        KEYPAD_KEYS['KP_Subtract']: KeyCode.from_char('-'),
+        KEYPAD_KEYS['KP_Tab']: Key.tab,
+        KEYPAD_KEYS['KP_Up']: Key.up}
+
     def __init__(self, *args, **kwargs):
         super(Listener, self).__init__(*args, **kwargs)
         self._keyboard_mapping = None
@@ -528,6 +566,14 @@ class Listener(ListenerMixin, _base.Listener):
         keysym = self._keycode_to_keysym(display, keycode, index)
         if keysym in self._SPECIAL_KEYS:
             return self._SPECIAL_KEYS[keysym]
+        elif keysym in self._KEYPAD_KEYS:
+            # We must recalculate the index if numlock is active; index 1 is the
+            # one to use
+            return self._KEYPAD_KEYS[
+                self._keycode_to_keysym(
+                    display,
+                    keycode,
+                    bool(event.state & numlock_mask(display)))]
 
         # ...then try characters...
         name = KEYSYMS.get(keysym, None)
