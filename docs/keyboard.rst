@@ -1,8 +1,8 @@
 Handling the keyboard
 =====================
 
-The package ``pynput.keyboard`` contains classes for controlling and monitoring
-the keyboard.
+The package :mod:`pynput.keyboard` contains classes for controlling and
+monitoring the keyboard.
 
 
 .. include:: ./keyboard-usage.rst
