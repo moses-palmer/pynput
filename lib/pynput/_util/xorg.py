@@ -127,6 +127,21 @@ def alt_gr_mask(display):
     return display.__altgr_mask
 
 
+def numlock_mask(display):
+    """Returns the *numlock* mask flags.
+
+    The first time this function is called for a display, the value is cached.
+    Subsequent calls will return the cached value.
+
+    :param Xlib.display.Display display: The *X* display.
+
+    :return: the modifier mask
+    """
+    if not hasattr(display, '__numlock_mask'):
+        display.__numlock_mask = _find_mask(display, 'Num_Lock')
+    return display.__numlock_mask
+
+
 def keysym_is_latin_upper(keysym):
     """Determines whether a *keysym* is an upper case *latin* character.
 
