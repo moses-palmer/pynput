@@ -5,7 +5,7 @@ The package ``pynput.keyboard`` contains classes for controlling and monitoring
 the keyboard.
 
 
-.. include:: ../keyboard-usage.rst
+.. include:: ./keyboard-usage.rst
 
 
 Reference
