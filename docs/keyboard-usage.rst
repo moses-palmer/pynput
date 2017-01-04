@@ -35,8 +35,12 @@ Use ``pynput.keyboard.Listener`` like this::
     from pynput.keyboard import Key, Listener
 
     def on_press(key):
-        print('{0} pressed'.format(
-            key))
+        try:
+            print('alphanumeric key {0} pressed'.format(
+                key.char))
+        except AttributeError:
+            print('special key {0} pressed'.format(
+                key))
 
     def on_release(key):
         print('{0} released'.format(
