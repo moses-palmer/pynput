@@ -36,7 +36,7 @@ Monitoring the mouse
 
 Use ``pynput.mouse.Listener`` like this::
 
-    from pynput.mouse import Listener
+    from pynput import mouse
 
     def on_move(x, y):
         print('Pointer moved to {0}'.format(
@@ -55,7 +55,7 @@ Use ``pynput.mouse.Listener`` like this::
             (x, y)))
 
     # Collect events until released
-    with Listener(
+    with mouse.Listener(
             on_move=on_move,
             on_click=on_click,
             on_scroll=on_scroll) as listener:
@@ -78,16 +78,16 @@ reraised.
 To be notified about callback errors, call ``Thread.join`` on the listener
 instance::
 
-    from pynput.mouse import Button, Listener
+    from pynput import mouse
 
     class MyException(Exception): pass
 
     def on_click(x, y, button, pressed):
-        if button == Button.left:
+        if button == mouse.Button.left:
             raise MyException(button)
 
     # Collect events until released
-    with Listener(
+    with mouse.Listener(
             on_click=on_click) as listener:
         try:
             listener.join()

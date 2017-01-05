@@ -32,7 +32,7 @@ Monitoring the keyboard
 
 Use ``pynput.keyboard.Listener`` like this::
 
-    from pynput.keyboard import Key, Listener
+    from pynput import keyboard
 
     def on_press(key):
         try:
@@ -45,12 +45,12 @@ Use ``pynput.keyboard.Listener`` like this::
     def on_release(key):
         print('{0} released'.format(
             key))
-        if key == Key.esc:
+        if key == keyboard.Key.esc:
             # Stop listener
             return False
 
     # Collect events until released
-    with Listener(
+    with keyboard.Listener(
             on_press=on_press,
             on_release=on_release) as listener:
         listener.join()
@@ -76,16 +76,16 @@ reraised.
 To be notified about callback errors, call ``Thread.join`` on the listener
 instance::
 
-    from pynput.keyboard import Key, Listener
+    from pynput import keyboard
 
     class MyException(Exception): pass
 
     def on_press(key):
-        if key == Key.esc:
+        if key == keyboard.Key.esc:
             raise MyException(key)
 
     # Collect events until released
-    with Listener(
+    with keyboard.Listener(
             on_press=on_press) as listener:
         try:
             listener.join()
