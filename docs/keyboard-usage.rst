@@ -54,9 +54,8 @@ Use ``pynput.keyboard.Listener`` like this::
 A keyboard listener is a ``threading.Thread``, and all callbacks will be
 invoked from the thread.
 
-Call ``pynput.keyboard.Listener.stop`` from anywhere, or raise
-``pynput.keyboard.Listener.StopException`` or return ``False`` from a callback
-to stop the listener.
+Call ``pynput.keyboard.Listener.stop`` from anywhere, raise ``StopException``
+or return ``False`` from a callback to stop the listener.
 
 Starting a keyboard listener may be subject to some restrictions on your
 platform.
