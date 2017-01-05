@@ -64,3 +64,30 @@ or return ``False`` from a callback to stop the listener.
 The ``key`` parameter passed to callbacks is a ``pynput.keyboard.Key``, for
 special keys, a ``pynput.keyboard.KeyCode`` for normal alphanumeric keys, or
 just ``None`` for unknown keys.
+
+
+Handling keyboard listener errors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If a callback handler raises an exception, the listener will be stopped. Since
+callbacks run in a dedicated thread, the exceptions will not automatically be
+reraised.
+
+To be notified about callback errors, call ``Thread.join`` on the listener
+instance::
+
+    from pynput.keyboard import Key, Listener
+
+    class MyException(Exception): pass
+
+    def on_press(key):
+        if key == Key.esc:
+            raise MyException(key)
+
+    # Collect events until released
+    with Listener(
+            on_press=on_press) as listener:
+        try:
+            listener.join()
+        except MyException as e:
+            print('{0} was pressed'.format(e.args[0]))

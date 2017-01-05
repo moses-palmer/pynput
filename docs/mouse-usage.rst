@@ -66,3 +66,30 @@ from the thread.
 
 Call ``pynput.mouse.Listener.stop`` from anywhere, raise ``StopException`` or
 return ``False`` from a callback to stop the listener.
+
+
+Handling mouse listener errors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If a callback handler raises an exception, the listener will be stopped. Since
+callbacks run in a dedicated thread, the exceptions will not automatically be
+reraised.
+
+To be notified about callback errors, call ``Thread.join`` on the listener
+instance::
+
+    from pynput.mouse import Button, Listener
+
+    class MyException(Exception): pass
+
+    def on_click(x, y, button, pressed):
+        if button == Button.left:
+            raise MyException(button)
+
+    # Collect events until released
+    with Listener(
+            on_click=on_click) as listener:
+        try:
+            listener.join()
+        except MyException as e:
+            print('{0} was clicked'.format(e.args[0]))
