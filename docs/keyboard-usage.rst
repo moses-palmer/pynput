@@ -39,7 +39,7 @@ Use ``pynput.keyboard.Listener`` like this::
             key))
 
     def on_release(key):
-        print('{0} release'.format(
+        print('{0} released'.format(
             key))
         if key == Key.esc:
             # Stop listener
