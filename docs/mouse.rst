@@ -1,11 +1,11 @@
 Handling the mouse
 ==================
 
-The package ``pynput.mouse`` contains classes for controlling and monitoring
+The package :mod:`pynput.mouse` contains classes for controlling and monitoring
 the mouse.
 
 
-.. include:: ../mouse-usage.rst
+.. include:: ./mouse-usage.rst
 
 
 Reference

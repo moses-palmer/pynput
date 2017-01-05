@@ -36,7 +36,7 @@ Monitoring the mouse
 
 Use ``pynput.mouse.Listener`` like this::
 
-    from pynput.mouse import Listener
+    from pynput import mouse
 
     def on_move(x, y):
         print('Pointer moved to {0}'.format(
@@ -55,7 +55,7 @@ Use ``pynput.mouse.Listener`` like this::
             (x, y)))
 
     # Collect events until released
-    with Listener(
+    with mouse.Listener(
             on_move=on_move,
             on_click=on_click,
             on_scroll=on_scroll) as listener:
@@ -64,10 +64,32 @@ Use ``pynput.mouse.Listener`` like this::
 A mouse listener is a ``threading.Thread``, and all callbacks will be invoked
 from the thread.
 
-Call ``pynput.mouse.Listener.stop`` from anywhere, or raise
-``pynput.mouse.Listener.StopException`` or return ``False`` from a callback to
-stop the listener.
+Call ``pynput.mouse.Listener.stop`` from anywhere, raise ``StopException`` or
+return ``False`` from a callback to stop the listener.
 
-On *Windows*, virtual events sent by *other* processes may not be received.
-This library takes precautions, however, to dispatch any virtual events
-generated to all currently running listeners of the current process.
+
+Handling mouse listener errors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If a callback handler raises an exception, the listener will be stopped. Since
+callbacks run in a dedicated thread, the exceptions will not automatically be
+reraised.
+
+To be notified about callback errors, call ``Thread.join`` on the listener
+instance::
+
+    from pynput import mouse
+
+    class MyException(Exception): pass
+
+    def on_click(x, y, button, pressed):
+        if button == mouse.Button.left:
+            raise MyException(button)
+
+    # Collect events until released
+    with mouse.Listener(
+            on_click=on_click) as listener:
+        try:
+            listener.join()
+        except MyException as e:
+            print('{0} was clicked'.format(e.args[0]))
