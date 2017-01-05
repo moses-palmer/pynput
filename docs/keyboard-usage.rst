@@ -60,3 +60,7 @@ invoked from the thread.
 
 Call ``pynput.keyboard.Listener.stop`` from anywhere, raise ``StopException``
 or return ``False`` from a callback to stop the listener.
+
+The ``key`` parameter passed to callbacks is a ``pynput.keyboard.Key``, for
+special keys, a ``pynput.keyboard.KeyCode`` for normal alphanumeric keys, or
+just ``None`` for unknown keys.
