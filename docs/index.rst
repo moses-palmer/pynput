@@ -11,5 +11,7 @@ This library allows you to control and monitor input devices.
 
    keyboard
 
+   limitations
+
 
 * :ref:`genindex`

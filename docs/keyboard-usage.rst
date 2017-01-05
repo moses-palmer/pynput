@@ -60,18 +60,3 @@ invoked from the thread.
 
 Call ``pynput.keyboard.Listener.stop`` from anywhere, raise ``StopException``
 or return ``False`` from a callback to stop the listener.
-
-Starting a keyboard listener may be subject to some restrictions on your
-platform.
-
-On *Mac OSX*, one of the following must be true:
-
-*  The process must run as root.
-
-*  Your application must be white listed under *Enable access for assistive
-   devices*. Note that this might require that you package your application,
-   since otherwise the entire *Python* installation must be white listed.
-
-On *Windows*, virtual events sent by *other* processes may not be received.
-This library takes precautions, however, to dispatch any virtual events
-generated to all currently running listeners of the current process.
