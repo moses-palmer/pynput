@@ -85,7 +85,7 @@ class Controller(NotifierMixin, _base.Controller):
                     value=INPUT_union(
                         mi=MOUSEINPUT(
                             dwFlags=MOUSEINPUT.HWHEEL,
-                            mouseData=dy)))),
+                            mouseData=dx)))),
                 ctypes.sizeof(INPUT))
 
         if dx or dy:
