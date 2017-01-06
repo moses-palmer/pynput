@@ -1,6 +1,16 @@
 Release Notes
 =============
 
+v1.2 - Improved error handling
+------------------------------
+*  Allow catching exceptions thrown from listener callbacks. This changes the
+   API, as joining a listener now potentially raises unhandled exceptions,
+   and unhandled exceptions will stop listeners.
+*  Added support for the numeric keypad on *Linux*.
+*  Improved documentation.
+*  Thanks to *jollysean* and *gilleswijnker* for their input!
+
+
 v1.1.7 - Handle middle button on Windows
 ----------------------------------------
 *  Listen for and dispatch middle button mouse clicks on *Windows*.
