@@ -203,7 +203,11 @@ class Listener(AbstractListener):
 
         If this callback raises :class:`StopException` or returns ``False``,
         the listener is stopped.
+
+    :param kwargs: Any non-standard platform dependent options. These should be
+        prefixed with the platform name thus: ``darwin_``, ``xorg_`` or
+        ``win32_``.
     """
-    def __init__(self, on_move=None, on_click=None, on_scroll=None):
+    def __init__(self, on_move=None, on_click=None, on_scroll=None, **kwargs):
         super(Listener, self).__init__(
             on_move=on_move, on_click=on_click, on_scroll=on_scroll)
