@@ -605,5 +605,10 @@ class Listener(AbstractListener):
         ``win32_``.
     """
     def __init__(self, on_press=None, on_release=None, **kwargs):
+        prefix = self.__class__.__module__.rsplit('.', 1)[-1][1:] + '_'
+        self._options = {
+            key[len(prefix):]: value
+            for key, value in kwargs.items()
+            if key.startswith(prefix)}
         super(Listener, self).__init__(
             on_press=on_press, on_release=on_release)
