@@ -118,31 +118,34 @@ class Listener(ListenerMixin, _base.Listener):
     #: The Windows hook ID for low level mouse events, ``WH_MOUSE_LL``
     _EVENTS = 14
 
-    _WM_LBUTTONDOWN = 0x0201
-    _WM_LBUTTONUP = 0x0202
-    _WM_MBUTTONDOWN = 0x0207
-    _WM_MBUTTONUP = 0x0208
-    _WM_MOUSEMOVE = 0x0200
-    _WM_MOUSEWHEEL = 0x020A
-    _WM_MOUSEHWHEEL = 0x020E
-    _WM_RBUTTONDOWN = 0x0204
-    _WM_RBUTTONUP = 0x0205
+    WM_LBUTTONDOWN = 0x0201
+    WM_LBUTTONUP = 0x0202
+    WM_MBUTTONDOWN = 0x0207
+    WM_MBUTTONUP = 0x0208
+    WM_MOUSEMOVE = 0x0200
+    WM_MOUSEWHEEL = 0x020A
+    WM_MOUSEHWHEEL = 0x020E
+    WM_RBUTTONDOWN = 0x0204
+    WM_RBUTTONUP = 0x0205
 
     _WHEEL_DELTA = 120
 
     #: A mapping from messages to button events
-    _CLICK_BUTTONS = {
-        _WM_LBUTTONDOWN: (Button.left, True),
-        _WM_LBUTTONUP: (Button.left, False),
-        _WM_MBUTTONDOWN: (Button.middle, True),
-        _WM_MBUTTONUP: (Button.middle, False),
-        _WM_RBUTTONDOWN: (Button.right, True),
-        _WM_RBUTTONUP: (Button.right, False)}
+    CLICK_BUTTONS = {
+        WM_LBUTTONDOWN: (Button.left, True),
+        WM_LBUTTONUP: (Button.left, False),
+        WM_MBUTTONDOWN: (Button.middle, True),
+        WM_MBUTTONUP: (Button.middle, False),
+        WM_RBUTTONDOWN: (Button.right, True),
+        WM_RBUTTONUP: (Button.right, False)}
 
     #: A mapping from messages to scroll vectors
-    _SCROLL_BUTTONS = {
-        _WM_MOUSEWHEEL: (0, 1),
-        _WM_MOUSEHWHEEL: (1, 0)}
+    SCROLL_BUTTONS = {
+        WM_MOUSEWHEEL: (0, 1),
+        WM_MOUSEHWHEEL: (1, 0)}
+
+    _HANDLED_EXCEPTIONS = (
+        SystemHook.SuppressException,)
 
     class _MSLLHOOKSTRUCT(ctypes.Structure):
         """Contains information about a mouse event passed to a ``WH_MOUSE_LL``
@@ -158,20 +161,30 @@ class Listener(ListenerMixin, _base.Listener):
     #: A pointer to a :class:`_MSLLHOOKSTRUCT`
     _LPMSLLHOOKSTRUCT = ctypes.POINTER(_MSLLHOOKSTRUCT)
 
+    def __init__(self, *args, **kwargs):
+        super(Listener, self).__init__(*args, **kwargs)
+        self._event_filter = self._options.get(
+            'event_filter',
+            lambda msg, data: None)
+
     def _handle(self, code, msg, lpdata):
         if code != SystemHook.HC_ACTION:
             return
 
         data = ctypes.cast(lpdata, self._LPMSLLHOOKSTRUCT).contents
 
-        if msg == self._WM_MOUSEMOVE:
+        if msg == self.WM_MOUSEMOVE:
             self.on_move(data.pt.x, data.pt.y)
 
-        elif msg in self._CLICK_BUTTONS:
-            button, pressed = self._CLICK_BUTTONS[msg]
+        elif msg in self.CLICK_BUTTONS:
+            button, pressed = self.CLICK_BUTTONS[msg]
             self.on_click(data.pt.x, data.pt.y, button, pressed)
 
-        elif msg in self._SCROLL_BUTTONS:
-            mx, my = self._SCROLL_BUTTONS[msg]
+        elif msg in self.SCROLL_BUTTONS:
+            mx, my = self.SCROLL_BUTTONS[msg]
             dd = wintypes.SHORT(data.mouseData >> 16).value // self._WHEEL_DELTA
             self.on_scroll(data.pt.x, data.pt.y, dd * mx, dd * my)
+
+        # Suppress further propagation of the event if it is filtered
+        if self._event_filter(msg, data) is False:
+            raise SystemHook.SuppressException()

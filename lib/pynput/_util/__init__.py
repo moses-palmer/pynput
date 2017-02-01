@@ -59,6 +59,10 @@ class AbstractListener(threading.Thread):
         """
         pass
 
+    #: Exceptions that are handled outside of the emitter and should thus not be
+    #: passed through the queue
+    _HANDLED_EXCEPTIONS = tuple()
+
     def __init__(self, **kwargs):
         super(AbstractListener, self).__init__()
 
@@ -135,10 +139,11 @@ class AbstractListener(threading.Thread):
             try:
                 f(self, *args, **kwargs)
             except Exception as e:
-                self._queue.put(
-                    None if isinstance(e, cls.StopException)
-                    else sys.exc_info())
-                self.stop()
+                if not isinstance(e, self._HANDLED_EXCEPTIONS):
+                    self._queue.put(
+                        None if isinstance(e, cls.StopException)
+                        else sys.exc_info())
+                    self.stop()
                 raise
             # pylint: enable=W0702
 
