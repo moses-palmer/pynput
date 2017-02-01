@@ -144,6 +144,9 @@ class Listener(ListenerMixin, _base.Listener):
         WM_MOUSEWHEEL: (0, 1),
         WM_MOUSEHWHEEL: (1, 0)}
 
+    _HANDLED_EXCEPTIONS = (
+        SystemHook.SuppressException,)
+
     class _MSLLHOOKSTRUCT(ctypes.Structure):
         """Contains information about a mouse event passed to a ``WH_MOUSE_LL``
         hook procedure, ``MouseProc``.
@@ -157,6 +160,12 @@ class Listener(ListenerMixin, _base.Listener):
 
     #: A pointer to a :class:`_MSLLHOOKSTRUCT`
     _LPMSLLHOOKSTRUCT = ctypes.POINTER(_MSLLHOOKSTRUCT)
+
+    def __init__(self, *args, **kwargs):
+        super(Listener, self).__init__(*args, **kwargs)
+        self._event_filter = self._options.get(
+            'event_filter',
+            lambda msg, data: None)
 
     def _handle(self, code, msg, lpdata):
         if code != SystemHook.HC_ACTION:
@@ -175,3 +184,7 @@ class Listener(ListenerMixin, _base.Listener):
             mx, my = self.SCROLL_BUTTONS[msg]
             dd = wintypes.SHORT(data.mouseData >> 16).value // self._WHEEL_DELTA
             self.on_scroll(data.pt.x, data.pt.y, dd * mx, dd * my)
+
+        # Suppress further propagation of the event if it is filtered
+        if self._event_filter(msg, data) is False:
+            raise SystemHook.SuppressException()
