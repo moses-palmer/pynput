@@ -257,6 +257,12 @@ class SystemHook(object):
     #: The registered hook procedures
     _HOOKS = {}
 
+    class SuppressException(Exception):
+        """An exception raised by a hook callback to suppress further
+        propagation of events.
+        """
+        pass
+
     def __init__(self, hook_id, on_hook=lambda code, msg, lpdata: None):
         self.hook_id = hook_id
         self.on_hook = on_hook
@@ -290,14 +296,18 @@ class SystemHook(object):
     def _handler(code, msg, lpdata):
         key = threading.current_thread().ident
         self = SystemHook._HOOKS.get(key, None)
-        # pylint: disable=W0150; always call the next hook
-        try:
-            if self:
+        if self:
+            # pylint: disable=W0702; we want to silence errors
+            try:
                 self.on_hook(code, msg, lpdata)
-
-        finally:
+            except self.SuppressException:
+                # Return non-zero to stop event propagation
+                return 1
+            except:
+                # Ignore any errors
+                pass
+            # pylint: enable=W0702
             return SystemHook._CallNextHookEx(0, code, msg, lpdata)
-        # pylint: enable=W0150
 
 
 class ListenerMixin(object):
