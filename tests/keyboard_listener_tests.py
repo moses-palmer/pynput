@@ -5,7 +5,7 @@ import time
 
 import pynput.keyboard
 
-from . import EventTest
+from . import EventTest, darwin, win32, xorg
 
 from six.moves import input
 
@@ -194,3 +194,30 @@ class KeyboardListenerTest(EventTest):
                     on_press=on_press) as l:
                 self.notify('Press any key')
                 l.join()
+
+    @darwin
+    def test_options_darwin(self):
+        """Tests that options are correctly set on OSX"""
+        self.assertTrue(
+            pynput.keyboard.Listener(
+                darwin_test=True,
+                win32_test=False,
+                xorg_test=False)._options['test'])
+
+    @win32
+    def test_options_win32(self):
+        """Tests that options are correctly set on Windows"""
+        self.assertTrue(
+            pynput.keyboard.Listener(
+                darwin_test=False,
+                win32_test=True,
+                xorg_test=False)._options['test'])
+
+    @xorg
+    def test_options_xorg(self):
+        """Tests that options are correctly set on Linux"""
+        self.assertTrue(
+            pynput.keyboard.Listener(
+                darwin_test=False,
+                win32_test=False,
+                xorg_test=True)._options['test'])

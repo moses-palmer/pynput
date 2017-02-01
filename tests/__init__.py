@@ -1,6 +1,35 @@
 import contextlib
+import functools
 import time
 import unittest
+
+import pynput
+
+
+#: The name of the current backend
+BACKEND = pynput.keyboard.Controller.__module__.rsplit('.', 1)[-1][1:]
+
+
+def _backend(name, f):
+    """Returns ``f`` if the current backend is ``name``.
+
+    :param str name: The name of the backend.
+
+    :param f: A value.
+
+    :return: ``f`` or ``None``
+    """
+    return f if name == BACKEND else None
+
+
+#: A decorator to make a test run only on Mac OSX
+darwin = functools.partial(_backend, 'darwin')
+
+#: A decorator to make a test run only on Windows
+win32 = functools.partial(_backend, 'win32')
+
+#: A decorator to make a test run only on Linux
+xorg = functools.partial(_backend, 'xorg')
 
 
 class EventTest(unittest.TestCase):

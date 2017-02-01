@@ -599,7 +599,16 @@ class Listener(AbstractListener):
 
         It will be called with the argument ``(key)``, where ``key`` is a
         :class:`KeyCode`, a :class:`Key` or ``None`` if the key is unknown.
+
+    :param kwargs: Any non-standard platform dependent options. These should be
+        prefixed with the platform name thus: ``darwin_``, ``xorg_`` or
+        ``win32_``.
     """
-    def __init__(self, on_press=None, on_release=None):
+    def __init__(self, on_press=None, on_release=None, **kwargs):
+        prefix = self.__class__.__module__.rsplit('.', 1)[-1][1:] + '_'
+        self._options = {
+            key[len(prefix):]: value
+            for key, value in kwargs.items()
+            if key.startswith(prefix)}
         super(Listener, self).__init__(
             on_press=on_press, on_release=on_release)
