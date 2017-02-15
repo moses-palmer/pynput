@@ -170,6 +170,9 @@ class Listener(ListenerMixin, _base.Listener):
         key.value.vk: key
         for key in Key}
 
+    _HANDLED_EXCEPTIONS = (
+        SystemHook.SuppressException,)
+
     class _KBDLLHOOKSTRUCT(ctypes.Structure):
         """Contains information about a mouse event passed to a
         ``WH_KEYBOARD_LL`` hook procedure, ``LowLevelKeyboardProc``.
@@ -187,13 +190,21 @@ class Listener(ListenerMixin, _base.Listener):
     def __init__(self, *args, **kwargs):
         super(Listener, self).__init__(*args, **kwargs)
         self._translator = KeyTranslator()
+        self._event_filter = self._options.get(
+            'event_filter',
+            lambda msg, data: True)
 
     def _convert(self, code, msg, lpdata):
         if code != SystemHook.HC_ACTION:
             return
 
         data = ctypes.cast(lpdata, self._LPKBDLLHOOKSTRUCT).contents
-        return (msg, data.vkCode)
+
+        # Suppress further propagation of the event if it is filtered
+        if self._check_filter(msg, data) is False:
+            return None
+        else:
+            return (msg, data.vkCode)
 
     @AbstractListener._emitter
     def _process(self, wparam, lparam):

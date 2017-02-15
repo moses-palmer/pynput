@@ -173,6 +173,10 @@ class Listener(ListenerMixin, _base.Listener):
 
         data = ctypes.cast(lpdata, self._LPMSLLHOOKSTRUCT).contents
 
+        # Suppress further propagation of the event if it is filtered
+        if not self._check_filter(msg, data):
+            return
+
         if msg == self.WM_MOUSEMOVE:
             self.on_move(data.pt.x, data.pt.y)
 
@@ -184,7 +188,3 @@ class Listener(ListenerMixin, _base.Listener):
             mx, my = self.SCROLL_BUTTONS[msg]
             dd = wintypes.SHORT(data.mouseData >> 16).value // self._WHEEL_DELTA
             self.on_scroll(data.pt.x, data.pt.y, dd * mx, dd * my)
-
-        # Suppress further propagation of the event if it is filtered
-        if self._event_filter(msg, data) is False:
-            raise SystemHook.SuppressException()

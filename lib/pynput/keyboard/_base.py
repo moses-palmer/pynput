@@ -603,6 +603,19 @@ class Listener(AbstractListener):
     :param kwargs: Any non-standard platform dependent options. These should be
         prefixed with the platform name thus: ``darwin_``, ``xorg_`` or
         ``win32_``.
+
+        Supported values are:
+
+        ``win32_event_filter``
+            A callable taking the arguments ``(msg, data)``, where ``msg`` is
+            the current message, and ``data`` associated data as a
+            `KBLLHOOKSTRUCT <https://msdn.microsoft.com/en-us/library/windows/desktop/ms644967(v=vs.85).aspx`_.
+
+            If this callback returns ``False``, the event will not be propagated
+            further.
+
+            If this callback returns ``None``, the event will not be propagated
+            to the listener callback.
     """
     def __init__(self, on_press=None, on_release=None, **kwargs):
         prefix = self.__class__.__module__.rsplit('.', 1)[-1][1:] + '_'

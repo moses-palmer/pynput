@@ -217,6 +217,9 @@ class Listener(AbstractListener):
 
             If this callback returns ``False``, the event will not be propagated
             further.
+
+            If this callback returns ``None``, the event will not be propagated
+            to the listener callback.
     """
     def __init__(self, on_move=None, on_click=None, on_scroll=None, **kwargs):
         prefix = self.__class__.__module__.rsplit('.', 1)[-1][1:] + '_'
