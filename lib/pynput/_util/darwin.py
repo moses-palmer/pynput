@@ -207,7 +207,6 @@ class ListenerMixin(object):
 
             except:
                 # This exception will have been passed to the main thread
-                import traceback; traceback.print_exc()
                 pass
             # pylint: enable=W0702
 
