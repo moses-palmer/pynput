@@ -165,7 +165,7 @@ class Listener(ListenerMixin, _base.Listener):
         super(Listener, self).__init__(*args, **kwargs)
         self._event_filter = self._options.get(
             'event_filter',
-            lambda msg, data: None)
+            lambda msg, data: True)
 
     def _handle(self, code, msg, lpdata):
         if code != SystemHook.HC_ACTION:
