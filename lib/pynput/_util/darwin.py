@@ -207,7 +207,6 @@ class ListenerMixin(object):
 
             except:
                 # This exception will have been passed to the main thread
-                import traceback; traceback.print_exc()
                 pass
             # pylint: enable=W0702
 
@@ -232,7 +231,8 @@ class ListenerMixin(object):
         return Quartz.CGEventTapCreate(
             Quartz.kCGSessionEventTap,
             Quartz.kCGHeadInsertEventTap,
-            Quartz.kCGEventTapOptionListenOnly,
+            Quartz.kCGEventTapOptionListenOnly if self._intercept is None
+            else Quartz.kCGEventTapOptionDefault,
             self._EVENTS,
             self._handler,
             None)
@@ -244,6 +244,8 @@ class ListenerMixin(object):
         This method will call the callbacks registered on initialisation.
         """
         self._handle(proxy, event_type, event, refcon)
+        if self._intercept is not None:
+            return self._intercept(event_type, event)
 
     def _handle(self, proxy, event_type, event, refcon):
         """The device specific callback handler.

@@ -165,6 +165,12 @@ class Listener(ListenerMixin, _base.Listener):
         Quartz.CGEventMaskBit(Quartz.kCGEventOtherMouseUp) |
         Quartz.CGEventMaskBit(Quartz.kCGEventScrollWheel))
 
+    def __init__(self, *args, **kwargs):
+        super(Listener, self).__init__(*args, **kwargs)
+        self._intercept = self._options.get(
+            'intercept',
+            None)
+
     def _handle(self, dummy_proxy, event_type, event, dummy_refcon):
         """The callback registered with *Mac OSX* for mouse events.
 

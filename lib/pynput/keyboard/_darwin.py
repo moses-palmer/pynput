@@ -172,6 +172,9 @@ class Listener(ListenerMixin, _base.Listener):
         super(Listener, self).__init__(*args, **kwargs)
         self._flags = 0
         self._context = None
+        self._intercept = self._options.get(
+            'intercept',
+            None)
 
     def _run(self):
         with keycode_context() as context:
