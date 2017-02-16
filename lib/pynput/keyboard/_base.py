@@ -612,10 +612,10 @@ class Listener(AbstractListener):
             `KBLLHOOKSTRUCT <https://msdn.microsoft.com/en-us/library/windows/desktop/ms644967(v=vs.85).aspx`_.
 
             If this callback returns ``False``, the event will not be propagated
-            further.
-
-            If this callback returns ``None``, the event will not be propagated
             to the listener callback.
+
+            If ``self.suppress_event()`` is called, the event is suppressed
+            system wide.
     """
     def __init__(self, on_press=None, on_release=None, **kwargs):
         prefix = self.__class__.__module__.rsplit('.', 1)[-1][1:] + '_'

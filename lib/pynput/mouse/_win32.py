@@ -165,7 +165,7 @@ class Listener(ListenerMixin, _base.Listener):
         super(Listener, self).__init__(*args, **kwargs)
         self._event_filter = self._options.get(
             'event_filter',
-            lambda msg, data: None)
+            lambda msg, data: True)
 
     def _handle(self, code, msg, lpdata):
         if code != SystemHook.HC_ACTION:
@@ -174,7 +174,7 @@ class Listener(ListenerMixin, _base.Listener):
         data = ctypes.cast(lpdata, self._LPMSLLHOOKSTRUCT).contents
 
         # Suppress further propagation of the event if it is filtered
-        if not self._check_filter(msg, data):
+        if self._event_filter(msg, data) is False:
             return
 
         if msg == self.WM_MOUSEMOVE:

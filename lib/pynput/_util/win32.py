@@ -326,6 +326,16 @@ class ListenerMixin(object):
     #: The window message used to signal that an even should be handled
     _WM_PROCESS = 0x410
 
+    def suppress_event(self):
+        """Causes the currently filtered event to be suppressed.
+
+        This has a system wide effect and will generally result in no
+        applications receiving the event.
+
+        This method will raise an undefined exception.
+        """
+        raise SystemHook.SuppressException()
+
     def _run(self):
         self._message_loop = MessageLoop()
         with self._receive():
@@ -367,27 +377,6 @@ class ListenerMixin(object):
                 self._message_loop.post(self._WM_PROCESS, *converted)
         except NotImplementedError:
             self._handle(code, msg, lpdata)
-
-    def _check_filter(self, msg, data):
-        """Calls the event filter and acts according to its return value.
-
-        If the event filter decides to suppress further event propagation, an
-        exception is raised. If the event filter decides to stop handling the
-        event, ``False`` is returned, otherwise ``True`` is returned.
-
-        :param msg: The message being handled.
-
-        :param data: The message specific data.
-
-        :return: whether to continue event propagation
-        """
-        filter_result = self._event_filter(msg, data)
-        if filter_result is False:
-            raise SystemHook.SuppressException()
-        elif filter_result is None:
-            return False
-        else:
-            return True
 
     def _convert(self, code, msg, lpdata):
         """The device specific callback handler.
