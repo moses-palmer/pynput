@@ -326,6 +326,16 @@ class ListenerMixin(object):
     #: The window message used to signal that an even should be handled
     _WM_PROCESS = 0x410
 
+    def suppress_event(self):
+        """Causes the currently filtered event to be suppressed.
+
+        This has a system wide effect and will generally result in no
+        applications receiving the event.
+
+        This method will raise an undefined exception.
+        """
+        raise SystemHook.SuppressException()
+
     def _run(self):
         self._message_loop = MessageLoop()
         with self._receive():
@@ -383,7 +393,7 @@ class ListenerMixin(object):
         """
         filter_result = self._event_filter(msg, data)
         if filter_result is False:
-            raise SystemHook.SuppressException()
+            self.suppress_event()
         elif filter_result is None:
             return False
         else:
