@@ -137,7 +137,7 @@ class AbstractListener(threading.Thread):
         def inner(self, *args, **kwargs):
             # pylint: disable=W0702; we want to catch all exception
             try:
-                f(self, *args, **kwargs)
+                return f(self, *args, **kwargs)
             except Exception as e:
                 if not isinstance(e, self._HANDLED_EXCEPTIONS):
                     self._queue.put(
