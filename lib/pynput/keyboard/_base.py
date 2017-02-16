@@ -606,6 +606,15 @@ class Listener(AbstractListener):
 
         Supported values are:
 
+        ``darwin_intercept``
+            A callable taking the arguments ``(event_type, event)``, where
+            ``event_type`` is ``Quartz.kCGEventKeyDown`` or
+            ``Quartz.kCGEventKeyDown``, and ``event`` is a ``CGEventRef``.
+
+            This callable can freely modify the event using functions like
+            ``Quartz.CGEventSetIntegerValueField``. If this callable does not
+            return the event, the event is suppressed system wide.
+
         ``win32_event_filter``
             A callable taking the arguments ``(msg, data)``, where ``msg`` is
             the current message, and ``data`` associated data as a
