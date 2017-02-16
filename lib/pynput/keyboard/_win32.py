@@ -201,7 +201,7 @@ class Listener(ListenerMixin, _base.Listener):
         data = ctypes.cast(lpdata, self._LPKBDLLHOOKSTRUCT).contents
 
         # Suppress further propagation of the event if it is filtered
-        if self._check_filter(msg, data) is False:
+        if self._event_filter(msg, data) is False:
             return None
         else:
             return (msg, data.vkCode)

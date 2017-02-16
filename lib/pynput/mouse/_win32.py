@@ -174,7 +174,7 @@ class Listener(ListenerMixin, _base.Listener):
         data = ctypes.cast(lpdata, self._LPMSLLHOOKSTRUCT).contents
 
         # Suppress further propagation of the event if it is filtered
-        if not self._check_filter(msg, data):
+        if self._event_filter(msg, data) is False:
             return
 
         if msg == self.WM_MOUSEMOVE:
