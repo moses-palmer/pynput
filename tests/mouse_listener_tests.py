@@ -11,6 +11,15 @@ class MouseListenerTest(EventTest):
         'You do not have to perform any actions on this specific window.')
     LISTENER_CLASS = pynput.mouse.Listener
 
+    def test_cursor(self):
+        """Asserts that all cursor types defined for the base interface are
+        defined for the current platform"""
+        from pynput.mouse._base import Cursor
+        for cursor in Cursor:
+            self.assertTrue(
+                hasattr(pynput.mouse.Cursor, cursor.name),
+                '%s is not defined for the current platform' % cursor.name)
+
     def test_stop(self):
         """Tests that stopping the listener from a different thread works"""
         listener = self.listener()

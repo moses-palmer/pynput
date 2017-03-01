@@ -162,6 +162,51 @@ class Controller(object):
         raise NotImplementedError()
 
 
+class Cursor(enum.Enum):
+    """The various cursor types.
+
+    Not all cursor types may be available for all platforms.
+    """
+    #: An unknown cursor type
+    unknown = None
+
+    #: A normal pointer
+    arrow = 1
+
+    #: A vertical beam indicating text
+    beam = 2
+
+    #: A hand indicating a clickable link
+    hand = 3
+
+    #: A cursor indicating help available
+    help = 4
+
+    #: A crosshair
+    crosshair = 5
+
+    #: An hour glass or spinner
+    waiting = 6
+
+    #: An activity is running in the background
+    waiting_background = 7
+
+    #: Sizing in all directions
+    size_all = 8
+
+    #: Sizing from up-left to down-right
+    size_uldr = 9
+
+    #: Vertical sizing
+    size_vertical = 10
+
+    #: Sizing from up-right to down-left
+    size_urdl = 11
+
+    #: Horisontal sizing
+    size_horizontal = 12
+
+
 class Listener(AbstractListener):
     """A listener for mouse events.
 
@@ -238,3 +283,16 @@ class Listener(AbstractListener):
             if key.startswith(prefix)}
         super(Listener, self).__init__(
             on_move=on_move, on_click=on_click, on_scroll=on_scroll)
+
+    @property
+    def cursor(self):
+        """The currently displayed cursor.
+
+        This will be one of the values in :class:`Cursor`. Not all cursors may
+        be supported on all platforms; in that case :attr:`Cursor.unknown` will
+        be returned.
+        """
+        return self._get_cursor()
+
+    def _get_cursor(self):
+        raise NotImplementedError()
