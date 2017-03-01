@@ -26,6 +26,7 @@ The mouse implementation for *Windows*.
 
 import ctypes
 import enum
+import functools
 
 from ctypes import (
     windll,
@@ -33,6 +34,7 @@ from ctypes import (
 
 from pynput._util import NotifierMixin
 from pynput._util.win32 import (
+    CURSORINFO,
     INPUT,
     INPUT_union,
     ListenerMixin,
@@ -113,8 +115,30 @@ class Controller(NotifierMixin, _base.Controller):
             ctypes.sizeof(INPUT))
 
 
+_c = functools.partial(windll.user32.LoadCursorW, None)
+
+
+class Cursor(enum.Enum):
+    unknown = None
+    arrow = _c(CURSORINFO.IDC_ARROW)
+    beam = _c(CURSORINFO.IDC_IBEAM)
+    hand = _c(CURSORINFO.IDC_HAND)
+    help = _c(CURSORINFO.IDC_HELP)
+    crosshair = _c(CURSORINFO.IDC_CROSS)
+    waiting = _c(CURSORINFO.IDC_WAIT)
+    waiting_background = _c(CURSORINFO.IDC_APPSTARTING)
+    size_all = _c(CURSORINFO.IDC_SIZEALL)
+    size_uldr = _c(CURSORINFO.IDC_SIZENWSE)
+    size_vertical = _c(CURSORINFO.IDC_SIZENS)
+    size_urdl = _c(CURSORINFO.IDC_SIZENESW)
+    size_horizontal = _c(CURSORINFO.IDC_SIZEWE)
+
+
 @Controller._receiver
 class Listener(ListenerMixin, _base.Listener):
+    __GetCursorInfo = windll.user32.GetCursorInfo
+    __GetCursorInfo.restype = wintypes.BOOL
+
     #: The Windows hook ID for low level mouse events, ``WH_MOUSE_LL``
     _EVENTS = 14
 
@@ -188,3 +212,15 @@ class Listener(ListenerMixin, _base.Listener):
             mx, my = self.SCROLL_BUTTONS[msg]
             dd = wintypes.SHORT(data.mouseData >> 16).value // self._WHEEL_DELTA
             self.on_scroll(data.pt.x, data.pt.y, dd * mx, dd * my)
+
+    def _get_cursor(self):
+        cursor_info = CURSORINFO(cbSize=ctypes.sizeof(CURSORINFO))
+        lpcursor_info = ctypes.byref(cursor_info)
+        if self.__GetCursorInfo(lpcursor_info):
+            try:
+                return Cursor(cursor_info.hCursor)
+            except ValueError:
+                #: An unknown cursor
+                pass
+
+        return Cursor.unknown

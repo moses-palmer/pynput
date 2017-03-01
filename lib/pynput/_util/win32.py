@@ -118,6 +118,31 @@ class INPUT(ctypes.Structure):
         ('value', INPUT_union)]
 
 
+class CURSORINFO(ctypes.Structure):
+    IDC_APPSTARTING = 32650
+    IDC_ARROW = 32512
+    IDC_CROSS = 32515
+    IDC_HAND = 32649
+    IDC_HELP = 32651
+    IDC_IBEAM = 32513
+    IDC_ICON = 32641
+    IDC_NO = 32648
+    IDC_SIZE = 32640
+    IDC_SIZEALL = 32646
+    IDC_SIZENESW = 32643
+    IDC_SIZENS = 32645
+    IDC_SIZENWSE = 32642
+    IDC_SIZEWE = 32644
+    IDC_UPARROW = 32516
+    IDC_WAIT = 32514
+
+    _fields_ = [
+        ('cbSize', wintypes.DWORD),
+        ('flags', wintypes.DWORD),
+        ('hCursor', wintypes.HANDLE),
+        ('ptScreenPos', wintypes.POINT)]
+
+
 LPINPUT = ctypes.POINTER(INPUT)
 
 VkKeyScan = windll.user32.VkKeyScanW
