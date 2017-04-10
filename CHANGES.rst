@@ -1,6 +1,18 @@
 Release Notes
 =============
 
+v1.3 - Platform specific features
+---------------------------------
+*  Added ability to stop event propagation on *Windows*. This will prevent
+   events from reaching other applications.
+*  Added ability to ignore events on *Windows*. This is a workaround for systems
+   where the keyboard monitor interferes with normal keyboard events.
+*  Added ability to modify events on *OSX*. This allows intercepting and
+   altering input events before they reach other applications.
+*  Corrected crash on *OSX* when some types of third party input sources are
+   installed.
+
+
 v1.2 - Improved error handling
 ------------------------------
 *  Allow catching exceptions thrown from listener callbacks. This changes the
