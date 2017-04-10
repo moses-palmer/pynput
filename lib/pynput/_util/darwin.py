@@ -125,7 +125,7 @@ def keycode_context():
         layout = _wrap_value(CarbonExtra.TISGetInputSourceProperty(
             keyboard,
             CarbonExtra.kTISPropertyUnicodeKeyLayoutData))
-        layout_data = layout.bytes().tobytes()
+        layout_data = layout.bytes().tobytes() if layout else None
         yield (keyboard_type, layout_data)
 
 
