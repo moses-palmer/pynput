@@ -449,7 +449,7 @@ class Controller(object):
                 self.press(character)
                 self.release(character)
 
-            except ValueError:
+            except (ValueError, self.InvalidKeyException):
                 raise self.InvalidCharacterException(i, character)
 
     @property
