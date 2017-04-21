@@ -410,6 +410,8 @@ class Controller(object):
         :param key: The key to press or release.
 
         :param bool is_press: Whether to press the key.
+
+        :raises InvalidKeyException: if the key is invalid
         """
         if is_press:
             self.press(key)
