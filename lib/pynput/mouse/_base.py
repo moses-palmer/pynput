@@ -69,6 +69,8 @@ class Controller(object):
 
         :param int dy: The vertical scroll. The units of scrolling is
             undefined.
+
+        :raises ValueError: if the values are invalid, for example out of bounds
         """
         self._scroll(dx, dy)
 
@@ -93,6 +95,8 @@ class Controller(object):
         :param int x: The horizontal offset.
 
         :param int dy: The vertical offset.
+
+        :raises ValueError: if the values are invalid, for example out of bounds
         """
         self.position = tuple(sum(i) for i in zip(self.position, (dx, dy)))
 
@@ -162,6 +166,7 @@ class Controller(object):
         raise NotImplementedError()
 
 
+# pylint: disable=W0223; This is also an abstract class
 class Listener(AbstractListener):
     """A listener for mouse events.
 
@@ -238,3 +243,4 @@ class Listener(AbstractListener):
             if key.startswith(prefix)}
         super(Listener, self).__init__(
             on_move=on_move, on_click=on_click, on_scroll=on_scroll)
+# pylint: enable=W0223

@@ -410,6 +410,8 @@ class Controller(object):
         :param key: The key to press or release.
 
         :param bool is_press: Whether to press the key.
+
+        :raises InvalidKeyException: if the key is invalid
         """
         if is_press:
             self.press(key)
@@ -447,7 +449,7 @@ class Controller(object):
                 self.press(character)
                 self.release(character)
 
-            except ValueError:
+            except (ValueError, self.InvalidKeyException):
                 raise self.InvalidCharacterException(i, character)
 
     @property
@@ -575,6 +577,7 @@ class Controller(object):
         raise NotImplementedError()
 
 
+# pylint: disable=W0223; This is also an abstract class
 class Listener(AbstractListener):
     """A listener for keyboard events.
 
@@ -634,3 +637,4 @@ class Listener(AbstractListener):
             if key.startswith(prefix)}
         super(Listener, self).__init__(
             on_press=on_press, on_release=on_release)
+# pylint: enable=W0223

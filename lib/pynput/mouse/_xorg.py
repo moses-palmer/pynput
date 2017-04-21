@@ -63,11 +63,13 @@ class Controller(_base.Controller):
             return (qp.root_x, qp.root_y)
 
     def _position_set(self, pos):
+        self._check_bounds(*pos)
         px, py = pos
         with display_manager(self._display) as dm:
             Xlib.ext.xtest.fake_input(dm, Xlib.X.MotionNotify, x=px, y=py)
 
     def _scroll(self, dx, dy):
+        self._check_bounds(dx, dy)
         if dy:
             self.click(
                 button=Button.scroll_up if dy > 0 else Button.scroll_down,
@@ -85,6 +87,17 @@ class Controller(_base.Controller):
     def _release(self, button):
         with display_manager(self._display) as dm:
             Xlib.ext.xtest.fake_input(dm, Xlib.X.ButtonRelease, button.value)
+
+    def _check_bounds(self, *args):
+        """Checks the arguments and makes sure they are within the bounds of a
+        short integer.
+
+        :param args: The values to verify.
+        """
+        if any(
+                (-0x7fff - 1) <= number <= 0x7fff
+                for number in args):
+            raise ValueError()
 
 
 class Listener(ListenerMixin, _base.Listener):
