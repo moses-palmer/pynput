@@ -162,6 +162,7 @@ class Controller(object):
         raise NotImplementedError()
 
 
+# pylint: disable=W0223; This is also an abstract class
 class Listener(AbstractListener):
     """A listener for mouse events.
 
@@ -238,3 +239,4 @@ class Listener(AbstractListener):
             if key.startswith(prefix)}
         super(Listener, self).__init__(
             on_move=on_move, on_click=on_click, on_scroll=on_scroll)
+# pylint: enable=W0223
