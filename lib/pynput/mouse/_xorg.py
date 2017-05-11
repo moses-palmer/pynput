@@ -40,6 +40,7 @@ from . import _base
 class Button(enum.Enum):
     """The various buttons.
     """
+    unknown = None
     left = 1
     middle = 2
     right = 3

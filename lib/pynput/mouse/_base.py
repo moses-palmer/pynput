@@ -36,6 +36,9 @@ class Button(enum.Enum):
     platforms may have additional buttons, but these are guaranteed to be
     present everywhere.
     """
+    #: An unknown button was pressed
+    unknown = 0
+
     #: The left button
     left = 1
 
