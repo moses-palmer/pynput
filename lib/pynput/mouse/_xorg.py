@@ -111,12 +111,28 @@ class Listener(ListenerMixin, _base.Listener):
             if scroll:
                 self.on_scroll(px, py, *scroll)
             else:
-                self.on_click(px, py, Button(event.detail), True)
+                self.on_click(px, py, self._button(event.detail), True)
 
         elif event.type == Xlib.X.ButtonRelease:
             # Send an event only if this was not a scroll event
             if event.detail not in self._SCROLL_BUTTONS:
-                self.on_click(px, py, Button(event.detail), False)
+                self.on_click(px, py, self._button(event.detail), False)
 
         else:
             self.on_move(px, py)
+
+    # pylint: disable=R0201
+    def _button(self, detail):
+        """Creates a mouse button from an event detail.
+
+        If the button is unknown, :attr:`Button.unknown` is returned.
+
+        :param detail: The event detail.
+
+        :return: a button
+        """
+        try:
+            return Button(detail)
+        except ValueError:
+            return Button.unknown
+    # pylint: enable=R0201
