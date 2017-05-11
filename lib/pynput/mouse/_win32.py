@@ -45,6 +45,7 @@ from . import _base
 class Button(enum.Enum):
     """The various buttons.
     """
+    unknown = None
     left = (MOUSEINPUT.LEFTUP, MOUSEINPUT.LEFTDOWN)
     middle = (MOUSEINPUT.MIDDLEUP, MOUSEINPUT.MIDDLEDOWN)
     right = (MOUSEINPUT.RIGHTUP, MOUSEINPUT.RIGHTDOWN)
