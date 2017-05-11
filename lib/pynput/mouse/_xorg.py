@@ -48,6 +48,8 @@ class Button(enum.Enum):
     scroll_down = 5
     scroll_left = 6
     scroll_right = 7
+    button8 = 8
+    button9 = 9
 
 
 class Controller(_base.Controller):
