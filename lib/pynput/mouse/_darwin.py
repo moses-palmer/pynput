@@ -54,6 +54,7 @@ def _button_value(base_name, mouse_button):
 class Button(enum.Enum):
     """The various buttons.
     """
+    unknown = None
     left = _button_value('kCGEventLeft', 0)
     middle = _button_value('kCGEventOther', 2)
     right = _button_value('kCGEventRight', 1)
