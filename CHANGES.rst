@@ -1,6 +1,12 @@
 Release Notes
 =============
 
+v1.3.1 - Fixes for unknown buttons on Linux
+-------------------------------------------
+*  Fall back on `Button.unknown` for unknown mouse buttons in *Xorg* mouse
+   listener.
+
+
 v1.3 - Platform specific features
 ---------------------------------
 *  Added ability to stop event propagation on *Windows*. This will prevent
