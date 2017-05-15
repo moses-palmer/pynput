@@ -1,6 +1,12 @@
 Release Notes
 =============
 
+v1.3.2 - Fix for button click on Mac
+------------------------------------
+*  Corrected regression from previous release where button clicks would
+   crash the *Mac* mouse listener.
+
+
 v1.3.1 - Fixes for unknown buttons on Linux
 -------------------------------------------
 *  Fall back on `Button.unknown` for unknown mouse buttons in *Xorg* mouse
