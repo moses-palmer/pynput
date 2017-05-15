@@ -198,7 +198,11 @@ class Listener(ListenerMixin, _base.Listener):
 
         else:
             for button in Button:
-                (press, release, drag), _ = button.value
+                try:
+                    (press, release, drag), _ = button.value
+                except TypeError:
+                    # Button.unknown cannot be enumerated
+                    continue
 
                 # Press and release generate click events, and drag
                 # generates move events
