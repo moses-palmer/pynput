@@ -51,7 +51,8 @@ Use ``pynput.mouse.Listener`` like this::
             return False
 
     def on_scroll(x, y, dx, dy):
-        print('Scrolled {0}'.format(
+        print('Scrolled {0} at {1}'.format(
+            'down' if dy < 0 else 'up',
             (x, y)))
 
     # Collect events until released
