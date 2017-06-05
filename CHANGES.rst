@@ -1,6 +1,11 @@
 Release Notes
 =============
 
+v1.3.3 - Make dependencies non-optional
+---------------------------------------
+*  Made platform depdendencies non-optional.
+
+
 v1.3.2 - Fix for button click on Mac
 ------------------------------------
 *  Corrected regression from previous release where button clicks would
