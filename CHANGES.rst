@@ -1,6 +1,11 @@
 Release Notes
 =============
 
+v1.3.4 - *Xorg* corrections
+---------------------------
+*  Corrected bounds check for values on *Xorg*.
+
+
 v1.3.3 - Make dependencies non-optional
 ---------------------------------------
 *  Made platform depdendencies non-optional.
