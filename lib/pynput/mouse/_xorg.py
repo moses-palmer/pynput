@@ -97,10 +97,10 @@ class Controller(_base.Controller):
 
         :param args: The values to verify.
         """
-        if any(
+        if not all(
                 (-0x7fff - 1) <= number <= 0x7fff
                 for number in args):
-            raise ValueError()
+            raise ValueError(args)
 
 
 class Listener(ListenerMixin, _base.Listener):
