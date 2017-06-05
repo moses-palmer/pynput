@@ -100,7 +100,7 @@ class Controller(_base.Controller):
         if any(
                 (-0x7fff - 1) <= number <= 0x7fff
                 for number in args):
-            raise ValueError()
+            raise ValueError(args)
 
 
 class Listener(ListenerMixin, _base.Listener):
