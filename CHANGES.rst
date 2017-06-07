@@ -1,6 +1,12 @@
 Release Notes
 =============
 
+v1.3.5 - Corrected dependencies again
+-------------------------------------
+*  Reverted changes in *1.3.3*.
+*  Corrected platform specifier for *Python 2* on *Linux*.
+
+
 v1.3.4 - *Xorg* corrections
 ---------------------------
 *  Corrected bounds check for values on *Xorg*.
