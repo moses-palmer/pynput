@@ -30,7 +30,7 @@ SETUP_PACKAGES = [
 EXTRA_PACKAGES = {
     ':sys_platform == "darwin"': [
         'pyobjc-framework-Quartz >=3.0'],
-    ':sys_platform == "linux"': [
+    ':"linux" in sys_platform': [
         'python-xlib >= 0.17'],
     ':python_version == "2.7"': [
         'enum34']}
