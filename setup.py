@@ -19,16 +19,21 @@ AUTHOR_EMAIL = 'moses.palmer@gmail.com'
 
 #: The runtime requirements
 RUNTIME_PACKAGES = [
-    'six',
-    'pyobjc-framework-Quartz>=3.0; sys_platform=="darwin"',
-    'python-xlib>=0.17; sys_platform=="linux"',
-    'python-xlib>=0.17; sys_platform=="linux2"',
-    'enum34; python_version<"3.4"']
+    'six']
 
 #: Additional requirements used during setup
 SETUP_PACKAGES = [
     'setuptools-lint >=0.5',
     'sphinx >=1.3.1']
+
+#: Packages requires for different environments
+EXTRA_PACKAGES = {
+    ':sys_platform == "darwin"': [
+        'pyobjc-framework-Quartz >=3.0'],
+    ':"linux" in sys_platform': [
+        'python-xlib >= 0.17'],
+    ':python_version == "2.7"': [
+        'enum34']}
 
 
 # Read globals from ._info without loading it
@@ -85,6 +90,7 @@ setuptools.setup(
 
     install_requires=RUNTIME_PACKAGES,
     setup_requires=RUNTIME_PACKAGES + SETUP_PACKAGES,
+    extras_require=EXTRA_PACKAGES,
 
     author=INFO['author'],
     author_email=AUTHOR_EMAIL,
