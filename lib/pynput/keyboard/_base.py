@@ -292,7 +292,7 @@ class Controller(object):
     _Key = Key
 
     class InvalidKeyException(Exception):
-        """The exception raised when and invalid ``key`` parameter is passed to
+        """The exception raised when an invalid ``key`` parameter is passed to
         either :meth:`Controller.press` or :meth:`Controller.release`.
 
         Its first argument is the ``key`` parameter.
@@ -300,7 +300,7 @@ class Controller(object):
         pass
 
     class InvalidCharacterException(Exception):
-        """The exception raised when and invalid character is encountered in
+        """The exception raised when an invalid character is encountered in
         the string passed to :meth:`Controller.type`.
 
         Its first argument is the index of the character in the string, and the
@@ -457,6 +457,11 @@ class Controller(object):
     def modifiers(self):
         """The currently pressed modifier keys.
 
+        Please note that this reflects only the internal state of this
+        controller, and not the state of the operating system keyboard buffer.
+        This property cannot be used to determine whether a key is physically
+        pressed.
+
         Only the generic modifiers will be set; when pressing either
         :attr:`Key.shift_l`, :attr:`Key.shift_r` or :attr:`Key.shift`, only
         :attr:`Key.shift` will be present.
@@ -476,6 +481,9 @@ class Controller(object):
     @property
     def alt_pressed(self):
         """Whether any *alt* key is pressed.
+
+        Please note that this reflects only the internal state of this
+        controller. See :attr:`modifiers` for more information.
         """
         with self.modifiers as modifiers:
             return self._Key.alt in modifiers
@@ -483,6 +491,9 @@ class Controller(object):
     @property
     def alt_gr_pressed(self):
         """Whether *altgr* is pressed.
+
+        Please note that this reflects only the internal state of this
+        controller. See :attr:`modifiers` for more information.
         """
         with self.modifiers as modifiers:
             return self._Key.alt_gr in modifiers
@@ -490,6 +501,9 @@ class Controller(object):
     @property
     def ctrl_pressed(self):
         """Whether any *ctrl* key is pressed.
+
+        Please note that this reflects only the internal state of this
+        controller. See :attr:`modifiers` for more information.
         """
         with self.modifiers as modifiers:
             return self._Key.ctrl in modifiers
@@ -497,6 +511,9 @@ class Controller(object):
     @property
     def shift_pressed(self):
         """Whether any *shift* key is pressed, or *caps lock* is toggled.
+
+        Please note that this reflects only the internal state of this
+        controller. See :attr:`modifiers` for more information.
         """
         if self._caps_lock:
             return True
@@ -621,7 +638,7 @@ class Listener(AbstractListener):
         ``win32_event_filter``
             A callable taking the arguments ``(msg, data)``, where ``msg`` is
             the current message, and ``data`` associated data as a
-            `KBLLHOOKSTRUCT <https://msdn.microsoft.com/en-us/library/windows/desktop/ms644967(v=vs.85).aspx`_.
+            `KBLLHOOKSTRUCT <https://msdn.microsoft.com/en-us/library/windows/desktop/ms644967(v=vs.85).aspx>`_.
 
             If this callback returns ``False``, the event will not be propagated
             to the listener callback.

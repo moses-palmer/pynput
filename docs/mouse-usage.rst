@@ -51,7 +51,8 @@ Use ``pynput.mouse.Listener`` like this::
             return False
 
     def on_scroll(x, y, dx, dy):
-        print('Scrolled {0}'.format(
+        print('Scrolled {0} at {1}'.format(
+            'down' if dy < 0 else 'up',
             (x, y)))
 
     # Collect events until released
@@ -66,6 +67,19 @@ from the thread.
 
 Call ``pynput.mouse.Listener.stop`` from anywhere, raise ``StopException`` or
 return ``False`` from a callback to stop the listener.
+
+
+The mouse listener thread
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The listener callbacks are invoked directly from an operating thread on some
+platforms, notably *Windows*.
+
+This means that long running procedures and blocking operations should not be
+invoked from the callback, as this risks freezing input for all processes.
+
+A possible workaround is to just dispatch incoming messages to a queue, and let
+a separate thread handle them.
 
 
 Handling mouse listener errors
