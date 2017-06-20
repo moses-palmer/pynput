@@ -292,7 +292,7 @@ class Controller(object):
     _Key = Key
 
     class InvalidKeyException(Exception):
-        """The exception raised when and invalid ``key`` parameter is passed to
+        """The exception raised when an invalid ``key`` parameter is passed to
         either :meth:`Controller.press` or :meth:`Controller.release`.
 
         Its first argument is the ``key`` parameter.
@@ -300,7 +300,7 @@ class Controller(object):
         pass
 
     class InvalidCharacterException(Exception):
-        """The exception raised when and invalid character is encountered in
+        """The exception raised when an invalid character is encountered in
         the string passed to :meth:`Controller.type`.
 
         Its first argument is the index of the character in the string, and the
