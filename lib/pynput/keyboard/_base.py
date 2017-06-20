@@ -457,6 +457,11 @@ class Controller(object):
     def modifiers(self):
         """The currently pressed modifier keys.
 
+        Please note that this reflects only the internal state of this
+        controller, and not the state of the operating system keyboard buffer.
+        This property cannot be used to determine whether a key is physically
+        pressed.
+
         Only the generic modifiers will be set; when pressing either
         :attr:`Key.shift_l`, :attr:`Key.shift_r` or :attr:`Key.shift`, only
         :attr:`Key.shift` will be present.
@@ -476,6 +481,9 @@ class Controller(object):
     @property
     def alt_pressed(self):
         """Whether any *alt* key is pressed.
+
+        Please note that this reflects only the internal state of this
+        controller. See :attr:`modifiers` for more information.
         """
         with self.modifiers as modifiers:
             return self._Key.alt in modifiers
@@ -483,6 +491,9 @@ class Controller(object):
     @property
     def alt_gr_pressed(self):
         """Whether *altgr* is pressed.
+
+        Please note that this reflects only the internal state of this
+        controller. See :attr:`modifiers` for more information.
         """
         with self.modifiers as modifiers:
             return self._Key.alt_gr in modifiers
@@ -490,6 +501,9 @@ class Controller(object):
     @property
     def ctrl_pressed(self):
         """Whether any *ctrl* key is pressed.
+
+        Please note that this reflects only the internal state of this
+        controller. See :attr:`modifiers` for more information.
         """
         with self.modifiers as modifiers:
             return self._Key.ctrl in modifiers
@@ -497,6 +511,9 @@ class Controller(object):
     @property
     def shift_pressed(self):
         """Whether any *shift* key is pressed, or *caps lock* is toggled.
+
+        Please note that this reflects only the internal state of this
+        controller. See :attr:`modifiers` for more information.
         """
         if self._caps_lock:
             return True
