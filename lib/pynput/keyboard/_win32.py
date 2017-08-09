@@ -27,6 +27,7 @@ The keyboard implementation for *Windows*.
 import contextlib
 import ctypes
 import enum
+import six
 
 from ctypes import wintypes
 
@@ -156,6 +157,13 @@ class Listener(ListenerMixin, _base.Listener):
     _WM_SYSKEYDOWN = 0x0104
     _WM_SYSKEYUP = 0x0105
 
+    # A bit flag attached to messages indicating that the payload is an actual
+    # UTF-16 character code
+    _UTF16_FLAG = 0x1000
+
+    # A special virtual key code designating unicode characters
+    _VK_PACKET = 0xE7
+
     #: The messages that correspond to a key press
     _PRESS_MESSAGES = (_WM_KEYDOWN, _WM_SYSKEYDOWN)
 
@@ -196,10 +204,13 @@ class Listener(ListenerMixin, _base.Listener):
             return
 
         data = ctypes.cast(lpdata, self._LPKBDLLHOOKSTRUCT).contents
+        is_packet = data.vkCode == self._VK_PACKET
 
         # Suppress further propagation of the event if it is filtered
         if self._event_filter(msg, data) is False:
             return None
+        elif is_packet:
+            return (msg | self._UTF16_FLAG, data.scanCode)
         else:
             return (msg, data.vkCode)
 
@@ -208,12 +219,19 @@ class Listener(ListenerMixin, _base.Listener):
         msg = wparam
         vk = lparam
 
-        # Convert the event to a KeyCode; this may fail, and in that case we
-        # pass None
-        try:
-            key = self._event_to_key(msg, vk)
-        except OSError:
-            key = None
+        # If the key has the UTF-16 flag, we treat it as a unicode character,
+        # otherwise convert the event to a KeyCode; this may fail, and in that
+        # case we pass None
+        is_utf16 = msg & self._UTF16_FLAG
+        if is_utf16:
+            msg = msg ^ self._UTF16_FLAG
+            scan = vk
+            key = KeyCode.from_char(six.unichr(scan))
+        else:
+            try:
+                key = self._event_to_key(msg, vk)
+            except OSError:
+                key = None
 
         if msg in self._PRESS_MESSAGES:
             self.on_press(key)
