@@ -1,6 +1,12 @@
 Release Notes
 =============
 
+v1.3.6 - *win32* corrections
+----------------------------
+*  Corrected double delivery of fake keyboard events on *Windows*.
+*  Corrected handling of synthetic unicode keys on *Windows*.
+
+
 v1.3.5 - Corrected dependencies again
 -------------------------------------
 *  Reverted changes in *1.3.3*.
