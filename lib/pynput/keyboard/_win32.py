@@ -24,8 +24,10 @@ The keyboard implementation for *Windows*.
 # pylint: disable=R0903
 # We implement stubs
 
+import contextlib
 import ctypes
 import enum
+import six
 
 from ctypes import wintypes
 
@@ -132,7 +134,7 @@ class Key(enum.Enum):
     scroll_lock = KeyCode.from_vk(VK.SCROLL)
 
 
-class Controller(NotifierMixin, _base.Controller):
+class Controller(_base.Controller):
     _KeyCode = KeyCode
     _Key = Key
 
@@ -145,11 +147,7 @@ class Controller(NotifierMixin, _base.Controller):
                     ki=KEYBDINPUT(**key._parameters(is_press))))),
             ctypes.sizeof(INPUT))
 
-        # Notify any running listeners
-        self._emit('_on_fake_event', key, is_press)
 
-
-@Controller._receiver
 class Listener(ListenerMixin, _base.Listener):
     #: The Windows hook ID for low level keyboard events, ``WH_KEYBOARD_LL``
     _EVENTS = 13
@@ -158,6 +156,13 @@ class Listener(ListenerMixin, _base.Listener):
     _WM_KEYUP = 0x0101
     _WM_SYSKEYDOWN = 0x0104
     _WM_SYSKEYUP = 0x0105
+
+    # A bit flag attached to messages indicating that the payload is an actual
+    # UTF-16 character code
+    _UTF16_FLAG = 0x1000
+
+    # A special virtual key code designating unicode characters
+    _VK_PACKET = 0xE7
 
     #: The messages that correspond to a key press
     _PRESS_MESSAGES = (_WM_KEYDOWN, _WM_SYSKEYDOWN)
@@ -199,10 +204,13 @@ class Listener(ListenerMixin, _base.Listener):
             return
 
         data = ctypes.cast(lpdata, self._LPKBDLLHOOKSTRUCT).contents
+        is_packet = data.vkCode == self._VK_PACKET
 
         # Suppress further propagation of the event if it is filtered
         if self._event_filter(msg, data) is False:
             return None
+        elif is_packet:
+            return (msg | self._UTF16_FLAG, data.scanCode)
         else:
             return (msg, data.vkCode)
 
@@ -211,12 +219,19 @@ class Listener(ListenerMixin, _base.Listener):
         msg = wparam
         vk = lparam
 
-        # Convert the event to a KeyCode; this may fail, and in that case we
-        # pass None
-        try:
-            key = self._event_to_key(msg, vk)
-        except OSError:
-            key = None
+        # If the key has the UTF-16 flag, we treat it as a unicode character,
+        # otherwise convert the event to a KeyCode; this may fail, and in that
+        # case we pass None
+        is_utf16 = msg & self._UTF16_FLAG
+        if is_utf16:
+            msg = msg ^ self._UTF16_FLAG
+            scan = vk
+            key = KeyCode.from_char(six.unichr(scan))
+        else:
+            try:
+                key = self._event_to_key(msg, vk)
+            except OSError:
+                key = None
 
         if msg in self._PRESS_MESSAGES:
             self.on_press(key)
@@ -224,15 +239,13 @@ class Listener(ListenerMixin, _base.Listener):
         elif msg in self._RELEASE_MESSAGES:
             self.on_release(key)
 
-    def _on_fake_event(self, key, is_press):
-        """The handler for fake press events sent by the controllers.
-
-        :param KeyCode key: The key pressed.
-
-        :param bool is_press: Whether this is a press event.
+    # pylint: disable=R0201
+    @contextlib.contextmanager
+    def _receive(self):
+        """An empty context manager; we do not need to fake keyboard events.
         """
-        (self.on_press if is_press else self.on_release)(
-            self._SPECIAL_KEYS.get(key.vk, key))
+        yield
+    # pylint: enable=R0201
 
     def _event_to_key(self, msg, vk):
         """Converts an :class:`_KBDLLHOOKSTRUCT` to a :class:`KeyCode`.
