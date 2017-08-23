@@ -1,6 +1,11 @@
 Release Notes
 =============
 
+v1.3.7 - *Xorg* corrections
+---------------------------
+*  Include mouse buttons up to *30* for *Xorg*.
+
+
 v1.3.6 - *win32* corrections
 ----------------------------
 *  Corrected double delivery of fake keyboard events on *Windows*.
