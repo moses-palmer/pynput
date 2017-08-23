@@ -21,6 +21,10 @@ The keyboard implementation for *Xorg*.
 # pylint: disable=C0111
 # The documentation is extracted from the base classes
 
+
+# pylint: disable=E1101,E1102
+# We dynamically generate the Button class
+
 # pylint: disable=R0903
 # We implement stubs
 
@@ -37,19 +41,22 @@ from pynput._util.xorg import (
 from . import _base
 
 
-class Button(enum.Enum):
-    """The various buttons.
-    """
-    unknown = None
-    left = 1
-    middle = 2
-    right = 3
-    scroll_up = 4
-    scroll_down = 5
-    scroll_left = 6
-    scroll_right = 7
-    button8 = 8
-    button9 = 9
+# pylint: disable=C0103
+Button = enum.Enum(
+    'Button',
+    module=__name__,
+    names=[
+        ('unknown', None),
+        ('left', 1),
+        ('middle', 2),
+        ('right', 3),
+        ('scroll_up', 4),
+        ('scroll_down', 5),
+        ('scroll_left', 6),
+        ('scroll_right', 7)] + [
+            ('button%d' % i, i)
+            for i in range(8, 31)])
+# pylint: enable=C0103
 
 
 class Controller(_base.Controller):
