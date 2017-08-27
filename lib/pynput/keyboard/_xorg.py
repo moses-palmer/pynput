@@ -30,6 +30,7 @@ import threading
 import Xlib.display
 import Xlib.ext
 import Xlib.ext.xtest
+import Xlib.keysymdef.xkb
 import Xlib.X
 import Xlib.XK
 import Xlib.protocol
