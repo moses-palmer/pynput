@@ -448,6 +448,13 @@ class Listener(ListenerMixin, _base.Listener):
         key.value.vk: key
         for key in Key}
 
+    _SPECIAL_KEYS.update(
+        (KeyCode._from_symbol(name).vk, key)
+        for (name, key) in (
+            # Many layouts map AltGr to XK_ISO_Level3_Shift
+            ('ISO_Level3_Shift', Key.alt_gr),
+        ))
+
     #: A mapping from numeric keypad keys to keys
     _KEYPAD_KEYS = {
         KEYPAD_KEYS['KP_0']: KeyCode.from_char('0'),
