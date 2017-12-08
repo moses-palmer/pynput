@@ -4,7 +4,8 @@ Release Notes
 v1.3.8 - Do not crash on some keyboard layouts on *OSX*
 -------------------------------------------------------
 *  Fall back on a different method to retrieve the keyboard layout on *OSX*.
-   This helps for some keyboard layouts, such as *Chinese*.
+   This helps for some keyboard layouts, such as *Chinese*. Thanks to
+   *haoflynet*!
 
 
 v1.3.7 - *Xorg* corrections
