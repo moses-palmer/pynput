@@ -1,6 +1,12 @@
 Release Notes
 =============
 
+v1.3.8 - Do not crash on some keyboard layouts on *OSX*
+-------------------------------------------------------
+*  Fall back on a different method to retrieve the keyboard layout on *OSX*.
+   This helps for some keyboard layouts, such as *Chinese*.
+
+
 v1.3.7 - *Xorg* corrections
 ---------------------------
 *  Include mouse buttons up to *30* for *Xorg*.
