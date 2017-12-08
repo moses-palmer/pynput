@@ -76,6 +76,10 @@ class CarbonExtra(object):
     _Carbon.TISCopyCurrentKeyboardInputSource.argtypes = []
     _Carbon.TISCopyCurrentKeyboardInputSource.restype = ctypes.c_void_p
 
+    _Carbon.TISCopyCurrentASCIICapableKeyboardLayoutInputSource.argtypes = []
+    _Carbon.TISCopyCurrentASCIICapableKeyboardLayoutInputSource.restype = \
+        ctypes.c_void_p
+
     _Carbon.TISGetInputSourceProperty.argtypes = [
         ctypes.c_void_p, ctypes.c_void_p]
     _Carbon.TISGetInputSourceProperty.restype = ctypes.c_void_p
@@ -99,6 +103,9 @@ class CarbonExtra(object):
     TISCopyCurrentKeyboardInputSource = \
         _Carbon.TISCopyCurrentKeyboardInputSource
 
+    TISCopyCurrentASCIICapableKeyboardLayoutInputSource = \
+        _Carbon.TISCopyCurrentASCIICapableKeyboardLayoutInputSource
+
     kTISPropertyUnicodeKeyLayoutData = ctypes.c_void_p.in_dll(
         _Carbon, 'kTISPropertyUnicodeKeyLayoutData')
 
@@ -120,13 +127,19 @@ def keycode_context():
     """Returns an opaque value representing a context for translating keycodes
     to strings.
     """
-    with _wrapped(CarbonExtra.TISCopyCurrentKeyboardInputSource()) as keyboard:
-        keyboard_type = CarbonExtra.LMGetKbdType()
-        layout = _wrap_value(CarbonExtra.TISGetInputSourceProperty(
-            keyboard,
-            CarbonExtra.kTISPropertyUnicodeKeyLayoutData))
-        layout_data = layout.bytes().tobytes() if layout else None
-        yield (keyboard_type, layout_data)
+    keyboard_type, layout_data = None, None
+    for source in [
+            CarbonExtra.TISCopyCurrentKeyboardInputSource,
+            CarbonExtra.TISCopyCurrentASCIICapableKeyboardLayoutInputSource]:
+        with _wrapped(source()) as keyboard:
+            keyboard_type = CarbonExtra.LMGetKbdType()
+            layout = _wrap_value(CarbonExtra.TISGetInputSourceProperty(
+                keyboard,
+                CarbonExtra.kTISPropertyUnicodeKeyLayoutData))
+            layout_data = layout.bytes().tobytes() if layout else None
+            if keyboard is not None and layout_data is not None:
+                break
+    yield (keyboard_type, layout_data)
 
 
 def keycode_to_string(context, keycode, modifier_state=0):
