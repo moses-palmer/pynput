@@ -133,7 +133,33 @@ class Key(enum.Enum):
     print_screen = KeyCode.from_vk(VK.SNAPSHOT)
     scroll_lock = KeyCode.from_vk(VK.SCROLL)
 
-
+    a = KeyCode.from_vk(0x41)
+    b = KeyCode.from_vk(0x42)
+    c = KeyCode.from_vk(0x43)
+    d = KeyCode.from_vk(0x44)
+    e = KeyCode.from_vk(0x45)
+    f = KeyCode.from_vk(0x46)
+    g = KeyCode.from_vk(0x47)
+    h = KeyCode.from_vk(0x48)
+    i = KeyCode.from_vk(0x49)
+    j = KeyCode.from_vk(0x4A)
+    k = KeyCode.from_vk(0x4B)
+    l = KeyCode.from_vk(0x4C)
+    m = KeyCode.from_vk(0x4D)
+    n = KeyCode.from_vk(0x4E)
+    o = KeyCode.from_vk(0x4F)
+    p = KeyCode.from_vk(0x50)
+    q = KeyCode.from_vk(0x51)
+    r = KeyCode.from_vk(0x52)
+    s = KeyCode.from_vk(0x53)
+    t = KeyCode.from_vk(0x54)
+    u = KeyCode.from_vk(0x55)
+    v = KeyCode.from_vk(0x56)
+    w = KeyCode.from_vk(0x57)
+    x = KeyCode.from_vk(0x58)
+    y = KeyCode.from_vk(0x59)
+    z = KeyCode.from_vk(0x5A)
+    
 class Controller(_base.Controller):
     _KeyCode = KeyCode
     _Key = Key
