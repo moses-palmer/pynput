@@ -1,6 +1,13 @@
 Release Notes
 =============
 
+v1.3.9 - Correctly handle the letter *A* on *OSX*
+-------------------------------------------------
+*  Corrected check for virtual key code when generating keyboard events on
+   *OSX*. This fixes an issue where pressing *A* with *shift* explicitly pressed
+   would still type a miniscule letter.
+
+
 v1.3.8 - Do not crash on some keyboard layouts on *OSX*
 -------------------------------------------------------
 *  Fall back on a different method to retrieve the keyboard layout on *OSX*.
