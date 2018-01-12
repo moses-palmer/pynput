@@ -66,7 +66,7 @@ class KeyCode(_base.KeyCode):
             | (Quartz.kCGEventFlagMaskShift
                if Key.shift in modifiers else 0))
 
-        if not vk and self.char is not None:
+        if vk is None and self.char is not None:
             Quartz.CGEventKeyboardSetUnicodeString(
                 result, len(self.char), self.char)
 
