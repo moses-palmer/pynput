@@ -248,7 +248,7 @@ class Controller(NotifierMixin, _base.Controller):
         """
         with display_manager(self._display) as dm, self.modifiers as modifiers:
             window = dm.get_input_focus().focus
-            window.send_event(event(
+            dm.send_event(window, event(
                 detail=keycode,
                 state=shift_state | self._shift_mask(modifiers),
                 time=0,
