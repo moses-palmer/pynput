@@ -200,6 +200,16 @@ class KeyboardListenerTest(EventTest):
             ('a', True),
             ('a', False))
 
+    def test_suppress(self):
+        """Tests that passing ``suppress`` prevents events from propagating"""
+        self.suppress = True
+        self.notify('Type "hello world"')
+        self.assertEqual(
+            '',
+            self.assert_keys(
+                'Failed to register event',
+                *tuple(self.string_to_events('hello world'))).strip())
+
     def test_reraise(self):
         """Tests that exception are reraised"""
         class MyException(Exception): pass

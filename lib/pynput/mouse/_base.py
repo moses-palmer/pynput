@@ -212,6 +212,10 @@ class Listener(AbstractListener):
         If this callback raises :class:`StopException` or returns ``False``,
         the listener is stopped.
 
+    :param bool suppress: Whether to suppress events. Setting this to ``true``
+        will prevent the input events from being passed to the reset of the
+        system.
+
     :param kwargs: Any non-standard platform dependent options. These should be
         prefixed with the platform name thus: ``darwin_``, ``xorg_`` or
         ``win32_``.
@@ -238,12 +242,14 @@ class Listener(AbstractListener):
             If ``self.suppress_event()`` is called, the event is suppressed
             system wide.
     """
-    def __init__(self, on_move=None, on_click=None, on_scroll=None, **kwargs):
+    def __init__(self, on_move=None, on_click=None, on_scroll=None,
+                 suppress=False, **kwargs):
         prefix = self.__class__.__module__.rsplit('.', 1)[-1][1:] + '_'
         self._options = {
             key[len(prefix):]: value
             for key, value in kwargs.items()
             if key.startswith(prefix)}
         super(Listener, self).__init__(
-            on_move=on_move, on_click=on_click, on_scroll=on_scroll)
+            on_move=on_move, on_click=on_click, on_scroll=on_scroll,
+            suppress=suppress)
 # pylint: enable=W0223
