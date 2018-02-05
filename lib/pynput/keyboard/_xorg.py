@@ -247,8 +247,14 @@ class Controller(NotifierMixin, _base.Controller):
             :attr:`shift_state` or'd with this value.
         """
         with display_manager(self._display) as dm, self.modifiers as modifiers:
+            # Under certain cimcumstances, such as when running under Xephyr,
+            # the value returned by dm.get_input_focus is an int
             window = dm.get_input_focus().focus
-            window.send_event(event(
+            send_event = getattr(
+                window,
+                'send_event',
+                lambda event: dm.send_event(window, event))
+            send_event(event(
                 detail=keycode,
                 state=shift_state | self._shift_mask(modifiers),
                 time=0,
