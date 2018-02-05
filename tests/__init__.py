@@ -85,6 +85,7 @@ class EventTest(unittest.TestCase):
     def setUp(self):
         if self.CONTROLLER_CLASS is not None:
             self.controller = self.CONTROLLER_CLASS()
+        self.suppress = False
 
     @classmethod
     def notify(self, message, delay=None, columns=50):
@@ -129,7 +130,7 @@ class EventTest(unittest.TestCase):
 
         All arguments are passed to the constructor.
         """
-        listener = self.LISTENER_CLASS(*args, **kwargs)
+        listener = self.LISTENER_CLASS(suppress=self.suppress, *args, **kwargs)
         self.listeners.append(listener)
         return listener
 
