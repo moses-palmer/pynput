@@ -1,6 +1,12 @@
 Release Notes
 =============
 
+v1.3.10 - Do not crash under *Xephyr*
+-------------------------------------
+*  Do not crash when ``Xlib.display.Display.get_input_focus`` returns an
+   integer, as it may when running under *Xephyr*. Thanks to *Eli Skeggs*!
+
+
 v1.3.9 - Correctly handle the letter *A* on *OSX*
 -------------------------------------------------
 *  Corrected check for virtual key code when generating keyboard events on
