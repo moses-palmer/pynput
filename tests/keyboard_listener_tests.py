@@ -128,8 +128,9 @@ class KeyboardListenerTest(EventTest):
 
         finally:
             self.notify('Press <enter> to continue...', delay=0)
-            input()
+            result = input()
             time.sleep(1)
+            return result
 
     def string_to_events(self, s):
         """Yields all events necessary to type a string.
