@@ -288,6 +288,12 @@ class KeyboardControllerTest(EventTest):
             'Failed to type Russian string',
             u'Компьютерная клавиатура')
 
+    def test_type_control_codes(self):
+        """Asserts that type works for a string containing control codes"""
+        self.assert_input(
+            'Failed to type latin string',
+            u'Hello\tworld')
+
     def test_controller_events(self):
         """Tests that events sent by a controller are received correctly"""
         with self.assert_event(

@@ -328,6 +328,12 @@ class Controller(object):
             (kc.cmd,    (kc.cmd.value,   kc.cmd_l.value,   kc.cmd_r.value)),
             (kc.ctrl,   (kc.ctrl.value,  kc.ctrl_l.value,  kc.ctrl_r.value)),
             (kc.shift,  (kc.shift.value, kc.shift_l.value, kc.shift_r.value)))
+
+        #: Control codes to transform into key codes when typing
+        self._CONTROL_CODES = {
+            '\n': kc.enter,
+            '\r': kc.enter,
+            '\t': kc.tab}
         # pylint: enable=C0103,C0326
 
     def press(self, key):
@@ -445,9 +451,10 @@ class Controller(object):
             encountered
         """
         for i, character in enumerate(string):
+            key = self._CONTROL_CODES.get(character, character)
             try:
-                self.press(character)
-                self.release(character)
+                self.press(key)
+                self.release(key)
 
             except (ValueError, self.InvalidKeyException):
                 raise self.InvalidCharacterException(i, character)
