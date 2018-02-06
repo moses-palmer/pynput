@@ -3,6 +3,8 @@
 *.eggs/
 *.pyc
 *.sublime-*
+*.swo
+*.swp
 
 build/*
 dist/*
