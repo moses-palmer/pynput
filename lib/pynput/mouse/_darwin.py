@@ -160,10 +160,13 @@ class Listener(ListenerMixin, _base.Listener):
         Quartz.CGEventMaskBit(Quartz.kCGEventMouseMoved) |
         Quartz.CGEventMaskBit(Quartz.kCGEventLeftMouseDown) |
         Quartz.CGEventMaskBit(Quartz.kCGEventLeftMouseUp) |
+        Quartz.CGEventMaskBit(Quartz.kCGEventLeftMouseDragged) |
         Quartz.CGEventMaskBit(Quartz.kCGEventRightMouseDown) |
         Quartz.CGEventMaskBit(Quartz.kCGEventRightMouseUp) |
+        Quartz.CGEventMaskBit(Quartz.kCGEventRightMouseDragged) |
         Quartz.CGEventMaskBit(Quartz.kCGEventOtherMouseDown) |
         Quartz.CGEventMaskBit(Quartz.kCGEventOtherMouseUp) |
+        Quartz.CGEventMaskBit(Quartz.kCGEventOtherMouseDragged) |
         Quartz.CGEventMaskBit(Quartz.kCGEventScrollWheel))
 
     def __init__(self, *args, **kwargs):
