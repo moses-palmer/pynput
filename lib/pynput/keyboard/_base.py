@@ -330,7 +330,10 @@ class Controller(object):
             (kc.shift,  (kc.shift.value, kc.shift_l.value, kc.shift_r.value)))
 
         #: Control codes to transform into key codes when typing
-        self._CONTROL_CODES = {}
+        self._CONTROL_CODES = {
+            '\n': kc.enter,
+            '\r': kc.enter,
+            '\t': kc.tab}
         # pylint: enable=C0103,C0326
 
     def press(self, key):
