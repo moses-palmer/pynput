@@ -212,8 +212,8 @@ class Listener(AbstractListener):
         If this callback raises :class:`StopException` or returns ``False``,
         the listener is stopped.
 
-    :param bool suppress: Whether to suppress events. Setting this to ``true``
-        will prevent the input events from being passed to the reset of the
+    :param bool suppress: Whether to suppress events. Setting this to ``True``
+        will prevent the input events from being passed to the rest of the
         system.
 
     :param kwargs: Any non-standard platform dependent options. These should be

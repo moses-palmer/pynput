@@ -627,8 +627,8 @@ class Listener(AbstractListener):
         It will be called with the argument ``(key)``, where ``key`` is a
         :class:`KeyCode`, a :class:`Key` or ``None`` if the key is unknown.
 
-    :param bool suppress: Whether to suppress events. Setting this to ``true``
-        will prevent the input events from being passed to the reset of the
+    :param bool suppress: Whether to suppress events. Setting this to ``True``
+        will prevent the input events from being passed to the rest of the
         system.
 
     :param kwargs: Any non-standard platform dependent options. These should be
