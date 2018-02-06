@@ -117,6 +117,18 @@ class MouseListenerTest(EventTest):
             on_scroll=lambda x, y, dx, dy: not (
                 dy < 0))
 
+    def test_suppress(self):
+        """Tests that passing ``suppress`` prevents events from propagating"""
+        self.suppress = True
+        self.notify(
+            'Click right mouse button where it will have an effect, and then '
+            'press the left mouse button')
+        self.assert_stop(
+            'No right click registered',
+            on_click=lambda x, y, button, pressed: not (
+                pressed and button == pynput.mouse.Button.left))
+        self.confirm('Was the action suppressed?')
+
     def test_reraise(self):
         """Tests that exception are reraised"""
         class MyException(Exception): pass

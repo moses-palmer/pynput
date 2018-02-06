@@ -20,6 +20,8 @@ import functools
 import time
 import unittest
 
+from six.moves import input
+
 import pynput
 
 
@@ -85,6 +87,7 @@ class EventTest(unittest.TestCase):
     def setUp(self):
         if self.CONTROLLER_CLASS is not None:
             self.controller = self.CONTROLLER_CLASS()
+        self.suppress = False
 
     @classmethod
     def notify(self, message, delay=None, columns=50):
@@ -129,7 +132,7 @@ class EventTest(unittest.TestCase):
 
         All arguments are passed to the constructor.
         """
-        listener = self.LISTENER_CLASS(*args, **kwargs)
+        listener = self.LISTENER_CLASS(suppress=self.suppress, *args, **kwargs)
         self.listeners.append(listener)
         return listener
 
@@ -227,3 +230,26 @@ class EventTest(unittest.TestCase):
         self.assert_stop(failure_message, **{
             name: wrapper(name, callback)
             for name, callback in callbacks.items()})
+
+    def confirm(self, statement, *fmt):
+        """Asks the user to confirm a statement.
+
+        :param str statement: The statement to confirm.
+
+        :raises AssertionError: if the user does not confirm
+        """
+        valid_responses = ('yes', 'y', 'no', 'n')
+        accept_responses = valid_responses[:2]
+
+        message = ('\n' + statement % fmt) + ' '
+        while True:
+            response = input(message)
+            if response.lower() in valid_responses:
+                self.assertIn(
+                    response.lower(), accept_responses,
+                    'User declined statement "%s"' % message)
+                return
+            else:
+                print(
+                    'Please respond %s' % ', '.join(
+                        '"%s"' % r for r in valid_responses))

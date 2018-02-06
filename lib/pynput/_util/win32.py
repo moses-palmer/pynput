@@ -378,6 +378,9 @@ class ListenerMixin(object):
         except NotImplementedError:
             self._handle(code, msg, lpdata)
 
+        if self.suppress:
+            self.suppress_event()
+
     def _convert(self, code, msg, lpdata):
         """The device specific callback handler.
 

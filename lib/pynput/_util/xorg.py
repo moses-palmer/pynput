@@ -22,7 +22,9 @@ Utility functions and classes for the *Xorg* backend.
 # We implement stubs
 
 import contextlib
+import functools
 import itertools
+import operator
 import Xlib.display
 import Xlib.threaded
 import Xlib.XK
@@ -385,12 +387,18 @@ class ListenerMixin(object):
         try:
             self._initialize(self._display_stop)
             self._mark_ready()
+            if self.suppress:
+                with display_manager(self._display_record) as dm:
+                    self._suppress_start(dm)
             self._display_record.record_enable_context(
                 self._context, self._handler)
         except:
             # This exception will have been passed to the main thread
             pass
         finally:
+            if self.suppress:
+                with display_manager(self._display_stop) as dm:
+                    self._suppress_stop(dm)
             self._display_record.record_free_context(self._context)
             self._display_stop.close()
             self._display_record.close()
@@ -405,6 +413,28 @@ class ListenerMixin(object):
         except:
             pass
         # pylint: enable=W0702
+
+    def _suppress_start(self, display):
+        """Starts suppressing events.
+
+        :param Xlib.display.Display display: The display for which to suppress
+            events.
+        """
+        raise NotImplementedError()
+
+    def _suppress_stop(self, display):
+        """Starts suppressing events.
+
+        :param Xlib.display.Display display: The display for which to suppress
+            events.
+        """
+        raise NotImplementedError()
+
+    @property
+    def _event_mask(self):
+        """The event mask.
+        """
+        return functools.reduce(operator.__or__, self._EVENTS, 0)
 
     @AbstractListener._emitter
     def _handler(self, events):

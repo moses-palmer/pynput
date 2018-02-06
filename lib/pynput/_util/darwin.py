@@ -244,7 +244,9 @@ class ListenerMixin(object):
         return Quartz.CGEventTapCreate(
             Quartz.kCGSessionEventTap,
             Quartz.kCGHeadInsertEventTap,
-            Quartz.kCGEventTapOptionListenOnly if self._intercept is None
+            Quartz.kCGEventTapOptionListenOnly if (True
+                and not self.suppress
+                and self._intercept is None)
             else Quartz.kCGEventTapOptionDefault,
             self._EVENTS,
             self._handler,
@@ -259,6 +261,8 @@ class ListenerMixin(object):
         self._handle(proxy, event_type, event, refcon)
         if self._intercept is not None:
             return self._intercept(event_type, event)
+        elif self.suppress:
+            return None
 
     def _handle(self, proxy, event_type, event, refcon):
         """The device specific callback handler.

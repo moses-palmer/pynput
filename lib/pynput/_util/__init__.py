@@ -47,6 +47,10 @@ class AbstractListener(threading.Thread):
         finally:
             listener.stop()
 
+    :param bool suppress: Whether to suppress events. Setting this to ``true``
+        will prevent the input events from being passed to the reset of the
+        system.
+
     :param kwargs: A mapping from callback attribute to callback handler. All
         handlers will be wrapped in a function reading the return value of the
         callback, and if it ``is False``, raising :class:`StopException`.
@@ -63,7 +67,7 @@ class AbstractListener(threading.Thread):
     #: passed through the queue
     _HANDLED_EXCEPTIONS = tuple()
 
-    def __init__(self, **kwargs):
+    def __init__(self, suppress=False, **kwargs):
         super(AbstractListener, self).__init__()
 
         def wrapper(f):
@@ -72,6 +76,7 @@ class AbstractListener(threading.Thread):
                     raise self.StopException()
             return inner
 
+        self._suppress = suppress
         self._running = False
         self._thread = threading.current_thread()
         self._condition = threading.Condition()
@@ -82,6 +87,12 @@ class AbstractListener(threading.Thread):
 
         for name, callback in kwargs.items():
             setattr(self, name, wrapper(callback or (lambda *a: None)))
+
+    @property
+    def suppress(self):
+        """Whether to suppress events.
+        """
+        return self._suppress
 
     @property
     def running(self):

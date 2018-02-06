@@ -128,8 +128,9 @@ class KeyboardListenerTest(EventTest):
 
         finally:
             self.notify('Press <enter> to continue...', delay=0)
-            input()
+            result = input()
             time.sleep(1)
+            return result
 
     def string_to_events(self, s):
         """Yields all events necessary to type a string.
@@ -198,6 +199,16 @@ class KeyboardListenerTest(EventTest):
             ((Key.ctrl, Key.ctrl_l, Key.ctrl_r), False),
             ('a', True),
             ('a', False))
+
+    def test_suppress(self):
+        """Tests that passing ``suppress`` prevents events from propagating"""
+        self.suppress = True
+        self.notify('Type "hello world"')
+        self.assertEqual(
+            '',
+            self.assert_keys(
+                'Failed to register event',
+                *tuple(self.string_to_events('hello world'))).strip())
 
     def test_reraise(self):
         """Tests that exception are reraised"""

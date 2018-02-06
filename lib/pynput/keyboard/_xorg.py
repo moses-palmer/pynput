@@ -519,6 +519,14 @@ class Listener(ListenerMixin, _base.Listener):
         elif event.type == Xlib.X.KeyRelease:
             self.on_release(key)
 
+    def _suppress_start(self, display):
+        display.screen().root.grab_keyboard(
+            self._event_mask, Xlib.X.GrabModeAsync, Xlib.X.GrabModeAsync,
+            Xlib.X.CurrentTime)
+
+    def _suppress_stop(self, display):
+        display.ungrab_keyboard(Xlib.X.CurrentTime)
+
     def _on_fake_event(self, key, is_press):
         """The handler for fake press events sent by the controllers.
 

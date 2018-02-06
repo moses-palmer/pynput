@@ -143,6 +143,15 @@ class Listener(ListenerMixin, _base.Listener):
         else:
             self.on_move(px, py)
 
+
+    def _suppress_start(self, display):
+        display.screen().root.grab_pointer(
+            True, self._event_mask, Xlib.X.GrabModeAsync, Xlib.X.GrabModeAsync,
+            0, 0, Xlib.X.CurrentTime)
+
+    def _suppress_stop(self, display):
+        display.ungrab_pointer(Xlib.X.CurrentTime)
+
     # pylint: disable=R0201
     def _button(self, detail):
         """Creates a mouse button from an event detail.
