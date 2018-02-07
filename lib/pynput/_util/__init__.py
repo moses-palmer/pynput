@@ -27,6 +27,7 @@ General utility functions and classes.
 import contextlib
 import functools
 import importlib
+import inspect
 import os
 import sys
 import threading
@@ -158,7 +159,7 @@ class AbstractListener(threading.Thread):
         self.daemon = True
 
         for name, callback in kwargs.items():
-            setattr(self, name, wrapper(callback or (lambda *a: None)))
+            setattr(self, name, wrapper(callback))
 
     @property
     def suppress(self):
@@ -265,6 +266,29 @@ class AbstractListener(threading.Thread):
         This is a platform dependent implementation.
         """
         raise NotImplementedError()
+
+    def _wrap(self, f, args):
+        """Wraps a callable to make it accept ``args`` number of arguments.
+
+        :param f: The callable to wrap. If this is ``None`` a no-op wrapper is
+            returned.
+
+        :param int args: The number of arguments to accept.
+
+        :raises ValueError: if f requires more than ``args`` arguments
+        """
+        if f is None:
+            return lambda *a: None
+        else:
+            argspec = inspect.getfullargspec(f)
+            actual = len(inspect.signature(f).parameters)
+            defaults = len(argspec.defaults) if argspec.defaults else 0
+            if actual - defaults > args:
+                raise ValueError(f)
+            elif actual >= args or argspec.varargs is not None:
+                return f
+            else:
+                return lambda *a: f(*a[:actual])
 
     def join(self, timeout=None, *args):
         start = time.time()

@@ -652,6 +652,9 @@ class Listener(AbstractListener):
     This class inherits from :class:`threading.Thread` and supports all its
     methods. It will set :attr:`daemon` to ``True`` when created.
 
+    All callback arguments are optional; a callback may take less arguments
+    than actually passed, but not more, unless they are optional.
+
     :param callable on_press: The callback to call when a button is pressed.
 
         It will be called with the argument ``(key)``, where ``key`` is a
@@ -709,7 +712,9 @@ class Listener(AbstractListener):
             for key, value in kwargs.items()
             if key.startswith(option_prefix)}
         super(Listener, self).__init__(
-            on_press=on_press, on_release=on_release, suppress=suppress)
+            on_press=self._wrap(on_press, 1),
+            on_release=self._wrap(on_release, 1),
+            suppress=suppress)
 # pylint: enable=W0223
 
     def canonical(self, key):
