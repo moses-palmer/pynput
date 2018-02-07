@@ -192,6 +192,9 @@ class Listener(AbstractListener):
     This class inherits from :class:`threading.Thread` and supports all its
     methods. It will set :attr:`daemon` to ``True`` when created.
 
+    All callback arguments are optional; a callback may take less arguments
+    than actually passed, but not more, unless they are optional.
+
     :param callable on_move: The callback to call when mouse move events occur.
 
         It will be called with the arguments ``(x, y)``, which is the new
@@ -258,6 +261,8 @@ class Listener(AbstractListener):
             for key, value in kwargs.items()
             if key.startswith(option_prefix)}
         super(Listener, self).__init__(
-            on_move=on_move, on_click=on_click, on_scroll=on_scroll,
+            on_move=self._wrap(on_move, 2),
+            on_click=self._wrap(on_click, 4),
+            on_scroll=self._wrap(on_scroll, 4),
             suppress=suppress)
 # pylint: enable=W0223
