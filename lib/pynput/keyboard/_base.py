@@ -655,6 +655,9 @@ class Listener(AbstractListener):
     All callback arguments are optional; a callback may take less arguments
     than actually passed, but not more, unless they are optional.
 
+    Please see `Platform limitations` for more information about when the
+    ``injected`` argument to the callbacks below can be trusted.
+
     :param callable on_press: The callback to call when a button is pressed.
 
         It will be called with the argument ``(key, injected)``, where ``key``
