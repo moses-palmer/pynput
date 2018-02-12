@@ -38,22 +38,22 @@ Use ``pynput.mouse.Listener`` like this::
 
     from pynput import mouse
 
-    def on_move(x, y):
-        print('Pointer moved to {0}'.format(
-            (x, y)))
+    def on_move(x, y, injected):
+        print('Pointer moved to {0}; it was {}'.format(
+            (x, y, 'faked' if injected else 'not faked')))
 
-    def on_click(x, y, button, pressed):
-        print('{0} at {1}'.format(
+    def on_click(x, y, button, pressed, injected):
+        print('{0} at {1}; it was {}'.format(
             'Pressed' if pressed else 'Released',
-            (x, y)))
+            (x, y, 'faked' if injected else 'not faked')))
         if not pressed:
             # Stop listener
             return False
 
-    def on_scroll(x, y, dx, dy):
-        print('Scrolled {0} at {1}'.format(
+    def on_scroll(x, y, dx, dy, injected):
+        print('Scrolled {0} at {1}; it was {}'.format(
             'down' if dy < 0 else 'up',
-            (x, y)))
+            (x, y, 'faked' if injected else 'not faked')))
 
     # Collect events until released
     with mouse.Listener(
