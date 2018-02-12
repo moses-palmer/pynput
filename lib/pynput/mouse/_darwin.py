@@ -172,7 +172,7 @@ class Listener(ListenerMixin, _base.Listener):
             'intercept',
             None)
 
-    def _handle(self, _proxy, event_type, event, _refcon):
+    def _handle(self, _proxy, event_type, event, _refcon, injected):
         """The callback registered with *macOS* for mouse events.
 
         This method will call the callbacks registered on initialisation.
@@ -185,7 +185,7 @@ class Listener(ListenerMixin, _base.Listener):
 
         # Quickly detect the most common event type
         if event_type == Quartz.kCGEventMouseMoved:
-            self.on_move(px, py)
+            self.on_move(px, py, injected)
 
         elif event_type == Quartz.kCGEventScrollWheel:
             dx = Quartz.CGEventGetIntegerValueField(
@@ -194,7 +194,7 @@ class Listener(ListenerMixin, _base.Listener):
             dy = Quartz.CGEventGetIntegerValueField(
                 event,
                 Quartz.kCGScrollWheelEventDeltaAxis1)
-            self.on_scroll(px, py, dx, dy)
+            self.on_scroll(px, py, dx, dy, injected)
 
         else:
             for button in Button:
@@ -207,6 +207,6 @@ class Listener(ListenerMixin, _base.Listener):
                 # Press and release generate click events, and drag
                 # generates move events
                 if event_type in (press, release):
-                    self.on_click(px, py, button, event_type == press)
+                    self.on_click(px, py, button, event_type == press, injected)
                 elif event_type == drag:
-                    self.on_move(px, py)
+                    self.on_move(px, py, injected)

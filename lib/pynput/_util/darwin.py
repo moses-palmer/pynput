@@ -280,7 +280,12 @@ class ListenerMixin(object):
 
         This method will call the callbacks registered on initialisation.
         """
-        self._handle(proxy, event_type, event, refcon)
+        # An injected event will have a Unix process ID attached
+        is_injected = (Quartz.CGEventGetIntegerValueField(
+            event,
+            Quartz.kCGEventSourceUnixProcessID)) != 0
+
+        self._handle(proxy, event_type, event, refcon, is_injected)
         if self._intercept is not None:
             return self._intercept(event_type, event)
         elif self.suppress:
