@@ -184,7 +184,7 @@ class Listener(ListenerMixin, _base.Listener):
             finally:
                 self._context = None
 
-    def _handle(self, dummy_proxy, event_type, event, dummy_refcon):
+    def _handle(self, dummy_proxy, event_type, event, dummy_refcon, injected):
         # Convert the event to a KeyCode; this may fail, and in that case we
         # pass None
         try:
@@ -195,17 +195,17 @@ class Listener(ListenerMixin, _base.Listener):
         try:
             if event_type == Quartz.kCGEventKeyDown:
                 # This is a normal key press
-                self.on_press(key)
+                self.on_press(key, injected)
 
             elif event_type == Quartz.kCGEventKeyUp:
                 # This is a normal key release
-                self.on_release(key)
+                self.on_release(key, injected)
 
             elif key == Key.caps_lock:
                 # We only get an event when caps lock is toggled, so we fake
                 # press and release
-                self.on_press(key)
-                self.on_release(key)
+                self.on_press(key, injected)
+                self.on_release(key, injected)
 
             else:
                 # This is a modifier event---excluding caps lock---for which we
@@ -214,9 +214,9 @@ class Listener(ListenerMixin, _base.Listener):
                 flags = Quartz.CGEventGetFlags(event)
                 is_press = flags & self._MODIFIER_FLAGS.get(key, 0)
                 if is_press:
-                    self.on_press(key)
+                    self.on_press(key, injected)
                 else:
-                    self.on_release(key)
+                    self.on_release(key, injected)
 
         finally:
             # Store the current flag mask to be able to detect modifier state
