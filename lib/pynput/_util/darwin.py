@@ -40,10 +40,12 @@ from Quartz import (
     CFRunLoopGetCurrent,
     CFRunLoopRunInMode,
     CFRunLoopStop,
+    CGEventGetIntegerValueField,
     CGEventTapCreate,
     CGEventTapEnable,
     kCFRunLoopDefaultMode,
     kCFRunLoopRunTimedOut,
+    kCGEventSourceUnixProcessID,
     kCGEventTapOptionDefault,
     kCGEventTapOptionListenOnly,
     kCGHeadInsertEventTap,
@@ -280,7 +282,12 @@ class ListenerMixin(object):
 
         This method will call the callbacks registered on initialisation.
         """
-        self._handle_message(proxy, event_type, event, refcon)
+        # An injected event will have a Unix process ID attached
+        is_injected = (CGEventGetIntegerValueField(
+            event,
+            kCGEventSourceUnixProcessID)) != 0
+
+        self._handle_message(proxy, event_type, event, refcon, is_injected)
         if self._intercept is not None:
             return self._intercept(event_type, event)
         elif self.suppress:
