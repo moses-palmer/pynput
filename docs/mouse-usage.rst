@@ -8,12 +8,12 @@ Use ``pynput.mouse.Controller`` like this::
     mouse = Controller()
 
     # Read pointer position
-    print('The current pointer position is {0}'.format(
+    print('The current pointer position is {}'.format(
         mouse.position))
 
     # Set pointer position
     mouse.position = (10, 20)
-    print('Now we have moved it to {0}'.format(
+    print('Now we have moved it to {}'.format(
         mouse.position))
 
     # Move pointer relative to current position
@@ -38,22 +38,22 @@ Use ``pynput.mouse.Listener`` like this::
 
     from pynput import mouse
 
-    def on_move(x, y):
-        print('Pointer moved to {0}'.format(
-            (x, y)))
+    def on_move(x, y, injected):
+        print('Pointer moved to {}; it was {}'.format(
+            (x, y, 'faked' if injected else 'not faked')))
 
-    def on_click(x, y, button, pressed):
-        print('{0} at {1}'.format(
+    def on_click(x, y, button, pressed, injected):
+        print('{} at {}; it was {}'.format(
             'Pressed' if pressed else 'Released',
-            (x, y)))
+            (x, y, 'faked' if injected else 'not faked')))
         if not pressed:
             # Stop listener
             return False
 
-    def on_scroll(x, y, dx, dy):
-        print('Scrolled {0} at {1}'.format(
+    def on_scroll(x, y, dx, dy, injected):
+        print('Scrolled {} at {}; it was {}'.format(
             'down' if dy < 0 else 'up',
-            (x, y)))
+            (x, y, 'faked' if injected else 'not faked')))
 
     # Collect events until released
     with mouse.Listener(
@@ -118,7 +118,7 @@ instance::
         try:
             listener.join()
         except MyException as e:
-            print('{0} was clicked'.format(e.args[0]))
+            print('{} was clicked'.format(e.args[0]))
 
 
 Toggling event listening for the mouse listener
