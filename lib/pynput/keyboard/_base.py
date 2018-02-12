@@ -622,7 +622,7 @@ class Listener(AbstractListener):
         It will be called with the argument ``(key)``, where ``key`` is a
         :class:`KeyCode`, a :class:`Key` or ``None`` if the key is unknown.
 
-    :param callable on_release: The callback to call when a button is release.
+    :param callable on_release: The callback to call when a button is released.
 
         It will be called with the argument ``(key)``, where ``key`` is a
         :class:`KeyCode`, a :class:`Key` or ``None`` if the key is unknown.
