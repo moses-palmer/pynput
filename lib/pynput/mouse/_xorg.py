@@ -98,6 +98,10 @@ class Controller(_base.Controller):
         with display_manager(self._display) as dm:
             Xlib.ext.xtest.fake_input(dm, Xlib.X.ButtonRelease, button.value)
 
+    def _size(self):
+        return self._display.screen().width_in_pixels, \
+            self._display.screen().height_in_pixels
+
     def _check_bounds(self, *args):
         """Checks the arguments and makes sure they are within the bounds of a
         short integer.

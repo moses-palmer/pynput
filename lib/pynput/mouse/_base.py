@@ -117,6 +117,13 @@ class Controller(object):
                 controller.press(button)
                 controller.release(button)
 
+    def size(self):
+        """Finds the size of the screen.
+
+        This is a tuple ``(x, y)`` for the maximum width and height.
+        """
+        return self._size()
+
     def __enter__(self):
         """Begins a series of clicks.
 
@@ -163,6 +170,13 @@ class Controller(object):
 
     def _release(self, button):
         """The implementation of the :meth:`release` method.
+
+        This is a platform dependent implementation.
+        """
+        raise NotImplementedError()
+
+    def _size(self):
+        """The implementation of the :meth:`size` method.
 
         This is a platform dependent implementation.
         """
