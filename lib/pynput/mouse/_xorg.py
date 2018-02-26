@@ -73,13 +73,12 @@ class Controller(_base.Controller):
             return (qp.root_x, qp.root_y)
 
     def _position_set(self, pos):
-        self._check_bounds(*pos)
-        px, py = pos
+        px, py = self._check_bounds(*pos)
         with display_manager(self._display) as dm:
             Xlib.ext.xtest.fake_input(dm, Xlib.X.MotionNotify, x=px, y=py)
 
     def _scroll(self, dx, dy):
-        self._check_bounds(dx, dy)
+        dx, dy = self._check_bounds(dx, dy)
         if dy:
             self.click(
                 button=Button.scroll_up if dy > 0 else Button.scroll_down,
@@ -108,6 +107,8 @@ class Controller(_base.Controller):
                 (-0x7fff - 1) <= number <= 0x7fff
                 for number in args):
             raise ValueError(args)
+        else:
+            return tuple(int(p) for p in args)
 
 
 class Listener(ListenerMixin, _base.Listener):
