@@ -81,6 +81,13 @@ class MouseControllerTest(EventTest):
             self.controller.position,
             'Updating position failed')
 
+    def test_position_set_float(self):
+        """Tests that writing a floating point position does not crash"""
+        position = self.controller.position
+        new_position = tuple(i + 1.5 for i in position)
+
+        self.controller.position = new_position
+
     def test_press(self):
         """Tests that press works"""
         for b in (
