@@ -583,11 +583,15 @@ class Listener(ListenerMixin, _base.Listener):
         elif keysym in self._KEYPAD_KEYS:
             # We must recalculate the index if numlock is active; index 1 is the
             # one to use
-            return self._KEYPAD_KEYS[
-                self._keycode_to_keysym(
-                    display,
-                    keycode,
-                    bool(event.state & numlock_mask(display)))]
+            try:
+                return self._KEYPAD_KEYS[
+                    self._keycode_to_keysym(
+                        display,
+                        keycode,
+                        bool(event.state & numlock_mask(display)))]
+            except KeyError:
+                # Since we recalculated the key, this may happen
+                pass
 
         # ...then try characters...
         name = KEYSYMS.get(keysym, None)
