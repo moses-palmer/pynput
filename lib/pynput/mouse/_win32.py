@@ -63,6 +63,7 @@ class Controller(NotifierMixin, _base.Controller):
             return None
 
     def _position_set(self, pos):
+        pos = (int(pos[0], int(pos[1])
         self.__SetCursorPos(*pos)
         self._emit('on_move', *pos)
 
@@ -75,7 +76,7 @@ class Controller(NotifierMixin, _base.Controller):
                     value=INPUT_union(
                         mi=MOUSEINPUT(
                             dwFlags=MOUSEINPUT.WHEEL,
-                            mouseData=dy)))),
+                            mouseData=int(dy))))),
                 ctypes.sizeof(INPUT))
 
         if dx:
@@ -86,7 +87,7 @@ class Controller(NotifierMixin, _base.Controller):
                     value=INPUT_union(
                         mi=MOUSEINPUT(
                             dwFlags=MOUSEINPUT.HWHEEL,
-                            mouseData=dx)))),
+                            mouseData=int(dx))))),
                 ctypes.sizeof(INPUT))
 
         if dx or dy:
