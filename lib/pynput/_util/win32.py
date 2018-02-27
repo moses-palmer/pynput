@@ -636,22 +636,6 @@ class KeyTranslator(object):
 
     @contextlib.contextmanager
     def _thread_input(self):
-        """Temporarily attaches the input handling of this thread to that of
-        the currently active window.
-
-        The context manager returns the ID of the thread to which the input
-        handling is attached. This is the ID of the current thread if attaching
-        failed.
+        """Yields the current thread ID.
         """
-        remote_thread = self._GetWindowThreadProcessId(
-            self._GetForegroundWindow(),
-            None)
-        local_thread = GetCurrentThreadId()
-
-        if self._AttachThreadInput(local_thread, remote_thread, True):
-            try:
-                yield remote_thread
-            finally:
-                self._AttachThreadInput(local_thread, remote_thread, False)
-        else:
-            yield local_thread
+        yield GetCurrentThreadId()
