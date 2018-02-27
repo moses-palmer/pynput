@@ -63,7 +63,7 @@ class Controller(NotifierMixin, _base.Controller):
             return None
 
     def _position_set(self, pos):
-        pos = (int(pos[0], int(pos[1])
+        pos = int(pos[0]), int(pos[1])
         self.__SetCursorPos(*pos)
         self._emit('on_move', *pos)
 
