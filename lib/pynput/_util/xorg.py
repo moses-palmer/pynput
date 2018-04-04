@@ -404,7 +404,7 @@ class ListenerMixin(object):
             self._display_record.close()
         # pylint: enable=W0702
 
-    def _stop(self):
+    def _stop_platform(self):
         if not hasattr(self, '_context'):
             self.wait()
         # pylint: disable=W0702; we must ignore errors

@@ -226,7 +226,7 @@ class ListenerMixin(object):
         finally:
             self._loop = None
 
-    def _stop(self):
+    def _stop_platform(self):
         # The base class sets the running flag to False; this will cause the
         # loop around run loop invocations to terminate and set this event
         try:
