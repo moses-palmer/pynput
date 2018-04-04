@@ -452,7 +452,7 @@ class ListenerMixin(object):
 
         data = events.data
 
-        while len(data):
+        while data and len(data):
             event, data = self._EVENT_PARSER.parse_binary_value(
                 data, self._display_record.display, None, None)
             self._handle(self._display_stop, event)
