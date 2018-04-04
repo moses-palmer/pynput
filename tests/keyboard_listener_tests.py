@@ -19,6 +19,7 @@ import contextlib
 import six
 import six.moves.queue as queue
 import time
+import threading
 
 import pynput.keyboard
 
@@ -222,6 +223,21 @@ class KeyboardListenerTest(EventTest):
                     on_press=on_press) as l:
                 self.notify('Press any key')
                 l.join()
+
+    def test_stop(self):
+        """Tests that stop works from a separate thread"""
+        self.notify('Do not touch the keyboard')
+
+        with pynput.keyboard.Listener() as l:
+            def runner():
+                time.sleep(1)
+                l.stop()
+
+            threading.Thread(target=runner).start()
+            l.join(2.0)
+            self.assertFalse(
+                l.is_alive(),
+                'Listener did not stop')
 
     @darwin
     def test_options_darwin(self):

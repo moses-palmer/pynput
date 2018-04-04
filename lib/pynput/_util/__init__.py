@@ -81,7 +81,9 @@ class AbstractListener(threading.Thread):
         self._thread = threading.current_thread()
         self._condition = threading.Condition()
         self._ready = False
-        self._queue = queue.Queue()
+
+        # Allow multiple calls to stop
+        self._queue = queue.Queue(10)
 
         self.daemon = True
 
@@ -107,7 +109,8 @@ class AbstractListener(threading.Thread):
         """
         if self._running:
             self._running = False
-            self._stop()
+            self._queue.put(None)
+            self._stop_platform()
 
     def __enter__(self):
         self.start()
@@ -178,7 +181,7 @@ class AbstractListener(threading.Thread):
         """
         raise NotImplementedError()
 
-    def _stop(self):
+    def _stop_platform(self):
         """The implementation of the :meth:`stop` method.
 
         This is a platform dependent implementation.

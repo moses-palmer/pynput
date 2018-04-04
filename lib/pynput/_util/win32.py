@@ -356,7 +356,7 @@ class ListenerMixin(object):
                 pass
             # pylint: enable=W0702
 
-    def _stop(self):
+    def _stop_platform(self):
         try:
             self._message_loop.stop()
         except AttributeError:

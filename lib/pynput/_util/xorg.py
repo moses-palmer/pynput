@@ -368,7 +368,7 @@ class ListenerMixin(object):
     def _run(self):
         self._display_stop = Xlib.display.Display()
         self._display_record = Xlib.display.Display()
-        with display_manager(self._display_record) as dm:
+        with display_manager(self._display_stop) as dm:
             self._context = dm.record_create_context(
                 0,
                 [Xlib.ext.record.AllClients],
@@ -404,12 +404,13 @@ class ListenerMixin(object):
             self._display_record.close()
         # pylint: enable=W0702
 
-    def _stop(self):
+    def _stop_platform(self):
         if not hasattr(self, '_context'):
             self.wait()
         # pylint: disable=W0702; we must ignore errors
         try:
-            self._display_stop.record_disable_context(self._context)
+            with display_manager(self._display_stop) as dm:
+                dm.record_disable_context(self._context)
         except:
             pass
         # pylint: enable=W0702
@@ -451,7 +452,7 @@ class ListenerMixin(object):
 
         data = events.data
 
-        while len(data):
+        while data and len(data):
             event, data = self._EVENT_PARSER.parse_binary_value(
                 data, self._display_record.display, None, None)
             self._handle(self._display_stop, event)
