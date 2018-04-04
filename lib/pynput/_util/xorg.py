@@ -409,7 +409,8 @@ class ListenerMixin(object):
             self.wait()
         # pylint: disable=W0702; we must ignore errors
         try:
-            self._display_stop.record_disable_context(self._context)
+            with display_manager(self._display_stop) as dm:
+                dm.record_disable_context(self._context)
         except:
             pass
         # pylint: enable=W0702
