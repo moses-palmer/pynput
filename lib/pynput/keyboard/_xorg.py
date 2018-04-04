@@ -598,9 +598,9 @@ class Listener(ListenerMixin, _base.Listener):
         if name is not None and name in SYMBOLS:
             char = SYMBOLS[name][1].upper() if index & 1 else SYMBOLS[name][1]
             if char in DEAD_KEYS:
-                return KeyCode.from_dead(DEAD_KEYS[char])
+                return KeyCode.from_dead(DEAD_KEYS[char], vk=keycode)
             else:
-                return KeyCode.from_char(char)
+                return KeyCode.from_char(char, vk=keycode)
 
         # ...and fall back on a virtual key code
         return KeyCode.from_vk(keysym)

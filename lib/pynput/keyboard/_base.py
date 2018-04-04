@@ -121,17 +121,17 @@ class KeyCode(object):
         return cls(vk=vk, **kwargs)
 
     @classmethod
-    def from_char(cls, char):
+    def from_char(cls, char, **kwargs):
         """Creates a key from a character.
 
         :param str char: The character.
 
         :return: a key code
         """
-        return cls(char=char)
+        return cls(char=char, **kwargs)
 
     @classmethod
-    def from_dead(cls, char):
+    def from_dead(cls, char, **kwargs):
         """Creates a dead key.
 
         :param char: The dead key. This should be the unicode character
@@ -140,7 +140,7 @@ class KeyCode(object):
 
         :return: a key code
         """
-        return cls(char=char, is_dead=True)
+        return cls(char=char, is_dead=True, **kwargs)
 
 
 class Key(enum.Enum):

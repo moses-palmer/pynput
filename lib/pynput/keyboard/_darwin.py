@@ -244,7 +244,7 @@ class Listener(ListenerMixin, _base.Listener):
         char = keycode_to_string(
             self._context, vk, Quartz.CGEventGetFlags(event))
         if char:
-            return KeyCode.from_char(char)
+            return KeyCode.from_char(char, vk=vk)
 
         # ...and fall back on a virtual key code
         return KeyCode.from_vk(vk)
