@@ -88,6 +88,7 @@ class Key(enum.Enum):
     alt_l = KeyCode._from_symbol('Alt_L')
     alt_r = KeyCode._from_symbol('Alt_R')
     alt_gr = KeyCode._from_symbol('Mode_switch')
+    level3_shift = KeyCode._from_symbol('ISO_Level3_Shift')
     backspace = KeyCode._from_symbol('BackSpace')
     caps_lock = KeyCode._from_symbol('Caps_Lock')
     cmd = KeyCode._from_symbol('Super_L')
