@@ -33,6 +33,7 @@ import Xlib.ext.xtest
 import Xlib.X
 import Xlib.XK
 import Xlib.protocol
+import Xlib.keysymdef.xkb
 
 from pynput._util import NotifierMixin
 from pynput._util.xorg import (
