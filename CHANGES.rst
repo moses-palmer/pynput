@@ -1,6 +1,20 @@
 Release Notes
 =============
 
+v1.4 - Injected event flags end event suppression
+-------------------------------------------------
+*  Added possibility to fully suppress events when listening.
+*  Added support for typing some control characters.
+*  Added support for mouse drag events on *OSX*. Thanks to *jungledrum*!
+*  Include the key code in keyboard listener events.
+*  Correctly handle the numeric key pad on *Xorg* with *num lock* active.
+   Thanks to *TheoRet*!
+*  Corrected handling of current thread keyboard layout on *Windows*. Thanks to
+   *Schmettaling*!
+*  Corrected stopping of listeners on *Xorg*.
+*  Corrected import of ``Xlib.keysymdef.xkb`` on *Xorg*. Thanks to *Glandos*!
+
+
 v1.3.10 - Do not crash under *Xephyr*
 -------------------------------------
 *  Do not crash when ``Xlib.display.Display.get_input_focus`` returns an
