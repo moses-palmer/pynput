@@ -36,14 +36,14 @@ Use ``pynput.keyboard.Listener`` like this::
 
     def on_press(key, injected):
         try:
-            print('alphanumeric key {0} pressed; it was {}'.format(
+            print('alphanumeric key {} pressed; it was {}'.format(
                 key.char, 'faked' if injected else 'not faked'))
         except AttributeError:
             print('special key {0} pressed'.format(
                 key))
 
     def on_release(key, injected):
-        print('{0} released; it was {}'.format(
+        print('{} released; it was {}'.format(
             key, 'faked' if injected else 'not faked'))
         if key == keyboard.Key.esc:
             # Stop listener
