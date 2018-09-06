@@ -17,8 +17,8 @@
 """
 This module contains the base implementation.
 
-The actual interface to mouse classes is defined here, but the implementation is
-located in a platform dependent module.
+The actual interface to mouse classes is defined here, but the implementation
+is located in a platform dependent module.
 """
 
 # pylint: disable=R0903
@@ -73,7 +73,8 @@ class Controller(object):
         :param int dy: The vertical scroll. The units of scrolling is
             undefined.
 
-        :raises ValueError: if the values are invalid, for example out of bounds
+        :raises ValueError: if the values are invalid, for example out of
+            bounds
         """
         self._scroll(dx, dy)
 
@@ -99,7 +100,8 @@ class Controller(object):
 
         :param int dy: The vertical offset.
 
-        :raises ValueError: if the values are invalid, for example out of bounds
+        :raises ValueError: if the values are invalid, for example out of
+            bounds
         """
         self.position = tuple(sum(i) for i in zip(self.position, (dx, dy)))
 
@@ -236,8 +238,8 @@ class Listener(AbstractListener):
             the current message, and ``data`` associated data as a
             `MSLLHOOKSTRUCT <https://msdn.microsoft.com/en-us/library/windows/desktop/ms644970(v=vs.85).aspx>`_.
 
-            If this callback returns ``False``, the event will not be propagated
-            to the listener callback.
+            If this callback returns ``False``, the event will not
+            be propagated to the listener callback.
 
             If ``self.suppress_event()`` is called, the event is suppressed
             system wide.
