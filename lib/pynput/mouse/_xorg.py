@@ -60,7 +60,8 @@ Button = enum.Enum(
 
 
 class Controller(_base.Controller):
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
+        super(Controller, self).__init__(*args, **kwargs)
         self._display = Xlib.display.Display()
 
     def __del__(self):
@@ -122,6 +123,9 @@ class Listener(ListenerMixin, _base.Listener):
     _EVENTS = (
         Xlib.X.ButtonPressMask,
         Xlib.X.ButtonReleaseMask)
+
+    def __init__(self, *args, **kwargs):
+        super(Listener, self).__init__(*args, **kwargs)
 
     def _handle(self, dummy_display, event):
         px = event.root_x

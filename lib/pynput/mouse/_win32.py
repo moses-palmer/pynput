@@ -55,6 +55,9 @@ class Controller(NotifierMixin, _base.Controller):
     __GetCursorPos = windll.user32.GetCursorPos
     __SetCursorPos = windll.user32.SetCursorPos
 
+    def __init__(self, *args, **kwargs):
+        super(Controller, self).__init__(*args, **kwargs)
+
     def _position_get(self):
         point = wintypes.POINT()
         if self.__GetCursorPos(ctypes.byref(point)):

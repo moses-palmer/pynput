@@ -152,8 +152,8 @@ class Controller(NotifierMixin, _base.Controller):
     #: The shift mask for :attr:`Key.shift`
     SHIFT_MASK = Xlib.X.ShiftMask
 
-    def __init__(self):
-        super(Controller, self).__init__()
+    def __init__(self, *args, **kwargs):
+        super(Controller, self).__init__(*args, **kwargs)
         self._display = Xlib.display.Display()
         self._keyboard_mapping = None
         self._borrows = {}

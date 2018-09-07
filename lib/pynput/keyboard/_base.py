@@ -32,6 +32,7 @@ import unicodedata
 import six
 
 from pynput._util import AbstractListener
+from pynput import _logger
 
 
 class KeyCode(object):
@@ -309,6 +310,7 @@ class Controller(object):
         pass
 
     def __init__(self):
+        self._log = _logger(self.__class__)
         self._modifiers_lock = threading.RLock()
         self._modifiers = set()
         self._caps_lock = False
@@ -659,6 +661,7 @@ class Listener(AbstractListener):
     """
     def __init__(self, on_press=None, on_release=None, suppress=False,
                  **kwargs):
+        self._log = _logger(self.__class__)
         prefix = self.__class__.__module__.rsplit('.', 1)[-1][1:] + '_'
         self._options = {
             key[len(prefix):]: value
