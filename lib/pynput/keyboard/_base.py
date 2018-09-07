@@ -1,6 +1,6 @@
 # coding=utf-8
 # pynput
-# Copyright (C) 2015-2017 Moses Palmér
+# Copyright (C) 2015-2018 Moses Palmér
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -17,8 +17,8 @@
 """
 This module contains the base implementation.
 
-The actual interface to keyboard classes is defined here, but the implementation
-is located in a platform dependent module.
+The actual interface to keyboard classes is defined here, but the
+implementation is located in a platform dependent module.
 """
 
 # pylint: disable=R0903
@@ -317,8 +317,8 @@ class Controller(object):
         kc = self._Key
 
         # pylint: disable=C0103; this is treated as a class scope constant, but
-        # we cannot set it in the class scope, as _Key is overridden by platform
-        # implementations
+        # we cannot set it in the class scope, as _Key is overridden by
+        # platform implementations
         # pylint: disable=C0326; it is easier to read column aligned keys
         #: The keys used as modifiers; the first value in each tuple is the
         #: base modifier to use for subsequent modifiers.
@@ -651,8 +651,8 @@ class Listener(AbstractListener):
             the current message, and ``data`` associated data as a
             `KBLLHOOKSTRUCT <https://msdn.microsoft.com/en-us/library/windows/desktop/ms644967(v=vs.85).aspx>`_.
 
-            If this callback returns ``False``, the event will not be propagated
-            to the listener callback.
+            If this callback returns ``False``, the event will not be
+            propagated to the listener callback.
 
             If ``self.suppress_event()`` is called, the event is suppressed
             system wide.
