@@ -27,6 +27,7 @@ is located in a platform dependent module.
 import enum
 
 from pynput._util import AbstractListener
+from pynput import _logger
 
 
 class Button(enum.Enum):
@@ -52,6 +53,9 @@ class Button(enum.Enum):
 class Controller(object):
     """A controller for sending virtual mouse events to the system.
     """
+    def __init__(self):
+        self._log = _logger(self.__class__)
+
     @property
     def position(self):
         """The current position of the mouse pointer.
@@ -246,6 +250,7 @@ class Listener(AbstractListener):
     """
     def __init__(self, on_move=None, on_click=None, on_scroll=None,
                  suppress=False, **kwargs):
+        self._log = _logger(self.__class__)
         prefix = self.__class__.__module__.rsplit('.', 1)[-1][1:] + '_'
         self._options = {
             key[len(prefix):]: value
