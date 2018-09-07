@@ -47,6 +47,9 @@ class AbstractListener(threading.Thread):
         finally:
             listener.stop()
 
+    Actual implementations of this class must set the attribute ``_log``, which
+    must be an instance of :class:`logging.Logger`.
+
     :param bool suppress: Whether to suppress events. Setting this to ``True``
         will prevent the input events from being passed to the rest of the
         system.
@@ -154,6 +157,8 @@ class AbstractListener(threading.Thread):
                 return f(self, *args, **kwargs)
             except Exception as e:
                 if not isinstance(e, self._HANDLED_EXCEPTIONS):
+                    self._log.exception(
+                        'Unhandled exception in listener callback')
                     self._queue.put(
                         None if isinstance(e, cls.StopException)
                         else sys.exc_info())
