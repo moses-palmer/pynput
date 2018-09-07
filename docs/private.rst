@@ -34,17 +34,17 @@ Utility Modules
 Mouse Modules
 -------------
 
-.. automodule:: pynput.mouse.darwin
+.. automodule:: pynput.mouse._darwin
     :members:
     :private-members:
     :special-members:
 
-.. automodule:: pynput.mouse.win32
+.. automodule:: pynput.mouse._win32
     :members:
     :private-members:
     :special-members:
 
-.. automodule:: pynput.mouse.xorg
+.. automodule:: pynput.mouse._xorg
     :members:
     :private-members:
     :special-members:
@@ -53,17 +53,17 @@ Mouse Modules
 Keyboard Modules
 ----------------
 
-.. automodule:: pynput.keyboard.darwin
+.. automodule:: pynput.keyboard._darwin
     :members:
     :private-members:
     :special-members:
 
-.. automodule:: pynput.keyboard.win32
+.. automodule:: pynput.keyboard._win32
     :members:
     :private-members:
     :special-members:
 
-.. automodule:: pynput.keyboard.xorg
+.. automodule:: pynput.keyboard._xorg
     :members:
     :private-members:
     :special-members:
