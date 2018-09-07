@@ -1,8 +1,13 @@
 Release Notes
 =============
 
-v1.4 - Injected event flags end event suppression
--------------------------------------------------
+v1.4.1 - Logging
+----------------
+*  Log unhandled exceptions raised by listener callbacks.
+
+
+v1.4 - Event suppression
+------------------------
 *  Added possibility to fully suppress events when listening.
 *  Added support for typing some control characters.
 *  Added support for mouse drag events on *OSX*. Thanks to *jungledrum*!
