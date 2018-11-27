@@ -247,6 +247,11 @@ class Listener(AbstractListener):
 
             If ``self.suppress_event()`` is called, the event is suppressed
             system wide.
+
+        ``xorg_suppress_selector``
+            The window for which to suppress events when ``suppress`` is set.
+            If this is not specified, events for all windows will be
+            suppressed.
     """
     def __init__(self, on_move=None, on_click=None, on_scroll=None,
                  suppress=False, **kwargs):
