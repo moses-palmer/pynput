@@ -492,6 +492,9 @@ class Listener(ListenerMixin, _base.Listener):
 
     def __init__(self, *args, **kwargs):
         super(Listener, self).__init__(*args, **kwargs)
+        self._suppress_selector = self._options.get(
+            'suppress_selector',
+            None)
         self._keyboard_mapping = None
 
     def _run(self):
@@ -521,7 +524,7 @@ class Listener(ListenerMixin, _base.Listener):
             self.on_release(key)
 
     def _suppress_start(self, display):
-        display.screen().root.grab_keyboard(
+        (self._suppress_selector or display.screen().root).grab_keyboard(
             self._event_mask, Xlib.X.GrabModeAsync, Xlib.X.GrabModeAsync,
             Xlib.X.CurrentTime)
 
