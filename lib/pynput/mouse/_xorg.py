@@ -126,6 +126,9 @@ class Listener(ListenerMixin, _base.Listener):
 
     def __init__(self, *args, **kwargs):
         super(Listener, self).__init__(*args, **kwargs)
+        self._suppress_selector = self._options.get(
+            'suppress_selector',
+            None)
 
     def _handle(self, dummy_display, event):
         px = event.root_x
@@ -150,7 +153,7 @@ class Listener(ListenerMixin, _base.Listener):
 
 
     def _suppress_start(self, display):
-        display.screen().root.grab_pointer(
+        (self._suppress_selector or display.screen().root).grab_pointer(
             True, self._event_mask, Xlib.X.GrabModeAsync, Xlib.X.GrabModeAsync,
             0, 0, Xlib.X.CurrentTime)
 
