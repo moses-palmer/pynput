@@ -42,7 +42,8 @@ from pynput._util.win32 import (
     ListenerMixin,
     SendInput,
     SystemHook,
-    VkKeyScan)
+    VkKeyScan,
+    MapVirtualKey)
 from . import _base
 
 
@@ -56,22 +57,30 @@ class KeyCode(_base.KeyCode):
 
         :rtype: dict
         """
+
+        flags = 0
+
         if self.vk:
             vk = self.vk
-            scan = 0
-            flags = 0
-        else:
-            res = VkKeyScan(self.char)
-            if (res >> 8) & 0xFF == 0:
-                vk = res & 0xFF
-                scan = 0
-                flags = 0
+            scan = MapVirtualKey(vk, 0)
+
+        else :
+
+            virtualCode = VkKeyScan(self.char)
+
+            if (virtualCode >> 8) & 0xFF == 0:
+                vk = virtualCode & 0xFF
+                scan = MapVirtualKey(virtualCode, 0)
+
             else:
                 vk = 0
                 scan = ord(self.char)
                 flags = KEYBDINPUT.UNICODE
+
+        flags = (flags | 0) if is_press else (flags | 0x0002) # cf tagKEYBDINPUT structure, dwFlags parameter from the microsoft doc
+
         return dict(
-            dwFlags=flags | (KEYBDINPUT.KEYUP if not is_press else 0),
+            dwFlags=flags,
             wVk=vk,
             wScan=scan)
 

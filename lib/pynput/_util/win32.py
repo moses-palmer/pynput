@@ -120,6 +120,11 @@ class INPUT(ctypes.Structure):
 
 LPINPUT = ctypes.POINTER(INPUT)
 
+MapVirtualKey = windll.user32.MapVirtualKeyW
+MapVirtualKey.argtypes = (
+    wintypes.UINT,
+    wintypes.UINT)
+
 VkKeyScan = windll.user32.VkKeyScanW
 VkKeyScan.argtypes = (
     wintypes.WCHAR,)
