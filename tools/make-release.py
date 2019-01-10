@@ -160,6 +160,7 @@ def upload_to_pypi():
         os.path.join(ROOT, 'setup.py'),
         'build_sphinx',
         'upload_docs',
+        'sdist',
         'bdist_egg',
         'bdist_wheel',
         'upload')
