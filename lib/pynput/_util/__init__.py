@@ -157,8 +157,9 @@ class AbstractListener(threading.Thread):
                 return f(self, *args, **kwargs)
             except Exception as e:
                 if not isinstance(e, self._HANDLED_EXCEPTIONS):
-                    self._log.exception(
-                        'Unhandled exception in listener callback')
+                    if not isinstance(e, AbstractListener.StopException):
+                        self._log.exception(
+                            'Unhandled exception in listener callback')
                     self._queue.put(
                         None if isinstance(e, cls.StopException)
                         else sys.exc_info())
