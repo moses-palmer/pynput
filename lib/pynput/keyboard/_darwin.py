@@ -240,11 +240,10 @@ class Listener(ListenerMixin, _base.Listener):
             return self._SPECIAL_KEYS[vk]
 
         # ...then try characters...
-        # TODO: Use Quartz.CGEventKeyboardGetUnicodeString instead
-        char = keycode_to_string(
-            self._context, vk, Quartz.CGEventGetFlags(event))
-        if char:
-            return KeyCode.from_char(char, vk=vk)
+        length, chars = Quartz.CGEventKeyboardGetUnicodeString(
+            event, 100, None, None)
+        if length > 0:
+            return KeyCode.from_char(chars, vk=vk)
 
         # ...and fall back on a virtual key code
         return KeyCode.from_vk(vk)
