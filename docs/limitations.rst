@@ -34,6 +34,9 @@ reasons. For that reason, one of the following must be true:
    devices*. Note that this might require that you package your application,
    since otherwise the entire *Python* installation must be white listed.
 
+*  On versions after *Mojave*, you may also need to whitelist your terminal
+   application if running your script from a terminal.
+
 Please note that this does not apply to monitoring of the mouse or trackpad.
 
 
