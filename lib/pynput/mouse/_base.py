@@ -184,6 +184,7 @@ class Listener(AbstractListener):
 
         listener.start()
         try:
+            listener.wait()
             with_statements()
         finally:
             listener.stop()
