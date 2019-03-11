@@ -62,6 +62,13 @@ Use ``pynput.mouse.Listener`` like this::
             on_scroll=on_scroll) as listener:
         listener.join()
 
+    # ...or, in a non-blocking fashion:
+    listener = mouse.Listener(
+        on_move=on_move,
+        on_click=on_click,
+        on_scroll=on_scroll)
+    listener.start()
+
 A mouse listener is a ``threading.Thread``, and all callbacks will be invoked
 from the thread.
 

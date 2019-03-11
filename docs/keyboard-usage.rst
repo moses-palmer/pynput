@@ -55,6 +55,12 @@ Use ``pynput.keyboard.Listener`` like this::
             on_release=on_release) as listener:
         listener.join()
 
+    # ...or, in a non-blocking fashion:
+    listener = mouse.Listener(
+        on_press=on_press,
+        on_release=on_release)
+    listener.start()
+
 A keyboard listener is a ``threading.Thread``, and all callbacks will be
 invoked from the thread.
 
