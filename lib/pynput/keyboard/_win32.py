@@ -133,6 +133,13 @@ class Key(enum.Enum):
     print_screen = KeyCode.from_vk(VK.SNAPSHOT)
     scroll_lock = KeyCode.from_vk(VK.SCROLL)
 
+    media_play_pause = KeyCode.from_vk(VK.MEDIA_PLAY_PAUSE)
+    volume_mute = KeyCode.from_vk(VK.VOLUME_MUTE)
+    volume_down = KeyCode.from_vk(VK.VOLUME_DOWN)
+    volume_up = KeyCode.from_vk(VK.VOLUME_UP)
+    media_next = KeyCode.from_vk(VK.MEDIA_NEXT_TRACK)
+    media_previous = KeyCode.from_vk(VK.MEDIA_PREV_TRACK)
+
 
 class Controller(_base.Controller):
     _KeyCode = KeyCode
