@@ -541,7 +541,7 @@ class Controller(object):
         :return: a key code, or ``None`` if it cannot be resolved
         """
         # Use the value for the key constants
-        if key in self._Key:
+        if key in (k for k in self._Key):
             return key.value
 
         # Convert strings to key codes
