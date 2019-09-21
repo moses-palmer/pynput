@@ -47,8 +47,8 @@ class KeyCode(_base.KeyCode):
 
         :return: a *Quartz* event
         """
-        vk = self.vk or mapping.get(self.char, 0)
-        result = Quartz.CGEventCreateKeyboardEvent(None, vk, is_pressed)
+        vk = self.vk or mapping.get(self.char)
+        result = Quartz.CGEventCreateKeyboardEvent(None, vk or 0, is_pressed)
 
         Quartz.CGEventSetFlags(
             result,
