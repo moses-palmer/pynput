@@ -1,6 +1,13 @@
 Release Notes
 =============
 
+v1.4.4 - Actually corrected keyboard listener on macOS
+------------------------------------------------------
+*  Included commit to correctly fall back on
+   ``CGEventKeyboardGetUnicodeString``.
+*  Corrected deprecation warnings about ``Enum`` usage on *Python 3.8*.
+
+
 v1.4.3 - Corrected keyboard listener on macOS again
 ---------------------------------------------------
 *  Correctly fall back on ``CGEventKeyboardGetUnicodeString``.
