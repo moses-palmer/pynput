@@ -1,8 +1,14 @@
 Release Notes
 =============
 
-v1.4.2 - Corrected keybord listener on macOS
---------------------------------------------
+v1.4.3 - Corrected keyboard listener on macOS again
+---------------------------------------------------
+*  Correctly fall back on ``CGEventKeyboardGetUnicodeString``.
+*  Updated documentation.
+
+
+v1.4.2 - Corrected keyboard listener on macOS
+---------------------------------------------
 *  Use ``CGEventKeyboardGetUnicodeString`` in *macOS* keyboard listener to send
    correct characters.
 *  Include keysym instead of key code in *Xorg* keyboard listener.
