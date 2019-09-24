@@ -56,7 +56,7 @@ Use ``pynput.keyboard.Listener`` like this::
         listener.join()
 
     # ...or, in a non-blocking fashion:
-    listener = mouse.Listener(
+    listener = keyboard.Listener(
         on_press=on_press,
         on_release=on_release)
     listener.start()
@@ -110,3 +110,14 @@ instance::
             listener.join()
         except MyException as e:
             print('{0} was pressed'.format(e.args[0]))
+
+
+Toggling event listening
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Once ``pynput.keyboard.Listener.stop`` has been called, the listener cannot be
+restarted, since listeners are instances of ``threading.Thread``.
+
+If your application requires toggling listening events, you must either add an
+internal flag to ignore events when not required, or create a new listener when
+resuming listening.
