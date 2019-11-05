@@ -137,7 +137,7 @@ class Controller(_base.Controller):
         with self.modifiers as modifiers:
             Quartz.CGEventPost(
                 Quartz.kCGHIDEventTap,
-                (key if key not in Key else key.value)._event(
+                (key if key not in (k for k in Key) else key.value)._event(
                     modifiers, self._mapping, is_press))
 
 
