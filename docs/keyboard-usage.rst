@@ -112,8 +112,8 @@ instance::
             print('{0} was pressed'.format(e.args[0]))
 
 
-Toggling event listening
-~~~~~~~~~~~~~~~~~~~~~~~~
+Toggling event listening for the keyboard listener
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Once ``pynput.keyboard.Listener.stop`` has been called, the listener cannot be
 restarted, since listeners are instances of ``threading.Thread``.

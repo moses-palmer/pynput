@@ -116,8 +116,8 @@ instance::
             print('{0} was clicked'.format(e.args[0]))
 
 
-Toggling event listening
-~~~~~~~~~~~~~~~~~~~~~~~~
+Toggling event listening for the mouse listener
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Once ``pynput.mouse.Listener.stop`` has been called, the listener cannot be
 restarted, since listeners are instances of ``threading.Thread``.
