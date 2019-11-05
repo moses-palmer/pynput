@@ -1,6 +1,12 @@
 Release Notes
 =============
 
+v1.4.5 - Corrected errors on *Python 3.8*
+-----------------------------------------
+*  Corrected errors about using `in` operator for enums on *Python 3.8* on
+   *macOS*.
+
+
 v1.4.4 - Actually corrected keyboard listener on macOS
 ------------------------------------------------------
 *  Included commit to correctly fall back on
