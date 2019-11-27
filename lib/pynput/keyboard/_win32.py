@@ -279,17 +279,13 @@ class Listener(ListenerMixin, _base.Listener):
 
         :raises OSError: if the message and data could not be converted
         """
-        # We must always call self._translate to keep the keyboard state up to
-        # date
-        key = KeyCode(**self._translate(
-            vk,
-            msg in self._PRESS_MESSAGES))
-
         # If the virtual key code corresponds to a Key value, we prefer that
         if vk in self._SPECIAL_KEYS:
             return self._SPECIAL_KEYS[vk]
         else:
-            return key
+            return KeyCode(**self._translate(
+                vk,
+                msg in self._PRESS_MESSAGES))
 
     def _translate(self, vk, is_press):
         """Translates a virtual key code to a parameter list passable to
