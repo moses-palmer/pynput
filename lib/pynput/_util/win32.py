@@ -410,22 +410,12 @@ class ListenerMixin(object):
 class KeyTranslator(object):
     """A class to translate virtual key codes to characters.
     """
-    _AttachThreadInput = ctypes.windll.user32.AttachThreadInput
-    _AttachThreadInput.argtypes = (
-        wintypes.DWORD,
-        wintypes.DWORD,
-        wintypes.BOOL)
-    _GetForegroundWindow = ctypes.windll.user32.GetForegroundWindow
     _GetKeyboardLayout = ctypes.windll.user32.GetKeyboardLayout
     _GetKeyboardLayout.argtypes = (
         wintypes.DWORD,)
     _GetKeyboardState = ctypes.windll.user32.GetKeyboardState
     _GetKeyboardState.argtypes = (
         ctypes.c_voidp,)
-    _GetWindowThreadProcessId = ctypes.windll.user32.GetWindowThreadProcessId
-    _GetWindowThreadProcessId.argtypes = (
-        wintypes.HWND,
-        wintypes.LPDWORD)
     _MapVirtualKeyEx = ctypes.windll.user32.MapVirtualKeyExW
     _MapVirtualKeyEx.argtypes = (
         wintypes.UINT,
