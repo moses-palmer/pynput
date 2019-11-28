@@ -56,6 +56,11 @@ from . import _base
 
 
 class KeyCode(_base.KeyCode):
+    _PLATFORM_EXTENSIONS = (
+            # The symbol named for this key
+            '_symbol',
+    )
+
     @classmethod
     def _from_symbol(cls, symbol, **kwargs):
         """Creates a key from a symbol.
@@ -67,18 +72,21 @@ class KeyCode(_base.KeyCode):
         # First try simple translation
         keysym = Xlib.XK.string_to_keysym(symbol)
         if keysym:
-            return cls.from_vk(keysym, **kwargs)
+            return cls.from_vk(keysym, _symbol=symbol, **kwargs)
 
         # If that fails, try checking a module attribute of Xlib.keysymdef.xkb
         if not keysym:
             # pylint: disable=W0702; we want to ignore errors
             try:
+                symbol = 'XK_' + symbol
                 return cls.from_vk(
-                    getattr(Xlib.keysymdef.xkb, 'XK_' + symbol, 0),
+                    getattr(Xlib.keysymdef.xkb, symbol, 0),
+                    _symbol=symbol,
                     **kwargs)
             except:
                 return cls.from_vk(
                     SYMBOLS.get(symbol, (0,))[0],
+                    _symbol=symbol,
                     **kwargs)
             # pylint: enable=W0702
 
