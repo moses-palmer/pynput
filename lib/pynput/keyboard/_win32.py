@@ -47,6 +47,11 @@ from . import _base
 
 
 class KeyCode(_base.KeyCode):
+    _PLATFORM_EXTENSIONS = (
+            # Any extra flags.
+            '_flags',
+    )
+
     def _parameters(self, is_press):
         """The parameters to pass to ``SendInput`` to generate this key.
 
@@ -70,10 +75,23 @@ class KeyCode(_base.KeyCode):
                 vk = 0
                 scan = ord(self.char)
                 flags = KEYBDINPUT.UNICODE
+        state_flags = (KEYBDINPUT.KEYUP if not is_press else 0)
         return dict(
-            dwFlags=flags | (KEYBDINPUT.KEYUP if not is_press else 0),
+            dwFlags=self.flags | flags | state_flags,
             wVk=vk,
             wScan=scan)
+
+    @classmethod
+    def _from_ext(cls, vk, **kwargs):
+        """Creates an extended key code.
+
+        :param vk: The virtual key code.
+
+        :param kwargs: Any other parameters to pass.
+
+        :return: a key code
+        """
+        return cls.from_vk(vk, _flags=KEYBDINPUT.EXTENDEDKEY, **kwargs)
 
 
 class Key(enum.Enum):
