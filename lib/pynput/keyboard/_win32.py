@@ -47,6 +47,11 @@ from . import _base
 
 
 class KeyCode(_base.KeyCode):
+    _PLATFORM_EXTENSIONS = (
+            # Any extra flags.
+            '_flags',
+    )
+
     def _parameters(self, is_press):
         """The parameters to pass to ``SendInput`` to generate this key.
 
@@ -70,16 +75,29 @@ class KeyCode(_base.KeyCode):
                 vk = 0
                 scan = ord(self.char)
                 flags = KEYBDINPUT.UNICODE
+        state_flags = (KEYBDINPUT.KEYUP if not is_press else 0)
         return dict(
-            dwFlags=flags | (KEYBDINPUT.KEYUP if not is_press else 0),
+            dwFlags=(self._flags or 0) | flags | state_flags,
             wVk=vk,
             wScan=scan)
+
+    @classmethod
+    def _from_ext(cls, vk, **kwargs):
+        """Creates an extended key code.
+
+        :param vk: The virtual key code.
+
+        :param kwargs: Any other parameters to pass.
+
+        :return: a key code
+        """
+        return cls.from_vk(vk, _flags=KEYBDINPUT.EXTENDEDKEY, **kwargs)
 
 
 class Key(enum.Enum):
     alt = KeyCode.from_vk(VK.MENU)
     alt_l = KeyCode.from_vk(VK.LMENU)
-    alt_r = KeyCode.from_vk(VK.RMENU)
+    alt_r = KeyCode._from_ext(VK.RMENU)
     alt_gr = KeyCode.from_vk(VK.RMENU)
     backspace = KeyCode.from_vk(VK.BACK)
     caps_lock = KeyCode.from_vk(VK.CAPITAL)
@@ -88,10 +106,10 @@ class Key(enum.Enum):
     cmd_r = KeyCode.from_vk(VK.RWIN)
     ctrl = KeyCode.from_vk(VK.CONTROL)
     ctrl_l = KeyCode.from_vk(VK.LCONTROL)
-    ctrl_r = KeyCode.from_vk(VK.RCONTROL)
-    delete = KeyCode.from_vk(VK.DELETE)
-    down = KeyCode.from_vk(VK.DOWN)
-    end = KeyCode.from_vk(VK.END)
+    ctrl_r = KeyCode._from_ext(VK.RCONTROL)
+    delete = KeyCode._from_ext(VK.DELETE)
+    down = KeyCode._from_ext(VK.DOWN)
+    end = KeyCode._from_ext(VK.END)
     enter = KeyCode.from_vk(VK.RETURN)
     esc = KeyCode.from_vk(VK.ESCAPE)
     f1 = KeyCode.from_vk(VK.F1)
@@ -114,23 +132,23 @@ class Key(enum.Enum):
     f18 = KeyCode.from_vk(VK.F18)
     f19 = KeyCode.from_vk(VK.F19)
     f20 = KeyCode.from_vk(VK.F20)
-    home = KeyCode.from_vk(VK.HOME)
-    left = KeyCode.from_vk(VK.LEFT)
-    page_down = KeyCode.from_vk(VK.NEXT)
-    page_up = KeyCode.from_vk(VK.PRIOR)
-    right = KeyCode.from_vk(VK.RIGHT)
+    home = KeyCode._from_ext(VK.HOME)
+    left = KeyCode._from_ext(VK.LEFT)
+    page_down = KeyCode._from_ext(VK.NEXT)
+    page_up = KeyCode._from_ext(VK.PRIOR)
+    right = KeyCode._from_ext(VK.RIGHT)
     shift = KeyCode.from_vk(VK.LSHIFT)
     shift_l = KeyCode.from_vk(VK.LSHIFT)
     shift_r = KeyCode.from_vk(VK.RSHIFT)
     space = KeyCode.from_vk(VK.SPACE, char=' ')
     tab = KeyCode.from_vk(VK.TAB)
-    up = KeyCode.from_vk(VK.UP)
+    up = KeyCode._from_ext(VK.UP)
 
-    insert = KeyCode.from_vk(VK.INSERT)
+    insert = KeyCode._from_ext(VK.INSERT)
     menu = KeyCode.from_vk(VK.APPS)
-    num_lock = KeyCode.from_vk(VK.NUMLOCK)
+    num_lock = KeyCode._from_ext(VK.NUMLOCK)
     pause = KeyCode.from_vk(VK.PAUSE)
-    print_screen = KeyCode.from_vk(VK.SNAPSHOT)
+    print_screen = KeyCode._from_ext(VK.SNAPSHOT)
     scroll_lock = KeyCode.from_vk(VK.SCROLL)
 
 
