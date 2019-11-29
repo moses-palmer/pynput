@@ -320,10 +320,10 @@ class ListenerMixin(object):
     :meth:`pynput._util.NotifierMixin._receiver` or implement the method
     ``_receive()``.
     """
-    #: The Windows hook ID for the events to capture
+    #: The Windows hook ID for the events to capture.
     _EVENTS = None
 
-    #: The window message used to signal that an even should be handled
+    #: The window message used to signal that an even should be handled.
     _WM_PROCESS = 0x410
 
     def suppress_event(self):
