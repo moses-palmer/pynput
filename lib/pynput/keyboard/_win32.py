@@ -173,6 +173,7 @@ class Listener(ListenerMixin, _base.Listener):
     #: The Windows hook ID for low level keyboard events, ``WH_KEYBOARD_LL``
     _EVENTS = 13
 
+    _WM_INPUTLANGCHANGE = 0x0051
     _WM_KEYDOWN = 0x0100
     _WM_KEYUP = 0x0101
     _WM_SYSKEYDOWN = 0x0104
@@ -190,6 +191,11 @@ class Listener(ListenerMixin, _base.Listener):
 
     #: The messages that correspond to a key release
     _RELEASE_MESSAGES = (_WM_KEYUP, _WM_SYSKEYUP)
+
+    #: Additional window messages to propagate to the subclass handler.
+    _WM_NOTIFICATIONS = (
+        _WM_INPUTLANGCHANGE,
+    )
 
     #: A mapping from keysym to special key
     _SPECIAL_KEYS = {
@@ -267,6 +273,12 @@ class Listener(ListenerMixin, _base.Listener):
         """
         yield
     # pylint: enable=R0201
+
+    def _on_notification(self, code, wparam, lparam):
+        """Receives ``WM_INPUTLANGCHANGE`` and updates the cached layout.
+        """
+        if code == self._WM_INPUTLANGCHANGE:
+            self._translator.update_layout()
 
     def _event_to_key(self, msg, vk):
         """Converts an :class:`_KBDLLHOOKSTRUCT` to a :class:`KeyCode`.
