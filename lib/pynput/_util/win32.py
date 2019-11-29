@@ -327,6 +327,9 @@ class ListenerMixin(object):
     #: The window message used to signal that an even should be handled.
     _WM_PROCESS = 0x410
 
+    #: Additional window messages to propagate to the subclass handler.
+    _WM_NOTIFICATIONS = []
+
     def suppress_event(self):
         """Causes the currently filtered event to be suppressed.
 
@@ -352,6 +355,9 @@ class ListenerMixin(object):
                             break
                         if msg.message == self._WM_PROCESS:
                             self._process(msg.wParam, msg.lParam)
+                        elif msg.message in self._WM_NOTIFICATIONS:
+                            self._on_notification(
+                                msg.message, msg.wParam, msg.lParam)
             except:
                 # This exception will have been passed to the main thread
                 pass
@@ -404,6 +410,14 @@ class ListenerMixin(object):
         listener was created based on the event.
 
         This method is only called if :meth:`_convert` is not implemented.
+        """
+        raise NotImplementedError()
+
+    def _on_notification(self, code, wparam, lparam):
+        """An additional notification handler.
+
+        This method will be called for every message in
+        :attr:`_WM_NOTIFICATIONS`.
         """
         raise NotImplementedError()
 
