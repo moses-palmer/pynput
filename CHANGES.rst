@@ -1,6 +1,18 @@
 Release Notes
 =============
 
+v1.5.0 - Various improvements
+-----------------------------
+*  Corrected keyboard listener on *Windows*. Thanks to *akiratakasaki*,
+   *segalion*, *SpecialCharacter*!
+*  Corrected handling of some special keys, including arrow keys, when combined
+   with modifiers on *Windows*. Thanks to *david-szarka*!
+*  Updated documentation to include information about DPI scaling on *Windows*.
+   Thanks to *david-szarka*!
+*  Added experimental support for media keys. Thanks to *ShivamJoker*,
+   *StormTersteeg*!
+
+
 v1.4.5 - Corrected errors on *Python 3.8*
 -----------------------------------------
 *  Corrected errors about using `in` operator for enums on *Python 3.8* on
