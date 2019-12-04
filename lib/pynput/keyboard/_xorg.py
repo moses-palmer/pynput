@@ -90,6 +90,17 @@ class KeyCode(_base.KeyCode):
                     **kwargs)
             # pylint: enable=W0702
 
+    @classmethod
+    def _from_media(cls, name, **kwargs):
+        """Creates a media key from a partial name.
+
+        :param str name: The name. The actual symbol name will be this string
+            with ``'XF86Audio'`` prepended.
+
+        :return: a key code
+        """
+        return cls._from_symbol('XF86Audio' + name, is_media=True, **kwargs)
+
 
 class Key(enum.Enum):
     # Default keys
@@ -141,6 +152,13 @@ class Key(enum.Enum):
     space = KeyCode._from_symbol('space', char=' ')
     tab = KeyCode._from_symbol('Tab')
     up = KeyCode._from_symbol('Up')
+
+    media_play_pause = KeyCode._from_media('Play')
+    media_volume_mute = KeyCode._from_media('Mute')
+    media_volume_down = KeyCode._from_media('LowerVolume')
+    media_volume_up = KeyCode._from_media('RaiseVolume')
+    media_previous = KeyCode._from_media('Prev')
+    media_next = KeyCode._from_media('Next')
 
     insert = KeyCode._from_symbol('Insert')
     menu = KeyCode._from_symbol('Menu')

@@ -273,6 +273,24 @@ class Key(enum.Enum):
     #: An up arrow key.
     up = 0
 
+    #: The play/pause toggle.
+    media_play_pause = 0
+
+    #: The volume mute button.
+    media_volume_mute = 0
+
+    #: The volume down button.
+    media_volume_down = 0
+
+    #: The volume up button.
+    media_volume_up = 0
+
+    #: The previous track button.
+    media_previous = 0
+
+    #: The next track button.
+    media_next = 0
+
     #: The Insert key. This may be undefined for some platforms.
     insert = 0
 

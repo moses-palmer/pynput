@@ -144,6 +144,13 @@ class Key(enum.Enum):
     tab = KeyCode.from_vk(VK.TAB)
     up = KeyCode._from_ext(VK.UP)
 
+    media_play_pause = KeyCode._from_ext(VK.MEDIA_PLAY_PAUSE)
+    media_volume_mute = KeyCode._from_ext(VK.VOLUME_MUTE)
+    media_volume_down = KeyCode._from_ext(VK.VOLUME_DOWN)
+    media_volume_up = KeyCode._from_ext(VK.VOLUME_UP)
+    media_previous = KeyCode._from_ext(VK.MEDIA_PREV_TRACK)
+    media_next = KeyCode._from_ext(VK.MEDIA_NEXT_TRACK)
+
     insert = KeyCode._from_ext(VK.INSERT)
     menu = KeyCode.from_vk(VK.APPS)
     num_lock = KeyCode._from_ext(VK.NUMLOCK)

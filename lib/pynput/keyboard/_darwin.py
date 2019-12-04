@@ -35,7 +35,24 @@ from pynput._util.darwin import (
 from . import _base
 
 
+# From NSEvent.h
+NSSystemDefined = 14
+
+# From hidsystem/ev_keymap.h
+NX_KEYTYPE_PLAY = 16
+NX_KEYTYPE_MUTE = 7
+NX_KEYTYPE_SOUND_DOWN = 1
+NX_KEYTYPE_SOUND_UP = 0
+NX_KEYTYPE_NEXT = 17
+NX_KEYTYPE_PREVIOUS = 18
+
+
 class KeyCode(_base.KeyCode):
+    _PLATFORM_EXTENSIONS = (
+            # Whether this is a media key
+            '_media',
+    )
+
     def _event(self, modifiers, mapping, is_pressed):
         """This key as a *Quartz* event.
 
@@ -48,7 +65,29 @@ class KeyCode(_base.KeyCode):
         :return: a *Quartz* event
         """
         vk = self.vk or mapping.get(self.char)
-        result = Quartz.CGEventCreateKeyboardEvent(
+        if self._is_media:
+            result = getattr(
+                    Quartz.NSEvent,
+                    'otherEventWithType_'
+                    'location_'
+                    'modifierFlags_'
+                    'timestamp_'
+                    'windowNumber_'
+                    'context_'
+                    'subtype_'
+                    'data1_'
+                    'data2_')(
+                NSSystemDefined,
+                (0, 0),
+                0xa00 if is_pressed else 0xb00,
+                0,
+                0,
+                0,
+                8,
+                (self.vk << 16) | ((0xa if is_pressed else 0xb) << 8),
+                -1)
+        else:
+            result = Quartz.CGEventCreateKeyboardEvent(
                 None, 0 if vk is None else vk, is_pressed)
 
         Quartz.CGEventSetFlags(
@@ -123,6 +162,13 @@ class Key(enum.Enum):
     space = KeyCode.from_vk(0x31, char=' ')
     tab = KeyCode.from_vk(0x30)
     up = KeyCode.from_vk(0x7E)
+
+    media_play_pause = KeyCode.from_vk(NX_KEYTYPE_PLAY, is_media=True)
+    media_volume_mute = KeyCode.from_vk(NX_KEYTYPE_MUTE, is_media=True)
+    media_volume_down = KeyCode.from_vk(NX_KEYTYPE_SOUND_DOWN, is_media=True)
+    media_volume_up = KeyCode.from_vk(NX_KEYTYPE_SOUND_UP, is_media=True)
+    media_previous = KeyCode.from_vk(NX_KEYTYPE_PREVIOUS, is_media=True)
+    media_next = KeyCode.from_vk(NX_KEYTYPE_NEXT, is_media=True)
 
 
 class Controller(_base.Controller):
