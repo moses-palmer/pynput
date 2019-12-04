@@ -6,7 +6,7 @@ v1.5.0 - Various improvements
 *  Corrected keyboard listener on *Windows*. Thanks to *akiratakasaki*,
    *segalion*, *SpecialCharacter*!
 *  Corrected handling of some special keys, including arrow keys, when combined
-   with modifiers on *Windows*. Thanks to *david-szarka*!
+   with modifiers on *Windows*. Thanks to *tuessetr*!
 *  Updated documentation to include information about DPI scaling on *Windows*.
    Thanks to *david-szarka*!
 *  Added experimental support for media keys. Thanks to *ShivamJoker*,
