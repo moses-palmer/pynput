@@ -26,6 +26,7 @@ Utility functions and classes for the *win32* backend.
 
 import contextlib
 import ctypes
+import itertools
 import threading
 
 from ctypes import (
@@ -34,7 +35,7 @@ from ctypes import (
 
 import six
 
-from . import AbstractListener
+from . import AbstractListener, win32_vks as VK
 
 
 # LPDWORD is not in ctypes.wintypes on Python 2
@@ -320,11 +321,14 @@ class ListenerMixin(object):
     :meth:`pynput._util.NotifierMixin._receiver` or implement the method
     ``_receive()``.
     """
-    #: The Windows hook ID for the events to capture
+    #: The Windows hook ID for the events to capture.
     _EVENTS = None
 
-    #: The window message used to signal that an even should be handled
+    #: The window message used to signal that an even should be handled.
     _WM_PROCESS = 0x410
+
+    #: Additional window messages to propagate to the subclass handler.
+    _WM_NOTIFICATIONS = []
 
     def suppress_event(self):
         """Causes the currently filtered event to be suppressed.
@@ -351,6 +355,9 @@ class ListenerMixin(object):
                             break
                         if msg.message == self._WM_PROCESS:
                             self._process(msg.wParam, msg.lParam)
+                        elif msg.message in self._WM_NOTIFICATIONS:
+                            self._on_notification(
+                                msg.message, msg.wParam, msg.lParam)
             except:
                 # This exception will have been passed to the main thread
                 pass
@@ -406,26 +413,30 @@ class ListenerMixin(object):
         """
         raise NotImplementedError()
 
+    def _on_notification(self, code, wparam, lparam):
+        """An additional notification handler.
+
+        This method will be called for every message in
+        :attr:`_WM_NOTIFICATIONS`.
+        """
+        raise NotImplementedError()
+
 
 class KeyTranslator(object):
     """A class to translate virtual key codes to characters.
     """
-    _AttachThreadInput = ctypes.windll.user32.AttachThreadInput
-    _AttachThreadInput.argtypes = (
-        wintypes.DWORD,
-        wintypes.DWORD,
-        wintypes.BOOL)
-    _GetForegroundWindow = ctypes.windll.user32.GetForegroundWindow
+    _GetAsyncKeyState = ctypes.windll.user32.GetAsyncKeyState
+    _GetAsyncKeyState.argtypes = (
+        ctypes.c_int,)
     _GetKeyboardLayout = ctypes.windll.user32.GetKeyboardLayout
     _GetKeyboardLayout.argtypes = (
         wintypes.DWORD,)
     _GetKeyboardState = ctypes.windll.user32.GetKeyboardState
     _GetKeyboardState.argtypes = (
         ctypes.c_voidp,)
-    _GetWindowThreadProcessId = ctypes.windll.user32.GetWindowThreadProcessId
-    _GetWindowThreadProcessId.argtypes = (
-        wintypes.HWND,
-        wintypes.LPDWORD)
+    _GetKeyState = ctypes.windll.user32.GetAsyncKeyState
+    _GetKeyState.argtypes = (
+        ctypes.c_int,)
     _MapVirtualKeyEx = ctypes.windll.user32.MapVirtualKeyExW
     _MapVirtualKeyEx.argtypes = (
         wintypes.UINT,
@@ -442,97 +453,92 @@ class KeyTranslator(object):
         wintypes.HKL)
 
     _MAPVK_VK_TO_VSC = 0
+    _MAPVK_VSC_TO_VK = 1
     _MAPVK_VK_TO_CHAR = 2
 
     def __init__(self):
-        self.__state = (ctypes.c_ubyte * 255)()
-        self._cache = {}
-        self._reinject_arguments = None
+        self.update_layout()
 
     def __call__(self, vk, is_press):
         """Converts a virtual key code to a string.
 
         :param int vk: The virtual key code.
 
-        :param bool is_press: Whether this is a press. Because the *win32*
-            functions used to translate the key modifies internal kernel state,
-            some cleanup must be performed for key presses.
+        :param bool is_press: Whether this is a press.
 
         :return: parameters suitable for the :class:`pynput.keyboard.KeyCode`
             constructor
 
         :raises OSError: if a call to any *win32* function fails
         """
-        # Get the keyboard state and layout
-        state, layout = self._get_state_and_layout()
-
-        # Get the scan code for the virtual key
-        scan = self._to_scan(vk, layout)
-
-        # Try to reuse the previous key in the cache
-        try:
-            if is_press:
-                return self._cache[vk]
-            else:
-                return self._cache.pop(vk)
-        except KeyError:
-            pass
-
         # Get a string representation of the key
-        char, is_dead = self._to_char(vk, layout)
-        modified_char = self._to_char_with_modifiers(vk, layout, scan, state)
+        layout_data = self._layout_data[self._modifier_state()]
+        character, is_dead = layout_data[self._to_scan(vk, self._layout)]
 
-        # Clear the keyboard state if the key was a dead key
-        if is_dead:
-            self._reset_state(vk, layout, scan)
-
-        # If the previous key handled was a dead key, we reinject it
-        if self._reinject_arguments:
-            self._reinject(*self._reinject_arguments)
-            self._reinject_arguments = None
-
-        # If the current key is a dead key, we store the current state to be
-        # able to reinject later
-        elif is_dead:
-            self._reinject_arguments = (
-                vk,
-                layout,
-                scan,
-                (ctypes.c_ubyte * 255)(*state))
-
-        # Otherwise we just clear any previous dead key state
-        else:
-            self._reinject_arguments = None
-
-        # Update the cache
-        self._cache[vk] = {
-            'char': modified_char or char,
+        return {
+            'char': character,
             'is_dead': is_dead,
             'vk': vk}
 
-        return self._cache[vk]
-
-    def _get_state_and_layout(self):
-        """Returns the keyboard state and layout.
-
-        The state is read from the currently active window if possible. It is
-        kept in a cache, so any call to this method will invalidate return
-        values from previous invocations.
-
-        :return: the tuple ``(state, layout)``
+    def update_layout(self):
+        """Updates the cached layout data.
         """
-        # Get the state of the keyboard attached to the active window
+        self._layout, self._layout_data = self._generate_layout()
+
+    def _generate_layout(self):
+        """Generates the keyboard layout.
+
+        This method will call ``ToUnicodeEx``, which modifies kernel buffers,
+        so it must *not* be called from the keyboard hook.
+
+        The return value is the tuple ``(layout_handle, layout_data)``, where
+        ``layout_data`` is a mapping from the tuple ``(shift, ctrl, alt)`` to
+        an array indexed by scan code containing the data
+        ``(character, is_dead)``, and ``layout_handle`` is the handle of the
+        layout.
+
+        :return: a composite layout
+        """
+        layout_data = {}
+
+        state = (ctypes.c_ubyte * 255)()
         with self._thread_input() as active_thread:
-            if not self._GetKeyboardState(ctypes.byref(self.__state)):
-                raise OSError(
-                    'GetKeyboardState failed: %d',
-                    ctypes.wintypes.get_last_error())
+            layout = self._GetKeyboardLayout(active_thread)
+        vks = [
+            self._to_vk(scan, layout)
+            for scan in range(len(state))]
 
-        # Get the keyboard layout for the thread for which we retrieved the
-        # state
-        layout = self._GetKeyboardLayout(active_thread)
+        for shift, ctrl, alt in itertools.product(
+                (False, True), (False, True), (False, True)):
+            current = [(None, False)] * len(state)
+            layout_data[(shift, ctrl, alt)] = current
 
-        return (self.__state, layout)
+            # Update the keyboard state based on the modifier state
+            state[VK.SHIFT] = 0x80 if shift else 0x00
+            state[VK.CONTROL] = 0x80 if ctrl else 0x00
+            state[VK.MENU] = 0x80 if alt else 0x00
+
+            # For each virtual key code...
+            out = (ctypes.wintypes.WCHAR * 5)()
+            for (scan, vk) in enumerate(vks):
+                # ...translate it to a unicode character
+                count = self._ToUnicodeEx(
+                    vk, scan, ctypes.byref(state), ctypes.byref(out),
+                    len(out), 0, layout)
+
+                # Cache the result if a key is mapped
+                if count != 0:
+                    character = out[0]
+                    is_dead = count < 0
+                    current[scan] = (character, is_dead)
+
+                    # If the key is dead, flush the keyboard state
+                    if is_dead:
+                        self._ToUnicodeEx(
+                            VK.DECIMAL, vks[VK.DECIMAL], ctypes.byref(state),
+                            ctypes.byref(out), len(out), 0, layout)
+
+        return (layout, layout_data)
 
     def _to_scan(self, vk, layout):
         """Retrieves the scan code for a virtual key code.
@@ -546,93 +552,28 @@ class KeyTranslator(object):
         return self._MapVirtualKeyEx(
             vk, self._MAPVK_VK_TO_VSC, layout)
 
-    def _to_char(self, vk, layout):
-        """Converts a virtual key by simply mapping it through the keyboard
-        layout.
+    def _to_vk(self, scan, layout):
+        """Retrieves the virtual key code for a scan code.
 
-        This method is stateless, so any active shift state or dead keys are
-        ignored.
-
-        :param int vk: The virtual key code.
+        :param int vscan: The scan code.
 
         :param layout: The keyboard layout.
 
-        :return: the string representation of the key, or ``None``, and whether
-            was dead as the tuple ``(char, is_dead)``
+        :return: the virtual key code
         """
-        # MapVirtualKeyEx will yield a string representation for dead keys
-        flags_and_codepoint = self._MapVirtualKeyEx(
-            vk, self._MAPVK_VK_TO_CHAR, layout)
-        if flags_and_codepoint:
-            return (
-                six.unichr(flags_and_codepoint & 0xFFFF),
-                bool(flags_and_codepoint & (1 << 31)))
-        else:
-            return (None, None)
+        return self._MapVirtualKeyEx(
+            scan, self._MAPVK_VSC_TO_VK, layout)
 
-    def _to_char_with_modifiers(self, vk, layout, scan, state):
-        """Converts a virtual key by mapping it through the keyboard layout and
-        internal kernel keyboard state.
+    def _modifier_state(self):
+        """Returns a key into :attr:`_layout_data` for the current modifier
+        state.
 
-        This method is stateful, so any active shift state and dead keys are
-        applied. Currently active dead keys will be removed from the internal
-        kernel keyboard state.
-
-        :param int vk: The virtual key code.
-
-        :param layout: The keyboard layout.
-
-        :param int scan: The scan code of the key.
-
-        :param state: The keyboard state.
-
-        :return: the string representation of the key, or ``None``
+        :return: the current modifier state
         """
-        # This will apply any dead keys and modify the internal kernel keyboard
-        # state
-        out = (ctypes.wintypes.WCHAR * 5)()
-        count = self._ToUnicodeEx(
-            vk, scan, ctypes.byref(state), ctypes.byref(out),
-            len(out), 0, layout)
-
-        return out[0] if count > 0 else None
-
-    def _reset_state(self, vk, layout, scan):
-        """Clears the internal kernel keyboard state.
-
-        This method will remove all dead keys from the internal state.
-
-        :param int vk: The virtual key code.
-
-        :param layout: The keyboard layout.
-
-        :param int scan: The scan code of the key.
-        """
-        state = (ctypes.c_byte * 255)()
-        out = (ctypes.wintypes.WCHAR * 5)()
-        while self._ToUnicodeEx(
-                vk, scan, ctypes.byref(state), ctypes.byref(out),
-                len(out), 0, layout) < 0:
-            pass
-
-    def _reinject(self, vk, layout, scan, state):
-        """Reinjects the previous dead key.
-
-        This must be called if ``ToUnicodeEx`` has been called, and the
-        previous key was a dead one.
-
-        :param int vk: The virtual key code.
-
-        :param layout: The keyboard layout.
-
-        :param int scan: The scan code of the key.
-
-        :param state: The keyboard state.
-        """
-        out = (ctypes.wintypes.WCHAR * 5)()
-        self._ToUnicodeEx(
-            vk, scan, ctypes.byref(state), ctypes.byref(out),
-            len(out), 0, layout)
+        shift = bool(self._GetAsyncKeyState(VK.SHIFT))
+        ctrl = bool(self._GetAsyncKeyState(VK.CONTROL))
+        alt = bool(self._GetAsyncKeyState(VK.MENU))
+        return (shift, ctrl, alt)
 
     @contextlib.contextmanager
     def _thread_input(self):
