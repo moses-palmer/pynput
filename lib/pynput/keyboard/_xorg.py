@@ -99,7 +99,7 @@ class KeyCode(_base.KeyCode):
 
         :return: a key code
         """
-        return cls._from_symbol('XF86Audio' + name, is_media=True, **kwargs)
+        return cls._from_symbol('XF86Audio' + name, **kwargs)
 
 
 class Key(enum.Enum):
