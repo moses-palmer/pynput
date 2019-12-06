@@ -50,7 +50,7 @@ NX_KEYTYPE_PREVIOUS = 18
 class KeyCode(_base.KeyCode):
     _PLATFORM_EXTENSIONS = (
             # Whether this is a media key
-            '_media',
+            '_is_media',
     )
 
     def _event(self, modifiers, mapping, is_pressed):
@@ -163,12 +163,12 @@ class Key(enum.Enum):
     tab = KeyCode.from_vk(0x30)
     up = KeyCode.from_vk(0x7E)
 
-    media_play_pause = KeyCode.from_vk(NX_KEYTYPE_PLAY, is_media=True)
-    media_volume_mute = KeyCode.from_vk(NX_KEYTYPE_MUTE, is_media=True)
-    media_volume_down = KeyCode.from_vk(NX_KEYTYPE_SOUND_DOWN, is_media=True)
-    media_volume_up = KeyCode.from_vk(NX_KEYTYPE_SOUND_UP, is_media=True)
-    media_previous = KeyCode.from_vk(NX_KEYTYPE_PREVIOUS, is_media=True)
-    media_next = KeyCode.from_vk(NX_KEYTYPE_NEXT, is_media=True)
+    media_play_pause = KeyCode.from_vk(NX_KEYTYPE_PLAY, _is_media=True)
+    media_volume_mute = KeyCode.from_vk(NX_KEYTYPE_MUTE, _is_media=True)
+    media_volume_down = KeyCode.from_vk(NX_KEYTYPE_SOUND_DOWN, _is_media=True)
+    media_volume_up = KeyCode.from_vk(NX_KEYTYPE_SOUND_UP, _is_media=True)
+    media_previous = KeyCode.from_vk(NX_KEYTYPE_PREVIOUS, _is_media=True)
+    media_next = KeyCode.from_vk(NX_KEYTYPE_NEXT, _is_media=True)
 
 
 class Controller(_base.Controller):
