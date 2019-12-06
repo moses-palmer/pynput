@@ -1,6 +1,11 @@
 Release Notes
 =============
 
+v1.5.1 - Corrected media key names for *macOS*
+----------------------------------------------
+*  Corrected attribute names for media keys on *macOS*. Thanks to *ah3243*!
+
+
 v1.5.0 - Various improvements
 -----------------------------
 *  Corrected keyboard listener on *Windows*. Thanks to *akiratakasaki*,
