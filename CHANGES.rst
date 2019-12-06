@@ -1,6 +1,11 @@
 Release Notes
 =============
 
+v1.5.2 - Corrected media key names for *Xorg*
+----------------------------------------------
+*  Removed media flag from *Xorg* keys.
+
+
 v1.5.1 - Corrected media key names for *macOS*
 ----------------------------------------------
 *  Corrected attribute names for media keys on *macOS*. Thanks to *ah3243*!
