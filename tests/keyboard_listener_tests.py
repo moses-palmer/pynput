@@ -1,6 +1,6 @@
 # coding=utf-8
 # pystray
-# Copyright (C) 2015-2018 Moses Palmér
+# Copyright (C) 2015-2019 Moses Palmér
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -265,3 +265,27 @@ class KeyboardListenerTest(EventTest):
                 darwin_test=False,
                 win32_test=False,
                 xorg_test=True)._options['test'])
+
+    def test_events(self):
+        """Tests that events are correctly yielded"""
+        from pynput.keyboard import Key, KeyCode, Events
+        self.notify('Press a, b, a, <esc>')
+
+        with Events() as events:
+            result = []
+            for event in events:
+                if event.key == Key.esc:
+                    break
+                else:
+                    result.append(event)
+
+        self.assertSequenceEqual(
+            result,
+            [
+                Events.Press(KeyCode.from_char('a')),
+                Events.Release(KeyCode.from_char('a')),
+                Events.Press(KeyCode.from_char('b')),
+                Events.Release(KeyCode.from_char('b')),
+                Events.Press(KeyCode.from_char('a')),
+                Events.Release(KeyCode.from_char('a')),
+            ])

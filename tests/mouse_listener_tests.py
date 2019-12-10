@@ -1,6 +1,6 @@
 # coding=utf-8
 # pystray
-# Copyright (C) 2015-2018 Moses Palmér
+# Copyright (C) 2015-2019 Moses Palmér
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -168,3 +168,29 @@ class MouseListenerTest(EventTest):
                 darwin_test=False,
                 win32_test=False,
                 xorg_test=True)._options['test'])
+
+    def test_events(self):
+        """Tests that events are correctly yielded"""
+        from pynput.mouse import Button, Events
+        with Events() as events:
+            self.notify('Move the mouse')
+            for event in events:
+                if isinstance(event, Events.Move):
+                    break
+
+            self.notify('Press the left mouse button')
+            for event in events:
+                if isinstance(event, Events.Click) \
+                        and event.button == Button.left:
+                    break
+
+            self.notify('Press the right mouse button')
+            for event in events:
+                if isinstance(event, Events.Click) \
+                        and event.button == Button.right:
+                    break
+
+            self.notify('Scroll the mouse')
+            for event in events:
+                if isinstance(event, Events.Scroll):
+                    break
