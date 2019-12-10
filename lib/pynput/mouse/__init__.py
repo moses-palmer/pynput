@@ -33,6 +33,8 @@ else:
     Controller = None
     Listener = None
 
+from pynput._util import Events
+
 
 if sys.platform == 'darwin':
     if not Button and not Controller and not Listener:
@@ -54,3 +56,68 @@ else:
 
 if not Button or not Controller or not Listener:
     raise ImportError('this platform is not supported')
+
+
+class Events(Events):
+    """A mouse event listener supporting synchronous iteration over the events.
+
+    Possible events are:
+
+    :class:`Events.Move`
+        The mouse was moved.
+
+    :class:`Events.Click`
+        A mouse button was pressed or released.
+
+    :class:`Events.Scroll`
+        The device was scrolled.
+    """
+    _Listener = Listener
+
+    class Move(Events.Event):
+        """A move event.
+        """
+        def __init__(self, x, y):
+            #: The X screen coordinate.
+            self.x = x
+
+            #: The Y screen coordinate.
+            self.y = y
+
+    class Click(Events.Event):
+        """A click event.
+        """
+        def __init__(self, x, y, button, pressed):
+            #: The X screen coordinate.
+            self.x = x
+
+            #: The Y screen coordinate.
+            self.y = y
+
+            #: The button.
+            self.button = button
+
+            #: Whether the button was pressed.
+            self.pressed = pressed
+
+    class Scroll(Events.Event):
+        """A scoll event.
+        """
+        def __init__(self, x, y, dx, dy):
+            #: The X screen coordinate.
+            self.x = x
+
+            #: The Y screen coordinate.
+            self.y = y
+
+            #: The number of horisontal steps.
+            self.dx = dx
+
+            #: The number of vertical steps.
+            self.dy = dy
+
+    def __init__(self):
+        super(Events, self).__init__(
+            on_move=self.Move,
+            on_click=self.Click,
+            on_scroll=self.Scroll)
