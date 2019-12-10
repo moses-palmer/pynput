@@ -21,7 +21,16 @@ import sys
 import threading
 import unittest
 
-from pynput.keyboard import HotKey, Key as k, KeyCode as kc
+from six.moves import queue
+
+from pynput.keyboard import (
+    GlobalHotKeys,
+    HotKey,
+    Key as k,
+    KeyCode as kc,
+)
+
+from . import notify
 
 
 class KeyboardHotKeyTest(unittest.TestCase):
@@ -126,3 +135,19 @@ class KeyboardHotKeyTest(unittest.TestCase):
         hk.release(kc.from_char('a'))
         hk.press(kc.from_char('a'))
         self.assertEqual(3, len(activations))
+
+    def test_hostkeys(self):
+        q = queue.Queue()
+
+        with GlobalHotKeys({
+                '<ctrl>+<shift>+a': lambda: q.put('a'),
+                '<ctrl>+<shift>+b': lambda: q.put('b'),
+                '<ctrl>+<shift>+c': lambda: q.put('c')}):
+            notify('Press <ctrl>+<shift>+a')
+            self.assertEqual('a', q.get())
+
+            notify('Press <ctrl>+<shift>+b')
+            self.assertEqual('b', q.get())
+
+            notify('Press <ctrl>+<shift>+c')
+            self.assertEqual('c', q.get())
