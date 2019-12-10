@@ -160,3 +160,56 @@ so it will wait for at least one keyboard event.
 
 The events will be instances of the inner classes found in
 ``pynput.keyboard.Events``.
+
+
+Global hotkeys
+~~~~~~~~~~~~~~
+
+A common use case for keyboard monitors is reacting to global hotkeys. Since a
+listener does not maintain any state, hotkeys involving multiple keys must
+store this state somewhere.
+
+*pynput* provides the class ``pynput.keyboard.HotKey`` for this purpose. It
+contains two methods to update the state, designed to be easily interoperable
+with a keyboard listener: ``pynput.keyboard.HotKey.press`` and
+``pynput.keyboard.HotKey.release`` which can be directly passed as listener
+callbacks.
+
+The intended usage is as follows::
+
+    from pynput import keyboard
+
+    def on_activate():
+        print('Global hotkey activated!')
+
+    hotkey = keyboard.HotKey(
+        keyboard.HotKey.parse('<ctrl>+<alt>+h'),
+        on_activate)
+    with keyboard.Listener(
+            on_press=hotkey.press,
+            on_release=hotkey.release) as l:
+        l.join()
+
+This will create a hotkey, and then use a listener to update its state. Once
+all the specified keys are pressed simultaneously, ``on_activate`` will be
+invoked.
+
+The method ``pynput.keyboard.HotKey.parse`` is a convenience function to
+transform shortcut strings to key collections. Please see its documentation for
+more information.
+
+To register a number of global hotkeys, use the convenience class
+``pynput.keyboard.GlobalHotKeys``::
+
+    from pynput import keyboard
+
+    def on_activate_h():
+        print('<ctrl>+<alt>+h pressed')
+
+    def on_activate_i():
+        print('<ctrl>+<alt>+i pressed')
+
+    with keyboard.GlobalHotKeys({
+            '<ctrl>+<alt>+h': on_activate_h,
+            '<ctrl>+<alt>+i': on_activate_i}) as h:
+        h.join()

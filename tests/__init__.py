@@ -41,6 +41,45 @@ def _backend(name, f):
     return f if name == BACKEND else None
 
 
+def notify(message, delay=None, columns=50):
+    """Prints a notification on screen.
+
+    :param str message: The message to display.
+
+    :param delay: An optional delay, in seconds, before returning from this
+        function
+    :type delay: float or None
+
+    :param int columns: The number of columns for the notification.
+    """
+    # The maximum length of a message line; we need four columns for the
+    # frame
+    max_length = columns - 4
+
+    # Split the message into lines containing at most max_length characters
+    lines = []
+    for line in message.splitlines():
+        if lines:
+            lines.append('')
+        for word in line.split():
+            if not lines or not lines[-1] \
+                    or len(lines[-1]) + 1 + len(word) > max_length:
+                lines.append(word)
+            else:
+                lines[-1] += ' ' + word
+
+    # Print the message
+    print('')
+    print('+' + '=' * (columns - 2) + '+')
+    for line in lines:
+        print(('| {:<%ds} |' % max_length).format(line))
+    print('+' + '-' * (columns - 2) + '+')
+
+    if delay:
+        time.sleep(delay)
+
+
+
 #: A decorator to make a test run only on Mac OSX
 darwin = functools.partial(_backend, 'darwin')
 
@@ -91,41 +130,7 @@ class EventTest(unittest.TestCase):
 
     @classmethod
     def notify(self, message, delay=None, columns=50):
-        """Prints a notification on screen.
-
-        :param str message: The message to display.
-
-        :param delay: An optional delay, in seconds, before returning from this
-            function
-        :type delay: float or None
-
-        :param int columns: The number of columns for the notification.
-        """
-        # The maximum length of a message line; we need four columns for the
-        # frame
-        max_length = columns - 4
-
-        # Split the message into lines containing at most max_length characters
-        lines = []
-        for line in message.splitlines():
-            if lines:
-                lines.append('')
-            for word in line.split():
-                if not lines or not lines[-1] \
-                        or len(lines[-1]) + 1 + len(word) > max_length:
-                    lines.append(word)
-                else:
-                    lines[-1] += ' ' + word
-
-        # Print the message
-        print('')
-        print('+' + '=' * (columns - 2) + '+')
-        for line in lines:
-            print(('| {:<%ds} |' % max_length).format(line))
-        print('+' + '-' * (columns - 2) + '+')
-
-        if delay:
-            time.sleep(delay)
+        notify(message, delay, columns)
 
     def listener(self, *args, **kwargs):
         """Creates a listener.
