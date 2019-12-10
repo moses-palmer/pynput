@@ -91,3 +91,113 @@ class Events(Events):
         super(Events, self).__init__(
             on_press=self.Press,
             on_release=self.Release)
+
+
+class HotKey(object):
+    """A combination of keys acting as a hotkey.
+
+    This class acts as a container of hotkey state for a keyboard listener.
+
+    :param set keys: The collection of keys that must be pressed for this
+        hotkey to activate. Please note that a common limitation of the
+        hardware is that at most three simultaneously pressed keys are
+        supported, so using more keys may not work.
+
+    :param callable on_activate: The activation callback.
+    """
+    def __init__(self, keys, on_activate):
+        self._state = set()
+        self._keys = {self._normalize(key) for key in keys}
+        self._on_activate = on_activate
+
+    @staticmethod
+    def parse(keys):
+        """Parses a key combination string.
+
+        Key combination strings are sequences of key identifiers separated by
+        ``'+'``. Key identifiers are either single characters representing a
+        keyboard key, such as ``'a'``, or special key names identified by names
+        enclosed by brackets, such as ``'<ctrl>'``.
+
+        Keyboard keys are case-insensitive.
+
+        :raises ValueError: if a part of the keys string is invalid, or if it
+            contains multiple equal parts
+        """
+        def parts():
+            start = 0
+            for i, c in enumerate(keys):
+                if c == '+' and i != start:
+                    yield keys[start:i]
+                    start = i + 1
+            if start == len(keys):
+                raise ValueError(keys)
+            else:
+                yield keys[start:]
+
+        def parse(s):
+            if len(s) == 1:
+                return KeyCode.from_char(s.upper())
+            elif len(s) > 2 and (s[0], s[-1]) == ('<', '>'):
+                try:
+                    return Key[s[1:-1].lower()]
+                except KeyError:
+                    raise ValueError(s)
+            else:
+                raise ValueError(s)
+
+        # Split the string and parse the individual parts
+        raw_parts = list(parts())
+        parsed_parts = {
+            parse(s)
+            for s in raw_parts}
+
+        # Ensure no duplicate parts
+        if len(raw_parts) != len(parsed_parts):
+            raise ValueError(keys)
+        else:
+            return parsed_parts
+
+
+    def press(self, key):
+        """Updates the hotkey state for a pressed key.
+
+        If the key is not currently pressed, but is the last key for the full
+        combination, the activation callback will be invoked.
+
+        Please note that the callback will only be invoked once.
+
+        :param key: The key being pressed.
+        :type key: Key or KeyCode
+        """
+        key = self._normalize(key)
+
+        if key in self._keys and key not in self._state:
+            self._state.add(key)
+            if self._state == self._keys:
+                self._on_activate()
+
+    def release(self, key):
+        """Updates the hotkey state for a released key.
+
+        :param key: The key being released.
+        :type key: Key or KeyCode
+        """
+        key = self._normalize(key)
+
+        if key in self._state:
+            self._state.remove(key)
+
+    def _normalize(self, key):
+        """Performs normalisation of a key.
+
+        :param key: The key to normalise.
+        :type key: Key or KeyCode
+
+        :return: a key
+        :rtype: Key or KeyCode
+        """
+        if isinstance(key, KeyCode) and key.char is not None:
+            return KeyCode.from_char(key.char.upper())
+        else:
+            return key
