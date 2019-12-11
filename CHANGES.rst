@@ -1,6 +1,12 @@
 Release Notes
 =============
 
+v1.6.0 (2019-12-11) - Global Hotkeys
+------------------------------------
+*  Added support for global hotkeys.
+*  Added support for streaming listener events synchronously.
+
+
 v1.5.2 (2019-12-06) - Corrected media key names for *Xorg*
 ----------------------------------------------------------
 *  Removed media flag from *Xorg* keys.
