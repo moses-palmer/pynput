@@ -23,6 +23,7 @@ See the documentation for more information.
 # pylint: disable=C0103
 # KeyCode, Key, Controller and Listener are not constants
 
+import itertools
 import os
 import sys
 
@@ -68,6 +69,14 @@ _MODIFIER_KEYS = (
     (Key.cmd,    (Key.cmd.value,   Key.cmd_l.value,   Key.cmd_r.value)),
     (Key.ctrl,   (Key.ctrl.value,  Key.ctrl_l.value,  Key.ctrl_r.value)),
     (Key.shift,  (Key.shift.value, Key.shift_l.value, Key.shift_r.value)))
+
+#: Normalised modifiers as a mapping from virtual key code to basic modifier.
+_NORMAL_MODIFIERS = {
+    value: key
+    for combination in _MODIFIER_KEYS
+    for key, value in zip(
+        itertools.cycle((combination[0],)),
+        combination[1])}
 
 #: Control codes to transform into key codes when typing
 _CONTROL_CODES = {
