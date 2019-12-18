@@ -50,6 +50,9 @@ class KeyCode(_base.KeyCode):
     _PLATFORM_EXTENSIONS = (
             # Any extra flags.
             '_flags',
+
+            #: The scan code.
+            '_scan',
     )
 
     def _parameters(self, is_press):
@@ -318,3 +321,14 @@ class Listener(ListenerMixin, _base.Listener):
             constructor
         """
         return self._translator(vk, is_press)
+
+    def _normalize(self, key):
+        # If the key has a scan code, and we can find the character for it,
+        # return that, otherwise call the super class
+        scan = getattr(key, '_scan', None)
+        if scan is not None:
+            char = self._translator.char_from_scan(scan)
+            if char is not None:
+                return KeyCode.from_char(char)
+
+        return super(Listener, self)._normalize(key)
