@@ -75,7 +75,7 @@ _NORMAL_MODIFIERS = {
     value: key
     for combination in _MODIFIER_KEYS
     for key, value in zip(
-        itertools.cycle(combination[0]),
+        itertools.cycle((combination[0],)),
         combination[1])}
 
 #: Control codes to transform into key codes when typing
