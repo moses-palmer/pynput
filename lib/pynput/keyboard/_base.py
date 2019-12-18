@@ -676,3 +676,20 @@ class Listener(AbstractListener):
         super(Listener, self).__init__(
             on_press=on_press, on_release=on_release, suppress=suppress)
 # pylint: enable=W0223
+
+    def _normalize(self, key):
+        """Performs normalisation of a key.
+
+        :param key: The key to normalise.
+        :type key: Key or KeyCode
+
+        :return: a key
+        :rtype: Key or KeyCode
+        """
+        from pynput.keyboard import Key, KeyCode, _NORMAL_MODIFIERS
+        if isinstance(key, KeyCode) and key.char is not None:
+            return KeyCode.from_char(key.char.lower())
+        elif isinstance(key, Key) and key.value in _NORMAL_MODIFIERS:
+            return _NORMAL_MODIFIERS[key.value]
+        else:
+            return key
