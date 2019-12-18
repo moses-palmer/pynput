@@ -343,28 +343,6 @@ class Controller(object):
         self._caps_lock = False
         self._dead_key = None
 
-        kc = self._Key
-
-        # pylint: disable=C0103; this is treated as a class scope constant, but
-        # we cannot set it in the class scope, as _Key is overridden by
-        # platform implementations
-        # pylint: disable=C0326; it is easier to read column aligned keys
-        #: The keys used as modifiers; the first value in each tuple is the
-        #: base modifier to use for subsequent modifiers.
-        self._MODIFIER_KEYS = (
-            (kc.alt_gr, (kc.alt_gr.value,)),
-            (kc.alt,    (kc.alt.value,   kc.alt_l.value,   kc.alt_r.value)),
-            (kc.cmd,    (kc.cmd.value,   kc.cmd_l.value,   kc.cmd_r.value)),
-            (kc.ctrl,   (kc.ctrl.value,  kc.ctrl_l.value,  kc.ctrl_r.value)),
-            (kc.shift,  (kc.shift.value, kc.shift_l.value, kc.shift_r.value)))
-
-        #: Control codes to transform into key codes when typing
-        self._CONTROL_CODES = {
-            '\n': kc.enter,
-            '\r': kc.enter,
-            '\t': kc.tab}
-        # pylint: enable=C0103,C0326
-
     def press(self, key):
         """Presses a key.
 
@@ -479,8 +457,9 @@ class Controller(object):
         :raises InvalidCharacterException: if an untypable character is
             encountered
         """
+        from .. import _CONTROL_CODES
         for i, character in enumerate(string):
-            key = self._CONTROL_CODES.get(character, character)
+            key = _CONTROL_CODES.get(character, character)
             try:
                 self.press(key)
                 self.release(key)
@@ -613,7 +592,8 @@ class Controller(object):
         :return: the base modifier key, or ``None`` if ``key`` is not a
             modifier
         """
-        for base, modifiers in self._MODIFIER_KEYS:
+        from .. import _MODIFIER_KEYS
+        for base, modifiers in _MODIFIER_KEYS:
             if key in modifiers:
                 return base
 

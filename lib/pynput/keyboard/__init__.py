@@ -59,6 +59,24 @@ if not KeyCode or not Key or not Controller or not Listener:
     raise ImportError('this platform is not supported')
 
 
+# pylint: disable=C0326; it is easier to read column aligned keys
+#: The keys used as modifiers; the first value in each tuple is the
+#: base modifier to use for subsequent modifiers.
+_MODIFIER_KEYS = (
+    (Key.alt_gr, (Key.alt_gr.value,)),
+    (Key.alt,    (Key.alt.value,   Key.alt_l.value,   Key.alt_r.value)),
+    (Key.cmd,    (Key.cmd.value,   Key.cmd_l.value,   Key.cmd_r.value)),
+    (Key.ctrl,   (Key.ctrl.value,  Key.ctrl_l.value,  Key.ctrl_r.value)),
+    (Key.shift,  (Key.shift.value, Key.shift_l.value, Key.shift_r.value)))
+
+#: Control codes to transform into key codes when typing
+_CONTROL_CODES = {
+    '\n': Key.enter,
+    '\r': Key.enter,
+    '\t': Key.tab}
+# pylint: enable=C0326
+
+
 class Events(Events):
     """A keyboard event listener supporting synchronous iteration over the
     events.
