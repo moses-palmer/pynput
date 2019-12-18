@@ -592,10 +592,8 @@ class Controller(object):
         :return: the base modifier key, or ``None`` if ``key`` is not a
             modifier
         """
-        from .. import _MODIFIER_KEYS
-        for base, modifiers in _MODIFIER_KEYS:
-            if key in modifiers:
-                return base
+        from .. import _NORMALIZED_MODIFIERS
+        return _NORMALIZED_MODIFIERS.get(key, None)
 
     def _handle(self, key, is_press):
         """The platform implementation of the actual emitting of keyboard
