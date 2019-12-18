@@ -196,7 +196,7 @@ class Listener(ListenerMixin, _base.Listener):
 
     #: A mapping from keysym to special key
     _SPECIAL_KEYS = {
-        key.value.vk: key
+        (key.value.vk, key.value._is_media): key
         for key in Key}
 
     #: The event flags set for the various modifier keys
@@ -280,10 +280,13 @@ class Listener(ListenerMixin, _base.Listener):
         """
         vk = Quartz.CGEventGetIntegerValueField(
             event, Quartz.kCGKeyboardEventKeycode)
+        event_type = Quartz.CGEventGetType(event)
+        is_media = True if event_type == NSSystemDefined else None
 
         # First try special keys...
-        if vk in self._SPECIAL_KEYS:
-            return self._SPECIAL_KEYS[vk]
+        key = (vk, is_media)
+        if key in self._SPECIAL_KEYS:
+            return self._SPECIAL_KEYS[key]
 
         # ...then try characters...
         length, chars = Quartz.CGEventKeyboardGetUnicodeString(
