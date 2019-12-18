@@ -473,17 +473,29 @@ class KeyTranslator(object):
         """
         # Get a string representation of the key
         layout_data = self._layout_data[self._modifier_state()]
-        character, is_dead = layout_data[self._to_scan(vk, self._layout)]
+        scan = self._to_scan(vk, self._layout)
+        character, is_dead = layout_data[scan]
 
         return {
             'char': character,
             'is_dead': is_dead,
-            'vk': vk}
+            'vk': vk,
+            '_scan': scan}
 
     def update_layout(self):
         """Updates the cached layout data.
         """
         self._layout, self._layout_data = self._generate_layout()
+
+    def char_from_scan(self, scan):
+        """Translates a scan code to a character, if possible.
+
+        :param int scan: The scan code to translate.
+
+        :return: maybe a character
+        :rtype: str or None
+        """
+        return self._layout_data[(False, False, False)][scan][0]
 
     def _generate_layout(self):
         """Generates the keyboard layout.
