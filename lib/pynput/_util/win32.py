@@ -570,9 +570,9 @@ class KeyTranslator(object):
 
         :return: the current modifier state
         """
-        shift = bool(self._GetAsyncKeyState(VK.SHIFT))
-        ctrl = bool(self._GetAsyncKeyState(VK.CONTROL))
-        alt = bool(self._GetAsyncKeyState(VK.MENU))
+        shift = bool(self._GetAsyncKeyState(VK.SHIFT) & 0x8000)
+        ctrl = bool(self._GetAsyncKeyState(VK.CONTROL) & 0x8000)
+        alt = bool(self._GetAsyncKeyState(VK.MENU) & 0x8000)
         return (shift, ctrl, alt)
 
     @contextlib.contextmanager
