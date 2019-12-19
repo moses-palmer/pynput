@@ -23,6 +23,7 @@ See the documentation for more information.
 # pylint: disable=C0103
 # KeyCode, Key, Controller and Listener are not constants
 
+import itertools
 import os
 import sys
 
@@ -57,6 +58,32 @@ else:
 
 if not KeyCode or not Key or not Controller or not Listener:
     raise ImportError('this platform is not supported')
+
+
+# pylint: disable=C0326; it is easier to read column aligned keys
+#: The keys used as modifiers; the first value in each tuple is the
+#: base modifier to use for subsequent modifiers.
+_MODIFIER_KEYS = (
+    (Key.alt_gr, (Key.alt_gr.value,)),
+    (Key.alt,    (Key.alt.value,   Key.alt_l.value,   Key.alt_r.value)),
+    (Key.cmd,    (Key.cmd.value,   Key.cmd_l.value,   Key.cmd_r.value)),
+    (Key.ctrl,   (Key.ctrl.value,  Key.ctrl_l.value,  Key.ctrl_r.value)),
+    (Key.shift,  (Key.shift.value, Key.shift_l.value, Key.shift_r.value)))
+
+#: Normalised modifiers as a mapping from virtual key code to basic modifier.
+_NORMAL_MODIFIERS = {
+    value: key
+    for combination in _MODIFIER_KEYS
+    for key, value in zip(
+        itertools.cycle((combination[0],)),
+        combination[1])}
+
+#: Control codes to transform into key codes when typing
+_CONTROL_CODES = {
+    '\n': Key.enter,
+    '\r': Key.enter,
+    '\t': Key.tab}
+# pylint: enable=C0326
 
 
 class Events(Events):
@@ -107,7 +134,7 @@ class HotKey(object):
     """
     def __init__(self, keys, on_activate):
         self._state = set()
-        self._keys = {self._normalize(key) for key in keys}
+        self._keys = set(keys)
         self._on_activate = on_activate
 
     @staticmethod
@@ -137,7 +164,7 @@ class HotKey(object):
 
         def parse(s):
             if len(s) == 1:
-                return KeyCode.from_char(s.upper())
+                return KeyCode.from_char(s.lower())
             elif len(s) > 2 and (s[0], s[-1]) == ('<', '>'):
                 try:
                     return Key[s[1:-1].lower()]
@@ -170,8 +197,6 @@ class HotKey(object):
         :param key: The key being pressed.
         :type key: Key or KeyCode
         """
-        key = self._normalize(key)
-
         if key in self._keys and key not in self._state:
             self._state.add(key)
             if self._state == self._keys:
@@ -183,24 +208,8 @@ class HotKey(object):
         :param key: The key being released.
         :type key: Key or KeyCode
         """
-        key = self._normalize(key)
-
         if key in self._state:
             self._state.remove(key)
-
-    def _normalize(self, key):
-        """Performs normalisation of a key.
-
-        :param key: The key to normalise.
-        :type key: Key or KeyCode
-
-        :return: a key
-        :rtype: Key or KeyCode
-        """
-        if isinstance(key, KeyCode) and key.char is not None:
-            return KeyCode.from_char(key.char.upper())
-        else:
-            return key
 
 
 class GlobalHotKeys(Listener):
@@ -214,13 +223,15 @@ class GlobalHotKeys(Listener):
 
     :raises ValueError: if any hotkey description is invalid
     """
-    def __init__(self, hotkeys):
+    def __init__(self, hotkeys, *args, **kwargs):
         self._hotkeys = [
             HotKey(HotKey.parse(key), value)
             for key, value in hotkeys.items()]
-        super(Listener, self).__init__(
+        super(GlobalHotKeys, self).__init__(
             on_press=self._on_press,
-            on_release=self._on_release)
+            on_release=self._on_release,
+            *args,
+            **kwargs)
 
     def _on_press(self, key):
         """The press callback.
@@ -230,7 +241,7 @@ class GlobalHotKeys(Listener):
         :param key: The key provided by the base class.
         """
         for hotkey in self._hotkeys:
-            hotkey.press(key)
+            hotkey.press(self._normalize(key))
 
     def _on_release(self, key):
         """The release callback.
@@ -240,4 +251,4 @@ class GlobalHotKeys(Listener):
         :param key: The key provided by the base class.
         """
         for hotkey in self._hotkeys:
-            hotkey.release(key)
+            hotkey.release(self._normalize(key))
