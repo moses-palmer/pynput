@@ -1,6 +1,12 @@
 Release Notes
 =============
 
+v1.6.1 (2019-12-27) - Corrections for *Windows*
+-----------------------------------------------
+*  Corrected global hotkeys on *Windows*.
+*  Corrected pressed / released state for keyboard listener on *Windows*.
+   Thanks to *segalion*!
+
 v1.6.0 (2019-12-11) - Global Hotkeys
 ------------------------------------
 *  Added support for global hotkeys.
