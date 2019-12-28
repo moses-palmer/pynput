@@ -592,7 +592,7 @@ class Controller(object):
         :return: the base modifier key, or ``None`` if ``key`` is not a
             modifier
         """
-        from .. import _NORMAL_MODIFIERS
+        from . import _NORMAL_MODIFIERS
         return _NORMAL_MODIFIERS.get(key, None)
 
     def _handle(self, key, is_press):
