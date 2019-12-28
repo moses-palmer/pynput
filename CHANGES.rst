@@ -1,6 +1,11 @@
 Release Notes
 =============
 
+v1.6.2 (2019-12-28) - Corrected imports
+---------------------------------------
+*  Corrected imports for keyboard Controller. Thanks to *Matt Iversen*!
+
+
 v1.6.1 (2019-12-27) - Corrections for *Windows*
 -----------------------------------------------
 *  Corrected global hotkeys on *Windows*.
