@@ -1,6 +1,11 @@
 Release Notes
 =============
 
+v1.6.4 (2010-01-03) - Corrected imports yet again
+-------------------------------------------------
+*  Corrected imports for keyboard Controller. Thanks to *rhystedstone*!
+
+
 v1.6.3 (2019-12-28) - Corrected imports again
 ---------------------------------------------
 *  Corrected imports for keyboard Controller. Thanks to *Matt Iversen*!
