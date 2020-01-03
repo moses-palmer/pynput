@@ -457,7 +457,7 @@ class Controller(object):
         :raises InvalidCharacterException: if an untypable character is
             encountered
         """
-        from .. import _CONTROL_CODES
+        from . import _CONTROL_CODES
         for i, character in enumerate(string):
             key = _CONTROL_CODES.get(character, character)
             try:
