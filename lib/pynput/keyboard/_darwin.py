@@ -34,10 +34,6 @@ from pynput._util.darwin import (
     ListenerMixin)
 from . import _base
 
-
-# From NSEvent.h
-NSSystemDefined = 14
-
 # From hidsystem/ev_keymap.h
 NX_KEYTYPE_PLAY = 16
 NX_KEYTYPE_MUTE = 7
@@ -49,8 +45,8 @@ NX_KEYTYPE_PREVIOUS = 18
 
 class KeyCode(_base.KeyCode):
     _PLATFORM_EXTENSIONS = (
-            # Whether this is a media key
-            '_is_media',
+        # Whether this is a media key
+        '_is_media',
     )
 
     def _event(self, modifiers, mapping, is_pressed):
@@ -67,16 +63,16 @@ class KeyCode(_base.KeyCode):
         vk = self.vk or mapping.get(self.char)
         if self._is_media:
             result = getattr(
-                    Quartz.NSEvent,
-                    'otherEventWithType_'
-                    'location_'
-                    'modifierFlags_'
-                    'timestamp_'
-                    'windowNumber_'
-                    'context_'
-                    'subtype_'
-                    'data1_'
-                    'data2_')(
+                Quartz.NSEvent,
+                'otherEventWithType_'
+                'location_'
+                'modifierFlags_'
+                'timestamp_'
+                'windowNumber_'
+                'context_'
+                'subtype_'
+                'data1_'
+                'data2_')(
                 NSSystemDefined,
                 (0, 0),
                 0xa00 if is_pressed else 0xb00,
@@ -190,9 +186,9 @@ class Controller(_base.Controller):
 class Listener(ListenerMixin, _base.Listener):
     #: The events that we listen to
     _EVENTS = (
-        Quartz.CGEventMaskBit(Quartz.kCGEventKeyDown) |
-        Quartz.CGEventMaskBit(Quartz.kCGEventKeyUp) |
-        Quartz.CGEventMaskBit(Quartz.kCGEventFlagsChanged))
+            Quartz.CGEventMaskBit(Quartz.kCGEventKeyDown) |
+            Quartz.CGEventMaskBit(Quartz.kCGEventKeyUp) |
+            Quartz.CGEventMaskBit(Quartz.kCGEventFlagsChanged))
 
     #: A mapping from keysym to special key
     _SPECIAL_KEYS = {
@@ -278,9 +274,11 @@ class Listener(ListenerMixin, _base.Listener):
 
         :raises IndexError: if the key code is invalid
         """
+
         vk = Quartz.CGEventGetIntegerValueField(
             event, Quartz.kCGKeyboardEventKeycode)
-        is_media = event.type == NSSystemDefined
+        # None because Special Keys._is_media are True or None but never False
+        is_media = True if Quartz.CGEventGetType(event) == Quartz.NSSystemDefined else None
 
         # First try special keys...
         key = (vk, is_media)
@@ -293,5 +291,8 @@ class Listener(ListenerMixin, _base.Listener):
         if length > 0:
             return KeyCode.from_char(chars, vk=vk)
 
+        # after cmd + tab an keypress with vk 0 and length 0 is returned ?
+        if vk is 0:
+            raise IndexError()
         # ...and fall back on a virtual key code
         return KeyCode.from_vk(vk)
