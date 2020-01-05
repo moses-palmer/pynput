@@ -35,7 +35,7 @@ from pynput._util.darwin import (
 from . import _base
 
 
-# From NSEvent.h
+# From NSEvent.hNS
 NSSystemDefined = 14
 
 # From hidsystem/ev_keymap.h
@@ -45,7 +45,6 @@ NX_KEYTYPE_SOUND_DOWN = 1
 NX_KEYTYPE_SOUND_UP = 0
 NX_KEYTYPE_NEXT = 17
 NX_KEYTYPE_PREVIOUS = 18
-
 
 class KeyCode(_base.KeyCode):
     _PLATFORM_EXTENSIONS = (
@@ -196,7 +195,7 @@ class Listener(ListenerMixin, _base.Listener):
 
     #: A mapping from keysym to special key
     _SPECIAL_KEYS = {
-        key.value.vk: key
+        (key.value.vk, key.value._is_media): key
         for key in Key}
 
     #: The event flags set for the various modifier keys
@@ -278,12 +277,16 @@ class Listener(ListenerMixin, _base.Listener):
 
         :raises IndexError: if the key code is invalid
         """
+
         vk = Quartz.CGEventGetIntegerValueField(
             event, Quartz.kCGKeyboardEventKeycode)
+        # None because Special Keys._is_media are True or None but never False
+        is_media = True if Quartz.CGEventGetType(event) == NSSystemDefined else None
 
         # First try special keys...
-        if vk in self._SPECIAL_KEYS:
-            return self._SPECIAL_KEYS[vk]
+        key = (vk, is_media)
+        if key in self._SPECIAL_KEYS:
+            return self._SPECIAL_KEYS[key]
 
         # ...then try characters...
         length, chars = Quartz.CGEventKeyboardGetUnicodeString(
@@ -291,5 +294,8 @@ class Listener(ListenerMixin, _base.Listener):
         if length > 0:
             return KeyCode.from_char(chars, vk=vk)
 
+        # after cmd + tab an keypress with vk 0 and length 0 is returned ?
+        if vk is 0:
+            raise IndexError()
         # ...and fall back on a virtual key code
         return KeyCode.from_vk(vk)
