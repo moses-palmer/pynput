@@ -1,7 +1,12 @@
 Release Notes
 =============
 
-v1.6.4 (2010-01-03) - Corrected imports yet again
+v1.6.5 (2020-01-08) - Corrected media key mappings
+--------------------------------------------------
+*  Corrected media key mappings on *macOS*. Thanks to *Luis Nachtigall*!
+
+
+v1.6.4 (2020-01-03) - Corrected imports yet again
 -------------------------------------------------
 *  Corrected imports for keyboard Controller. Thanks to *rhystedstone*!
 
