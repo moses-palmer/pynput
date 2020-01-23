@@ -1,6 +1,12 @@
 Release Notes
 =============
 
+v1.6.6 (2020-01-23) - Corrected hot key documentation
+-----------------------------------------------------
+*  The code examples for the simple ``pynput.keyboard.HotKey`` now work. Thanks
+   to *jfongattw*!
+
+
 v1.6.5 (2020-01-08) - Corrected media key mappings
 --------------------------------------------------
 *  Corrected media key mappings on *macOS*. Thanks to *Luis Nachtigall*!
