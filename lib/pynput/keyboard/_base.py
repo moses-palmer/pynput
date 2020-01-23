@@ -680,6 +680,13 @@ class Listener(AbstractListener):
     def _normalize(self, key):
         """Performs normalisation of a key.
 
+        This method attempts to convert key events to their canonical form, so
+        that events will equal regardless of modifier state.
+
+        This method will convert upper case keys to lower case keys, convert
+        any modifiers with a right and left version to the same value, and may
+        slao perform additional platform dependent normalisation.
+
         :param key: The key to normalise.
         :type key: Key or KeyCode
 
