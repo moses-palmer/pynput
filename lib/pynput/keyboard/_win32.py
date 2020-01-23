@@ -322,7 +322,7 @@ class Listener(ListenerMixin, _base.Listener):
         """
         return self._translator(vk, is_press)
 
-    def _normalize(self, key):
+    def canonical(self, key):
         # If the key has a scan code, and we can find the character for it,
         # return that, otherwise call the super class
         scan = getattr(key, '_scan', None)
@@ -331,4 +331,4 @@ class Listener(ListenerMixin, _base.Listener):
             if char is not None:
                 return KeyCode.from_char(char)
 
-        return super(Listener, self)._normalize(key)
+        return super(Listener, self).canonical(key)
