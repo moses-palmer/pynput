@@ -182,17 +182,25 @@ The intended usage is as follows::
     def on_activate():
         print('Global hotkey activated!')
 
+    def for_canonical(f):
+        return lambda k: f(l.canonical(k))
+
     hotkey = keyboard.HotKey(
         keyboard.HotKey.parse('<ctrl>+<alt>+h'),
         on_activate)
     with keyboard.Listener(
-            on_press=hotkey.press,
-            on_release=hotkey.release) as l:
+            on_press=for_canonical(hotkey.press),
+            on_release=for_canonical(hotkey.release)) as l:
         l.join()
 
 This will create a hotkey, and then use a listener to update its state. Once
 all the specified keys are pressed simultaneously, ``on_activate`` will be
 invoked.
+
+Note that keys are passed through ``pynput.keyboard.Listener.canonical`` before
+being passed to the ``HotKey`` instance. This is to remove any modifier state
+from the key events, and to normalise modifiers with more than one physical
+button.
 
 The method ``pynput.keyboard.HotKey.parse`` is a convenience function to
 transform shortcut strings to key collections. Please see its documentation for

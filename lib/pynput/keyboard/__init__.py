@@ -241,7 +241,7 @@ class GlobalHotKeys(Listener):
         :param key: The key provided by the base class.
         """
         for hotkey in self._hotkeys:
-            hotkey.press(self._normalize(key))
+            hotkey.press(self.canonical(key))
 
     def _on_release(self, key):
         """The release callback.
@@ -251,4 +251,4 @@ class GlobalHotKeys(Listener):
         :param key: The key provided by the base class.
         """
         for hotkey in self._hotkeys:
-            hotkey.release(self._normalize(key))
+            hotkey.release(self.canonical(key))
