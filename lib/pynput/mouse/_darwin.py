@@ -90,6 +90,8 @@ class Controller(_base.Controller):
                 mouse_button))
 
     def _scroll(self, dx, dy):
+        dx = int( dx )
+        dy = int( dy )
         while dx != 0 or dy != 0:
             xval = 1 if dx > 0 else -1 if dx < 0 else 0
             dx -= xval
