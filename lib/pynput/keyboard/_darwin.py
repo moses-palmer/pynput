@@ -34,17 +34,42 @@ from pynput._util.darwin import (
     ListenerMixin)
 from . import _base
 
+'''
+#https://gist.github.com/nevyn/764542/dc1f7117a656314accb4ae206f7483fc1513180b
+#https://weblog.rogueamoeba.com/2007/09/29/apple-keyboard-media-key-event-handling/
+#https://chromium.googlesource.com/experimental/chromium/src/+/refs/wip/bajones/
+    webvr/chrome/browser/extensions/global_shortcut_listener_mac.mm
+'''
+kSystemDefinedEventMediaKeysSubtype = 8
 
-# From NSEvent.h
-NSSystemDefined = 14
-
-# From hidsystem/ev_keymap.h
-NX_KEYTYPE_PLAY = 16
-NX_KEYTYPE_MUTE = 7
-NX_KEYTYPE_SOUND_DOWN = 1
-NX_KEYTYPE_SOUND_UP = 0
-NX_KEYTYPE_NEXT = 17
-NX_KEYTYPE_PREVIOUS = 18
+#iokit hidsystem/ev_keymap.h
+tKeyNameToCode = {
+    'NX_NOSPECIALKEY': 0xFFFF,
+    'NX_KEYTYPE_SOUND_UP': 0,
+    'NX_KEYTYPE_SOUND_DOWN': 1,
+    'NX_KEYTYPE_BRIGHTNESS_UP': 2,
+    'NX_KEYTYPE_BRIGHTNESS_DOWN': 3,
+    'NX_KEYTYPE_CAPS_LOCK': 4,
+    'NX_KEYTYPE_HELP': 5,
+    'NX_POWER_KEY': 6,
+    'NX_KEYTYPE_MUTE': 7,
+    'NX_UP_ARROW_KEY': 8,
+    'NX_DOWN_ARROW_KEY': 9,
+    'NX_KEYTYPE_NUM_LOCK': 10,
+    'NX_KEYTYPE_CONTRAST_UP': 11,
+    'NX_KEYTYPE_CONTRAST_DOWN': 12,
+    'NX_KEYTYPE_LAUNCH_PANEL': 13,
+    'NX_KEYTYPE_EJECT': 14,
+    'NX_KEYTYPE_VIDMIRROR': 15,
+    'NX_KEYTYPE_PLAY': 16,
+    'NX_KEYTYPE_NEXT': 17,
+    'NX_KEYTYPE_PREVIOUS': 18,
+    'NX_KEYTYPE_FAST': 19,
+    'NX_KEYTYPE_REWIND': 20,
+    'NX_KEYTYPE_ILLUMINATION_UP': 21,
+    'NX_KEYTYPE_ILLUMINATION_DOWN': 22,
+    'NX_KEYTYPE_ILLUMINATION_TOGGLE': 23
+}
 
 
 class KeyCode(_base.KeyCode):
@@ -77,7 +102,7 @@ class KeyCode(_base.KeyCode):
                     'subtype_'
                     'data1_'
                     'data2_')(
-                NSSystemDefined,
+                Quartz.NSSystemDefined,
                 (0, 0),
                 0xa00 if is_pressed else 0xb00,
                 0,
@@ -86,6 +111,7 @@ class KeyCode(_base.KeyCode):
                 8,
                 (self.vk << 16) | ((0xa if is_pressed else 0xb) << 8),
                 -1)
+            result = result.CGEvent()
         else:
             result = Quartz.CGEventCreateKeyboardEvent(
                 None, 0 if vk is None else vk, is_pressed)
@@ -163,12 +189,30 @@ class Key(enum.Enum):
     tab = KeyCode.from_vk(0x30)
     up = KeyCode.from_vk(0x7E)
 
-    media_play_pause = KeyCode.from_vk(NX_KEYTYPE_PLAY, _is_media=True)
-    media_volume_mute = KeyCode.from_vk(NX_KEYTYPE_MUTE, _is_media=True)
-    media_volume_down = KeyCode.from_vk(NX_KEYTYPE_SOUND_DOWN, _is_media=True)
-    media_volume_up = KeyCode.from_vk(NX_KEYTYPE_SOUND_UP, _is_media=True)
-    media_previous = KeyCode.from_vk(NX_KEYTYPE_PREVIOUS, _is_media=True)
-    media_next = KeyCode.from_vk(NX_KEYTYPE_NEXT, _is_media=True)
+    media_play_pause = KeyCode.from_vk(tKeyNameToCode['NX_KEYTYPE_PLAY'], _is_media=True)
+    media_volume_mute = KeyCode.from_vk(tKeyNameToCode['NX_KEYTYPE_MUTE'], _is_media=True)
+    media_volume_down = KeyCode.from_vk(tKeyNameToCode['NX_KEYTYPE_SOUND_DOWN'], _is_media=True)
+    media_volume_up = KeyCode.from_vk(tKeyNameToCode['NX_KEYTYPE_SOUND_UP'], _is_media=True)
+    media_previous = KeyCode.from_vk(tKeyNameToCode['NX_KEYTYPE_PREVIOUS'], _is_media=True)
+    media_next = KeyCode.from_vk(tKeyNameToCode['NX_KEYTYPE_NEXT'], _is_media=True)
+    media_brightness_up = KeyCode.from_vk(tKeyNameToCode['NX_KEYTYPE_BRIGHTNESS_UP'], _is_media=True)
+    media_brightness_down = KeyCode.from_vk(tKeyNameToCode['NX_KEYTYPE_BRIGHTNESS_DOWN'], _is_media=True)
+    #media_caps_lock = KeyCode.from_vk(tKeyNameToCode['NX_KEYTYPE_CAPS_LOCK'], _is_media=True)
+    media_help = KeyCode.from_vk(tKeyNameToCode['NX_KEYTYPE_HELP'], _is_media=True)
+    media_power_ley = KeyCode.from_vk(tKeyNameToCode['NX_POWER_KEY'], _is_media=True)
+    media_arrow_up = KeyCode.from_vk(tKeyNameToCode['NX_UP_ARROW_KEY'], _is_media=True)
+    media_arrow_down = KeyCode.from_vk(tKeyNameToCode['NX_DOWN_ARROW_KEY'], _is_media=True)
+    media_num_lock = KeyCode.from_vk(tKeyNameToCode['NX_KEYTYPE_NUM_LOCK'], _is_media=True)
+    media_contrast_up = KeyCode.from_vk(tKeyNameToCode['NX_KEYTYPE_CONTRAST_UP'], _is_media=True)
+    media_contrast_down = KeyCode.from_vk(tKeyNameToCode['NX_KEYTYPE_CONTRAST_DOWN'], _is_media=True)
+    media_launch_panel = KeyCode.from_vk(tKeyNameToCode['NX_KEYTYPE_LAUNCH_PANEL'], _is_media=True)
+    media_eject = KeyCode.from_vk(tKeyNameToCode['NX_KEYTYPE_EJECT'], _is_media=True)
+    media_vidmirror = KeyCode.from_vk(tKeyNameToCode['NX_KEYTYPE_VIDMIRROR'], _is_media=True)
+    media_fast = KeyCode.from_vk(tKeyNameToCode['NX_KEYTYPE_FAST'], _is_media=True)
+    media_rewind = KeyCode.from_vk(tKeyNameToCode['NX_KEYTYPE_REWIND'], _is_media=True)
+    media_illumination_up = KeyCode.from_vk(tKeyNameToCode['NX_KEYTYPE_ILLUMINATION_UP'], _is_media=True)
+    media_illumination_down = KeyCode.from_vk(tKeyNameToCode['NX_KEYTYPE_ILLUMINATION_DOWN'], _is_media=True)
+    media_illumination_toggle = KeyCode.from_vk(tKeyNameToCode['NX_KEYTYPE_ILLUMINATION_TOGGLE'], _is_media=True)
 
 
 class Controller(_base.Controller):
@@ -192,7 +236,9 @@ class Listener(ListenerMixin, _base.Listener):
     _EVENTS = (
         Quartz.CGEventMaskBit(Quartz.kCGEventKeyDown) |
         Quartz.CGEventMaskBit(Quartz.kCGEventKeyUp) |
-        Quartz.CGEventMaskBit(Quartz.kCGEventFlagsChanged))
+        Quartz.CGEventMaskBit(Quartz.kCGEventFlagsChanged) |
+        Quartz.CGEventMaskBit(Quartz.NSSystemDefined)
+    )
 
     #: A mapping from keysym to special key
     _SPECIAL_KEYS = {
@@ -252,6 +298,22 @@ class Listener(ListenerMixin, _base.Listener):
                 # press and release
                 self.on_press(key)
                 self.on_release(key)
+            
+            elif event_type == Quartz.NSSystemDefined: #sys key, we can't trust _event_to_key
+                sysEvent = Quartz.NSEvent.eventWithCGEvent_(event)
+                is_media = True if sysEvent.subtype() == kSystemDefinedEventMediaKeysSubtype else False
+                if( is_media ):
+                    keyCode = (( sysEvent.data1() & 0xFFFF0000) >> 16);
+                    key = (keyCode, is_media)
+                    if key in self._SPECIAL_KEYS:
+                        key = self._SPECIAL_KEYS[ key ]
+                        keyFlags = ( sysEvent.data1() & 0x0000FFFF);
+                        #keyRepeat = (keyFlags & 0x1);
+                        is_press = (((keyFlags & 0xFF00) >> 8)) == 0xA;
+                        if is_press:
+                            self.on_press(key)
+                        else:
+                            self.on_release(key)
 
             else:
                 # This is a modifier event---excluding caps lock---for which we
@@ -281,7 +343,7 @@ class Listener(ListenerMixin, _base.Listener):
         vk = Quartz.CGEventGetIntegerValueField(
             event, Quartz.kCGKeyboardEventKeycode)
         event_type = Quartz.CGEventGetType(event)
-        is_media = True if event_type == NSSystemDefined else None
+        is_media = True if event_type == Quartz.NSSystemDefined else None
 
         # First try special keys...
         key = (vk, is_media)
