@@ -66,13 +66,13 @@ class KeyCode(_base.KeyCode):
         """
         if self.vk:
             vk = self.vk
-            scan = 0
+            scan = self._scan or 0
             flags = 0
         else:
             res = VkKeyScan(self.char)
             if (res >> 8) & 0xFF == 0:
                 vk = res & 0xFF
-                scan = 0
+                scan = self._scan or 0
                 flags = 0
             else:
                 vk = 0
