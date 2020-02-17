@@ -71,6 +71,11 @@ The ``key`` parameter passed to callbacks is a ``pynput.keyboard.Key``, for
 special keys, a ``pynput.keyboard.KeyCode`` for normal alphanumeric keys, or
 just ``None`` for unknown keys.
 
+When using the non-blocking version above, the current thread will continue
+executing. This might be necessary when integrating with other GUI frameworks
+that incorporate a main-loop, but when run from a script, this will cause the
+program to terminate immediately.
+
 
 The keyboard listener thread
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~

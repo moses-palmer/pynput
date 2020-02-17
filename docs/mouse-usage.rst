@@ -75,6 +75,11 @@ from the thread.
 Call ``pynput.mouse.Listener.stop`` from anywhere, raise ``StopException`` or
 return ``False`` from a callback to stop the listener.
 
+When using the non-blocking version above, the current thread will continue
+executing. This might be necessary when integrating with other GUI frameworks
+that incorporate a main-loop, but when run from a script, this will cause the
+program to terminate immediately.
+
 
 The mouse listener thread
 ~~~~~~~~~~~~~~~~~~~~~~~~~
