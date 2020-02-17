@@ -1,6 +1,14 @@
 Release Notes
 =============
 
+v1.6.7 (2020-02-17) - Various fixes
+-----------------------------------
+*  Corrected infinite scrolling on *macOS* when providing non-integer deltas.
+   Thanks to *Iván Munsuri Ibáñez*!
+*  Corrected controller and listener handling of media keys on *macOS*. Thanks
+   to *Iván Munsuri Ibáñez*!
+
+
 v1.6.6 (2020-01-23) - Corrected hot key documentation
 -----------------------------------------------------
 *  The code examples for the simple ``pynput.keyboard.HotKey`` now work. Thanks
