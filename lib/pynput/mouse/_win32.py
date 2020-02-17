@@ -41,6 +41,9 @@ from pynput._util.win32 import (
     SystemHook)
 from . import _base
 
+#: A constant used as a factor when constructing mouse scroll data.
+WHEEL_DELTA = 120
+
 
 class Button(enum.Enum):
     """The various buttons.
@@ -133,8 +136,6 @@ class Listener(ListenerMixin, _base.Listener):
     WM_RBUTTONDOWN = 0x0204
     WM_RBUTTONUP = 0x0205
 
-    _WHEEL_DELTA = 120
-
     #: A mapping from messages to button events
     CLICK_BUTTONS = {
         WM_LBUTTONDOWN: (Button.left, True),
@@ -191,5 +192,5 @@ class Listener(ListenerMixin, _base.Listener):
 
         elif msg in self.SCROLL_BUTTONS:
             mx, my = self.SCROLL_BUTTONS[msg]
-            dd = wintypes.SHORT(data.mouseData >> 16).value // self._WHEEL_DELTA
+            dd = wintypes.SHORT(data.mouseData >> 16).value // WHEEL_DELTA
             self.on_scroll(data.pt.x, data.pt.y, dd * mx, dd * my)
