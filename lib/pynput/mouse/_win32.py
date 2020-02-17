@@ -82,7 +82,7 @@ class Controller(NotifierMixin, _base.Controller):
                     value=INPUT_union(
                         mi=MOUSEINPUT(
                             dwFlags=MOUSEINPUT.WHEEL,
-                            mouseData=int(dy))))),
+                            mouseData=int(dy * WHEEL_DELTA))))),
                 ctypes.sizeof(INPUT))
 
         if dx:
@@ -93,7 +93,7 @@ class Controller(NotifierMixin, _base.Controller):
                     value=INPUT_union(
                         mi=MOUSEINPUT(
                             dwFlags=MOUSEINPUT.HWHEEL,
-                            mouseData=int(dx))))),
+                            mouseData=int(dx * WHEEL_DELTA))))),
                 ctypes.sizeof(INPUT))
 
         if dx or dy:
