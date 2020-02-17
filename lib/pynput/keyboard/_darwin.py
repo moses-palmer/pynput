@@ -35,9 +35,6 @@ from pynput._util.darwin import (
 from . import _base
 
 
-# From NSEvent.h
-NSSystemDefined = 14
-
 # From hidsystem/ev_keymap.h
 NX_KEYTYPE_PLAY = 16
 NX_KEYTYPE_MUTE = 7
@@ -45,6 +42,9 @@ NX_KEYTYPE_SOUND_DOWN = 1
 NX_KEYTYPE_SOUND_UP = 0
 NX_KEYTYPE_NEXT = 17
 NX_KEYTYPE_PREVIOUS = 18
+
+# This is undocumented, but still widely known
+kSystemDefinedEventMediaKeysSubtype = 8
 
 
 class KeyCode(_base.KeyCode):
@@ -77,7 +77,7 @@ class KeyCode(_base.KeyCode):
                     'subtype_'
                     'data1_'
                     'data2_')(
-                NSSystemDefined,
+                Quartz.NSSystemDefined,
                 (0, 0),
                 0xa00 if is_pressed else 0xb00,
                 0,
@@ -85,7 +85,7 @@ class KeyCode(_base.KeyCode):
                 0,
                 8,
                 (self.vk << 16) | ((0xa if is_pressed else 0xb) << 8),
-                -1)
+                -1).CGEvent()
         else:
             result = Quartz.CGEventCreateKeyboardEvent(
                 None, 0 if vk is None else vk, is_pressed)
@@ -192,7 +192,9 @@ class Listener(ListenerMixin, _base.Listener):
     _EVENTS = (
         Quartz.CGEventMaskBit(Quartz.kCGEventKeyDown) |
         Quartz.CGEventMaskBit(Quartz.kCGEventKeyUp) |
-        Quartz.CGEventMaskBit(Quartz.kCGEventFlagsChanged))
+        Quartz.CGEventMaskBit(Quartz.kCGEventFlagsChanged) |
+        Quartz.CGEventMaskBit(Quartz.NSSystemDefined)
+    )
 
     #: A mapping from keysym to special key
     _SPECIAL_KEYS = {
@@ -253,6 +255,20 @@ class Listener(ListenerMixin, _base.Listener):
                 self.on_press(key)
                 self.on_release(key)
 
+            elif event_type == Quartz.NSSystemDefined:
+                sys_event = Quartz.NSEvent.eventWithCGEvent_(event)
+                if sys_event.subtype() == kSystemDefinedEventMediaKeysSubtype:
+                    # The key in the special key dict; True since it is a media
+                    # key
+                    key = ((sys_event.data1() & 0xffff0000) >> 16, True)
+                    if key in self._SPECIAL_KEYS:
+                        flags = sys_event.data1() & 0x0000ffff
+                        is_press = ((flags & 0xff00) >> 8) == 0x0a
+                        if is_press:
+                            self.on_press(self._SPECIAL_KEYS[key])
+                        else:
+                            self.on_release(self._SPECIAL_KEYS[key])
+
             else:
                 # This is a modifier event---excluding caps lock---for which we
                 # must check the current modifier state to determine whether
@@ -281,7 +297,7 @@ class Listener(ListenerMixin, _base.Listener):
         vk = Quartz.CGEventGetIntegerValueField(
             event, Quartz.kCGKeyboardEventKeycode)
         event_type = Quartz.CGEventGetType(event)
-        is_media = True if event_type == NSSystemDefined else None
+        is_media = True if event_type == Quartz.NSSystemDefined else None
 
         # First try special keys...
         key = (vk, is_media)
