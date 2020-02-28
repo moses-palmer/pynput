@@ -1,6 +1,17 @@
 Release Notes
 =============
 
+v1.6.8 (2020-02-28) - Various fixes
+-----------------------------------
+*  Updated documentation.
+*  Corrected lint warnings and tests.
+*  Do not use internal types in ``argtypes`` for ``win32`` functions; this
+   renders them uncallable for other code running in the same runtime.
+*  Include scan codes in events on *Windows*. Thanks to *bhudax*!
+*  Correctly apply transformation to scroll event values on *Windows*. Thanks
+   to *DOCCA0*!
+
+
 v1.6.7 (2020-02-17) - Various fixes
 -----------------------------------
 *  Corrected infinite scrolling on *macOS* when providing non-integer deltas.
