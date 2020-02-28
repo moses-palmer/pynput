@@ -97,6 +97,7 @@ class KeyCode(_base.KeyCode):
         return cls.from_vk(vk, _flags=KEYBDINPUT.EXTENDEDKEY, **kwargs)
 
 
+# pylint: disable=W0212
 class Key(enum.Enum):
     alt = KeyCode.from_vk(VK.MENU)
     alt_l = KeyCode.from_vk(VK.LMENU)
@@ -160,6 +161,7 @@ class Key(enum.Enum):
     pause = KeyCode.from_vk(VK.PAUSE)
     print_screen = KeyCode._from_ext(VK.SNAPSHOT)
     scroll_lock = KeyCode.from_vk(VK.SCROLL)
+# pylint: enable=W0212
 
 
 class Controller(_base.Controller):

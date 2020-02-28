@@ -102,6 +102,7 @@ class KeyCode(_base.KeyCode):
         return cls._from_symbol('XF86Audio' + name, **kwargs)
 
 
+# pylint: disable=W0212
 class Key(enum.Enum):
     # Default keys
     alt = KeyCode._from_symbol('Alt_L')
@@ -166,6 +167,7 @@ class Key(enum.Enum):
     pause = KeyCode._from_symbol('Pause')
     print_screen = KeyCode._from_symbol('Print')
     scroll_lock = KeyCode._from_symbol('Scroll_Lock')
+# pylint: enable=W0212
 
 
 class Controller(NotifierMixin, _base.Controller):
