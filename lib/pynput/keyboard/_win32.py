@@ -55,6 +55,10 @@ class KeyCode(_base.KeyCode):
         '_scan',
     )
 
+    # Be explicit about fields
+    _flags = None
+    _scan = None
+
     def _parameters(self, is_press):
         """The parameters to pass to ``SendInput`` to generate this key.
 

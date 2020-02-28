@@ -68,6 +68,9 @@ class KeyCode(_base.KeyCode):
         '_is_media',
     )
 
+    # Be explicit about fields
+    _is_media = None
+
     @classmethod
     def _from_media(cls, vk, **kwargs):
         """Creates a media key from a key code.

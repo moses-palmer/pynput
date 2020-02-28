@@ -61,6 +61,9 @@ class KeyCode(_base.KeyCode):
         '_symbol',
     )
 
+    # Be explicit about fields
+    _symbol = None
+
     @classmethod
     def _from_symbol(cls, symbol, **kwargs):
         """Creates a key from a symbol.
