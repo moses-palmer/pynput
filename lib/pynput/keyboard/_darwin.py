@@ -46,11 +46,24 @@ NX_KEYTYPE_PREVIOUS = 18
 # This is undocumented, but still widely known
 kSystemDefinedEventMediaKeysSubtype = 8
 
+# We extract this here since the name is very long
+otherEventWithType = getattr(
+        Quartz.NSEvent,
+        'otherEventWithType_'
+        'location_'
+        'modifierFlags_'
+        'timestamp_'
+        'windowNumber_'
+        'context_'
+        'subtype_'
+        'data1_'
+        'data2_')
+
 
 class KeyCode(_base.KeyCode):
     _PLATFORM_EXTENSIONS = (
-            # Whether this is a media key
-            '_is_media',
+        # Whether this is a media key
+        '_is_media',
     )
 
     def _event(self, modifiers, mapping, is_pressed):
@@ -66,17 +79,7 @@ class KeyCode(_base.KeyCode):
         """
         vk = self.vk or mapping.get(self.char)
         if self._is_media:
-            result = getattr(
-                    Quartz.NSEvent,
-                    'otherEventWithType_'
-                    'location_'
-                    'modifierFlags_'
-                    'timestamp_'
-                    'windowNumber_'
-                    'context_'
-                    'subtype_'
-                    'data1_'
-                    'data2_')(
+            result = otherEventWithType(
                 Quartz.NSSystemDefined,
                 (0, 0),
                 0xa00 if is_pressed else 0xb00,

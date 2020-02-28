@@ -48,11 +48,11 @@ from . import _base
 
 class KeyCode(_base.KeyCode):
     _PLATFORM_EXTENSIONS = (
-            # Any extra flags.
-            '_flags',
+        # Any extra flags.
+        '_flags',
 
-            #: The scan code.
-            '_scan',
+        #: The scan code.
+        '_scan',
     )
 
     def _parameters(self, is_press):

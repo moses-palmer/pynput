@@ -57,8 +57,8 @@ from . import _base
 
 class KeyCode(_base.KeyCode):
     _PLATFORM_EXTENSIONS = (
-            # The symbol named for this key
-            '_symbol',
+        # The symbol named for this key
+        '_symbol',
     )
 
     @classmethod
