@@ -33,8 +33,6 @@ from ctypes import (
     windll,
     wintypes)
 
-import six
-
 from . import AbstractListener, win32_vks as VK
 
 
