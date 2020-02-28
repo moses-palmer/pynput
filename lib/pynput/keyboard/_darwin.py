@@ -43,6 +43,7 @@ NX_KEYTYPE_SOUND_UP = 0
 NX_KEYTYPE_NEXT = 17
 NX_KEYTYPE_PREVIOUS = 18
 
+# pylint: disable=C0103; We want to use the names from the C API
 # This is undocumented, but still widely known
 kSystemDefinedEventMediaKeysSubtype = 8
 
@@ -58,6 +59,7 @@ otherEventWithType = getattr(
         'subtype_'
         'data1_'
         'data2_')
+# pylint: enable=C0103
 
 
 class KeyCode(_base.KeyCode):
