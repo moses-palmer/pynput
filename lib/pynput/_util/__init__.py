@@ -66,8 +66,8 @@ class AbstractListener(threading.Thread):
         """
         pass
 
-    #: Exceptions that are handled outside of the emitter and should thus not be
-    #: passed through the queue
+    #: Exceptions that are handled outside of the emitter and should thus not
+    #: be passed through the queue
     _HANDLED_EXCEPTIONS = tuple()
 
     def __init__(self, suppress=False, **kwargs):

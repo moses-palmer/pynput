@@ -374,8 +374,8 @@ class ListenerMixin(object):
     def _handler(self, code, msg, lpdata):
         """The callback registered with *Windows* for events.
 
-        This method will post the message :attr:`_WM_HANDLE` to the message loop
-        started with this listener using :meth:`MessageLoop.post`. The
+        This method will post the message :attr:`_WM_HANDLE` to the message
+        loop started with this listener using :meth:`MessageLoop.post`. The
         parameters are retrieved with a call to :meth:`_handle`.
         """
         try:
