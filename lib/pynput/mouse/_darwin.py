@@ -177,7 +177,7 @@ class Listener(ListenerMixin, _base.Listener):
             'intercept',
             None)
 
-    def _handle(self, dummy_proxy, event_type, event, dummy_refcon):
+    def _handle(self, _proxy, event_type, event, _refcon):
         """The callback registered with *Mac OSX* for mouse events.
 
         This method will call the callbacks registered on initialisation.
