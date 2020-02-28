@@ -185,7 +185,6 @@ class HotKey(object):
         else:
             return parsed_parts
 
-
     def press(self, key):
         """Updates the hotkey state for a pressed key.
 

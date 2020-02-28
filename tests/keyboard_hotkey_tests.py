@@ -15,10 +15,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-import contextlib
-import locale
-import sys
-import threading
 import unittest
 
 from six.moves import queue
@@ -59,18 +55,22 @@ class KeyboardHotKeyTest(unittest.TestCase):
         self.assertSetEqual(
             HotKey.parse('a'),
             {
-                kc.from_char('A')})
+                kc.from_char('a')})
+        self.assertSetEqual(
+            HotKey.parse('A'),
+            {
+                kc.from_char('a')})
         self.assertSetEqual(
             HotKey.parse('<ctrl>+a'),
             {
                 k.ctrl,
-                kc.from_char('A')})
+                kc.from_char('a')})
         self.assertSetEqual(
             HotKey.parse('<ctrl>+<alt>+a'),
             {
                 k.ctrl,
                 k.alt,
-                kc.from_char('A')})
+                kc.from_char('a')})
 
     def test_activate_single(self):
         activations = []
@@ -95,11 +95,6 @@ class KeyboardHotKeyTest(unittest.TestCase):
         self.assertEqual(2, len(activations))
         hk.release(kc.from_char('a'))
         self.assertEqual(2, len(activations))
-
-        hk.press(kc.from_char('A'))
-        self.assertEqual(3, len(activations))
-        hk.release(kc.from_char('A'))
-        self.assertEqual(3, len(activations))
 
     def test_activate_combo(self):
         activations = []

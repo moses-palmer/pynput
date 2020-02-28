@@ -33,7 +33,7 @@ from ctypes import wintypes
 
 import pynput._util.win32_vks as VK
 
-from pynput._util import AbstractListener, NotifierMixin
+from pynput._util import AbstractListener
 from pynput._util.win32 import (
     INPUT,
     INPUT_union,
@@ -48,12 +48,16 @@ from . import _base
 
 class KeyCode(_base.KeyCode):
     _PLATFORM_EXTENSIONS = (
-            # Any extra flags.
-            '_flags',
+        # Any extra flags.
+        '_flags',
 
-            #: The scan code.
-            '_scan',
+        #: The scan code.
+        '_scan',
     )
+
+    # Be explicit about fields
+    _flags = None
+    _scan = None
 
     def _parameters(self, is_press):
         """The parameters to pass to ``SendInput`` to generate this key.
@@ -97,6 +101,7 @@ class KeyCode(_base.KeyCode):
         return cls.from_vk(vk, _flags=KEYBDINPUT.EXTENDEDKEY, **kwargs)
 
 
+# pylint: disable=W0212
 class Key(enum.Enum):
     alt = KeyCode.from_vk(VK.MENU)
     alt_l = KeyCode.from_vk(VK.LMENU)
@@ -160,6 +165,7 @@ class Key(enum.Enum):
     pause = KeyCode.from_vk(VK.PAUSE)
     print_screen = KeyCode._from_ext(VK.SNAPSHOT)
     scroll_lock = KeyCode.from_vk(VK.SCROLL)
+# pylint: enable=W0212
 
 
 class Controller(_base.Controller):

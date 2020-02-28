@@ -42,8 +42,8 @@ with open(os.path.join(
         os.path.dirname(__file__),
         'lib',
         MAIN_PACKAGE_NAME,
-        '_info.py')) as f:
-    for line in f:
+        '_info.py'), 'rb') as f:
+    for line in f.read().decode('utf-8').splitlines():
         try:
             name, value = (i.strip() for i in line.split('='))
             if name.startswith('__') and name.endswith('__'):
@@ -56,18 +56,18 @@ with open(os.path.join(
 try:
     with open(os.path.join(
             os.path.dirname(__file__),
-            'README.rst')) as f:
-        README = f.read()
+            'README.rst'), 'rb') as f:
+        README = f.read().decode('utf-8')
 
     with open(os.path.join(
             os.path.dirname(__file__),
-            os.path.join('docs', 'mouse-usage.rst'))) as f:
-        README += '\n\n' + f.read()
+            os.path.join('docs', 'mouse-usage.rst')), 'rb') as f:
+        README += '\n\n' + f.read().decode('utf-8')
 
     with open(os.path.join(
             os.path.dirname(__file__),
-            os.path.join('docs', 'keyboard-usage.rst'))) as f:
-        README += '\n\n' + f.read()
+            os.path.join('docs', 'keyboard-usage.rst')), 'rb') as f:
+        README += '\n\n' + f.read().decode('utf-8')
 except IOError:
     README = ''
 
@@ -76,8 +76,8 @@ except IOError:
 try:
     with open(os.path.join(
             os.path.dirname(__file__),
-            'CHANGES.rst')) as f:
-        CHANGES = f.read()
+            'CHANGES.rst'), 'rb') as f:
+        CHANGES = f.read().decode('utf-8')
 except IOError:
     CHANGES = ''
 

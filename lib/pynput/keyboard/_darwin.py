@@ -43,15 +43,43 @@ NX_KEYTYPE_SOUND_UP = 0
 NX_KEYTYPE_NEXT = 17
 NX_KEYTYPE_PREVIOUS = 18
 
+# pylint: disable=C0103; We want to use the names from the C API
 # This is undocumented, but still widely known
 kSystemDefinedEventMediaKeysSubtype = 8
+
+# We extract this here since the name is very long
+otherEventWithType = getattr(
+        Quartz.NSEvent,
+        'otherEventWithType_'
+        'location_'
+        'modifierFlags_'
+        'timestamp_'
+        'windowNumber_'
+        'context_'
+        'subtype_'
+        'data1_'
+        'data2_')
+# pylint: enable=C0103
 
 
 class KeyCode(_base.KeyCode):
     _PLATFORM_EXTENSIONS = (
-            # Whether this is a media key
-            '_is_media',
+        # Whether this is a media key
+        '_is_media',
     )
+
+    # Be explicit about fields
+    _is_media = None
+
+    @classmethod
+    def _from_media(cls, vk, **kwargs):
+        """Creates a media key from a key code.
+
+        :param int vk: The key code.
+
+        :return: a key code
+        """
+        return cls.from_vk(vk, _is_media=True, **kwargs)
 
     def _event(self, modifiers, mapping, is_pressed):
         """This key as a *Quartz* event.
@@ -66,17 +94,7 @@ class KeyCode(_base.KeyCode):
         """
         vk = self.vk or mapping.get(self.char)
         if self._is_media:
-            result = getattr(
-                    Quartz.NSEvent,
-                    'otherEventWithType_'
-                    'location_'
-                    'modifierFlags_'
-                    'timestamp_'
-                    'windowNumber_'
-                    'context_'
-                    'subtype_'
-                    'data1_'
-                    'data2_')(
+            result = otherEventWithType(
                 Quartz.NSSystemDefined,
                 (0, 0),
                 0xa00 if is_pressed else 0xb00,
@@ -112,6 +130,7 @@ class KeyCode(_base.KeyCode):
         return result
 
 
+# pylint: disable=W0212
 class Key(enum.Enum):
     # Default keys
     alt = KeyCode.from_vk(0x3A)
@@ -163,12 +182,13 @@ class Key(enum.Enum):
     tab = KeyCode.from_vk(0x30)
     up = KeyCode.from_vk(0x7E)
 
-    media_play_pause = KeyCode.from_vk(NX_KEYTYPE_PLAY, _is_media=True)
-    media_volume_mute = KeyCode.from_vk(NX_KEYTYPE_MUTE, _is_media=True)
-    media_volume_down = KeyCode.from_vk(NX_KEYTYPE_SOUND_DOWN, _is_media=True)
-    media_volume_up = KeyCode.from_vk(NX_KEYTYPE_SOUND_UP, _is_media=True)
-    media_previous = KeyCode.from_vk(NX_KEYTYPE_PREVIOUS, _is_media=True)
-    media_next = KeyCode.from_vk(NX_KEYTYPE_NEXT, _is_media=True)
+    media_play_pause = KeyCode._from_media(NX_KEYTYPE_PLAY)
+    media_volume_mute = KeyCode._from_media(NX_KEYTYPE_MUTE)
+    media_volume_down = KeyCode._from_media(NX_KEYTYPE_SOUND_DOWN)
+    media_volume_up = KeyCode._from_media(NX_KEYTYPE_SOUND_UP)
+    media_previous = KeyCode._from_media(NX_KEYTYPE_PREVIOUS)
+    media_next = KeyCode._from_media(NX_KEYTYPE_NEXT)
+# pylint: enable=W0212
 
 
 class Controller(_base.Controller):
@@ -196,10 +216,12 @@ class Listener(ListenerMixin, _base.Listener):
         Quartz.CGEventMaskBit(Quartz.NSSystemDefined)
     )
 
+    # pylint: disable=W0212
     #: A mapping from keysym to special key
     _SPECIAL_KEYS = {
         (key.value.vk, key.value._is_media): key
         for key in Key}
+    # pylint: enable=W0212
 
     #: The event flags set for the various modifier keys
     _MODIFIER_FLAGS = {
@@ -232,7 +254,7 @@ class Listener(ListenerMixin, _base.Listener):
             finally:
                 self._context = None
 
-    def _handle(self, dummy_proxy, event_type, event, dummy_refcon):
+    def _handle(self, _proxy, event_type, event, _refcon):
         # Convert the event to a KeyCode; this may fail, and in that case we
         # pass None
         try:
