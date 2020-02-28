@@ -126,7 +126,7 @@ VkKeyScan.argtypes = (
 SendInput = windll.user32.SendInput
 SendInput.argtypes = (
     wintypes.UINT,
-    LPINPUT,
+    ctypes.c_voidp,  # Really LPINPUT
     ctypes.c_int)
 
 GetCurrentThreadId = windll.kernel32.GetCurrentThreadId
@@ -143,13 +143,13 @@ class MessageLoop(object):
 
     _GetMessage = windll.user32.GetMessageW
     _GetMessage.argtypes = (
-        _LPMSG,
+        ctypes.c_voidp,  # Really _LPMSG
         wintypes.HWND,
         wintypes.UINT,
         wintypes.UINT)
     _PeekMessage = windll.user32.PeekMessageW
     _PeekMessage.argtypes = (
-        _LPMSG,
+        ctypes.c_voidp,  # Really _LPMSG
         wintypes.HWND,
         wintypes.UINT,
         wintypes.UINT,
