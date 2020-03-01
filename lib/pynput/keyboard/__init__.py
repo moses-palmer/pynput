@@ -175,12 +175,12 @@ class HotKey(object):
 
         # Split the string and parse the individual parts
         raw_parts = list(parts())
-        parsed_parts = {
+        parsed_parts = [
             parse(s)
-            for s in raw_parts}
+            for s in raw_parts]
 
         # Ensure no duplicate parts
-        if len(raw_parts) != len(parsed_parts):
+        if len(parsed_parts) != len(set(parsed_parts)):
             raise ValueError(keys)
         else:
             return parsed_parts
