@@ -166,10 +166,14 @@ class HotKey(object):
             if len(s) == 1:
                 return KeyCode.from_char(s.lower())
             elif len(s) > 2 and (s[0], s[-1]) == ('<', '>'):
+                p = s[1:-1]
                 try:
-                    return Key[s[1:-1].lower()]
+                    return Key[p.lower()]
                 except KeyError:
-                    raise ValueError(s)
+                    try:
+                        return KeyCode.from_vk(int(p))
+                    except ValueError:
+                        raise ValueError(s)
             else:
                 raise ValueError(s)
 

@@ -71,6 +71,11 @@ class KeyboardHotKeyTest(unittest.TestCase):
                 k.ctrl,
                 k.alt,
                 kc.from_char('a')])
+        self.assertSequenceEqual(
+            HotKey.parse('<ctrl>+<123456>'),
+            [
+                k.ctrl,
+                kc.from_vk(123456)])
 
     def test_activate_single(self):
         activations = []
