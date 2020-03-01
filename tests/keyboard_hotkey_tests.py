@@ -131,7 +131,7 @@ class KeyboardHotKeyTest(unittest.TestCase):
         hk.press(kc.from_char('a'))
         self.assertEqual(3, len(activations))
 
-    def test_hostkeys(self):
+    def test_hotkeys(self):
         q = queue.Queue()
 
         with GlobalHotKeys({
