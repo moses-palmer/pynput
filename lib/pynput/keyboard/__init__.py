@@ -166,21 +166,25 @@ class HotKey(object):
             if len(s) == 1:
                 return KeyCode.from_char(s.lower())
             elif len(s) > 2 and (s[0], s[-1]) == ('<', '>'):
+                p = s[1:-1]
                 try:
-                    return Key[s[1:-1].lower()]
+                    return Key[p.lower()]
                 except KeyError:
-                    raise ValueError(s)
+                    try:
+                        return KeyCode.from_vk(int(p))
+                    except ValueError:
+                        raise ValueError(s)
             else:
                 raise ValueError(s)
 
         # Split the string and parse the individual parts
         raw_parts = list(parts())
-        parsed_parts = {
+        parsed_parts = [
             parse(s)
-            for s in raw_parts}
+            for s in raw_parts]
 
         # Ensure no duplicate parts
-        if len(raw_parts) != len(parsed_parts):
+        if len(parsed_parts) != len(set(parsed_parts)):
             raise ValueError(keys)
         else:
             return parsed_parts

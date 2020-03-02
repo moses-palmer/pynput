@@ -52,25 +52,30 @@ class KeyboardHotKeyTest(unittest.TestCase):
         self.assertEqual(e.exception.args, ('<ctrl>+a+A',))
 
     def test_parse_valid(self):
-        self.assertSetEqual(
+        self.assertSequenceEqual(
             HotKey.parse('a'),
-            {
-                kc.from_char('a')})
-        self.assertSetEqual(
+            [
+                kc.from_char('a')])
+        self.assertSequenceEqual(
             HotKey.parse('A'),
-            {
-                kc.from_char('a')})
-        self.assertSetEqual(
+            [
+                kc.from_char('a')])
+        self.assertSequenceEqual(
             HotKey.parse('<ctrl>+a'),
-            {
+            [
                 k.ctrl,
-                kc.from_char('a')})
-        self.assertSetEqual(
+                kc.from_char('a')])
+        self.assertSequenceEqual(
             HotKey.parse('<ctrl>+<alt>+a'),
-            {
+            [
                 k.ctrl,
                 k.alt,
-                kc.from_char('a')})
+                kc.from_char('a')])
+        self.assertSequenceEqual(
+            HotKey.parse('<ctrl>+<123456>'),
+            [
+                k.ctrl,
+                kc.from_vk(123456)])
 
     def test_activate_single(self):
         activations = []
@@ -131,7 +136,7 @@ class KeyboardHotKeyTest(unittest.TestCase):
         hk.press(kc.from_char('a'))
         self.assertEqual(3, len(activations))
 
-    def test_hostkeys(self):
+    def test_hotkeys(self):
         q = queue.Queue()
 
         with GlobalHotKeys({
