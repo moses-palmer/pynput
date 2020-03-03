@@ -79,7 +79,9 @@ class KeyCode(object):
         if self.char is not None and other.char is not None:
             return self.char == other.char and self.is_dead == other.is_dead
         else:
-            return self.vk == other.vk
+            return self.vk == other.vk and all(
+                getattr(self, f) == getattr(other, f)
+                for f in self._PLATFORM_EXTENSIONS)
 
     def __hash__(self):
         return hash(repr(self))
