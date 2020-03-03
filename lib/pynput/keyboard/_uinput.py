@@ -25,7 +25,11 @@ The keyboard implementation for *uinput*.
 # We implement stubs
 
 import enum
+import functools
+import re
+import subprocess
 
+from pynput._util import xorg_keysyms
 from pynput._util.uinput import ListenerMixin
 from . import _base
 
@@ -124,6 +128,175 @@ class Key(enum.Enum):
     print_screen = KeyCode._from_name('Print', 'KEY_SYSRQ')
     scroll_lock = KeyCode._from_name('Scroll_Lock', 'KEY_SCROLLLOCK')
 # pylint: enable=W0212
+
+
+class Layout(object):
+    """A description of the keyboard layout.
+    """
+    #: A regular expression to parse keycodes in the dumpkeys output
+    #:
+    #: The groups are: keycode number, key names.
+    KEYCODE_RE = re.compile(
+        r'keycode\s+(\d+)\s+=(.*)')
+
+    class Key(object):
+        """A key in a keyboard layout.
+        """
+        def __init__(self, normal, shifted, alt, alt_shifted):
+            self._values = (
+                normal,
+                shifted,
+                alt,
+                alt_shifted)
+
+        def __str__(self):
+            return ('<'
+                'normal: {}, '
+                'shifted: {}, '
+                'alternative: {}, '
+                'shifted alternative: {}>').format(
+                    self.normal, self.shifted, self.alt, self.alt_shifted)
+
+        __repr__ = __str__
+
+        def __iter__(self):
+            return iter(self._values)
+
+        def __getitem__(self, i):
+            return self._values[i]
+
+        @property
+        def normal(self):
+            """The normal key.
+            """
+            return self._values[0]
+
+        @property
+        def shifted(self):
+            """The shifted key.
+            """
+            return self._values[1]
+
+        @property
+        def alt(self):
+            """The alterntive key.
+            """
+            return self._values[2]
+
+        @property
+        def alt_shifted(self):
+            """The shifted alternative key.
+            """
+            return self._values[3]
+
+    def __init__(self):
+        try:
+            def as_char(k):
+                return k.value.char if isinstance(k, Key) else k.char
+            self._vk_table = self._load()
+            self._char_table = {
+                as_char(key): (
+                    vk,
+                    set()
+                        | {Key.shift} if i & 1 else set()
+                        | {Key.alt_gr} if i & 2 else set())
+                for vk, keys in self._vk_table.items()
+                for i, key in enumerate(keys)
+                if key is not None and as_char(key) is not None}
+        except subprocess.CalledProcessError:
+            raise OSError('failed to load keyboard layout')
+
+    def for_vk(self, vk, modifiers):
+        """Reads a key for a virtual key code and modifier state.
+
+        :param int vk: The virtual key code.
+
+        :param set modifiers: A set of modifiers.
+
+        :return: a mapped key
+
+        :raises ValueError: if ``modifiers`` contains keys other than
+            :attr:`Key.shift` and :attr:`Key.alt_gr`
+
+        :raises KeyError: if ``vk`` is an unknown key
+        """
+        if not {Key.shift, Key.alt_gr}.issuperset(modifiers):
+            raise ValueError(modifiers)
+        else:
+            return self._vk_table[vk][
+                0
+                | (1 if Key.shift in modifiers else 0)
+                | (2 if Key.alt_gr in modifiers else 0)]
+
+    def for_char(self, char):
+        """Reads a virtual key code and modifier state for a character.
+
+        :param str char: The character.
+
+        :return: the tuple ``(vk, modifiers)``
+
+        :raises KeyError: if ``vk`` is an unknown key
+        """
+        return self._char_table[char]
+
+    @functools.lru_cache()
+    def _load(self):
+        """Loads the keyboard layout.
+
+        For simplicity, we call out to the ``dumpkeys`` binary. In the future,
+        we may want to implement this ourselves.
+        """
+        result = {}
+        for keycode, names in self.KEYCODE_RE.findall(
+                subprocess.check_output(
+                    ['dumpkeys', '--full-table']).decode('utf-8')):
+            vk = int(keycode)
+            keys = tuple(
+                self._parse(vk, name)
+                for name in names.split()[:4])
+            if any(key is not None for key in keys):
+                result[vk] = self.Key(*keys)
+        return result
+
+    def _parse(self, vk, name):
+        """Parses a single key from the ``dumpkeys`` output.
+
+        :param int vk: The key code.
+
+        :param str name: The key name.
+
+        :return: a key representation
+        """
+        try:
+            # First try special keys...
+            return next(
+                key
+                for key in Key
+                if key.value._x_name == name)
+        except StopIteration:
+            # ...then characters...
+            try:
+                _, char = xorg_keysyms.SYMBOLS[name.lstrip('+')]
+                if char:
+                    return KeyCode.from_char(char, vk=vk)
+            except KeyError:
+                pass
+
+            # ...and finally special dumpkeys names
+            try:
+                return KeyCode.from_char({
+                    'one': '1',
+                    'two': '2',
+                    'three': '3',
+                    'four': '4',
+                    'five': '5',
+                    'six': '6',
+                    'seven': '7',
+                    'eight': '8',
+                    'nine': '9',
+                    'zero': '0'}[name])
+            except KeyError:
+                pass
 
 
 class Controller(_base.Controller):
