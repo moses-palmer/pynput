@@ -1,6 +1,6 @@
 # coding=utf-8
 # pynput
-# Copyright (C) 2015-2019 Moses Palmér
+# Copyright (C) 2015-2020 Moses Palmér
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -26,12 +26,43 @@ General utility functions and classes.
 
 import contextlib
 import functools
+import importlib
+import os
 import sys
 import threading
 
 import six
 
 from six.moves import queue
+
+
+def backend(package):
+    """Returns the backend module for a package.
+
+    :param str package: The package for which to load a backend.
+    """
+    backend_name = os.environ.get(
+        'PYNPUT_BACKEND_{}'.format(package.rsplit('.')[-1].upper()),
+        os.environ.get('PYNPUT_BACKEND', None))
+    if backend_name:
+        modules = [backend_name]
+    elif sys.platform == 'darwin':
+        modules = ['darwin']
+    elif sys.platform == 'win32':
+        modules = ['win32']
+    else:
+        modules = ['xorg']
+
+    errors = []
+    for module in modules:
+        try:
+            return importlib.import_module('._' + module, package)
+        except ImportError as e:
+            errors.append(e)
+
+    raise ImportError('this platform is not supported: {}'.format(
+        '; '.join(str(e) for e in errors)))
+
 
 
 class AbstractListener(threading.Thread):

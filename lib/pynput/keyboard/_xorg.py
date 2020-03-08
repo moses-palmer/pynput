@@ -1,6 +1,6 @@
 # coding=utf-8
 # pynput
-# Copyright (C) 2015-2019 Moses Palmér
+# Copyright (C) 2015-2020 Moses Palmér
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -23,6 +23,13 @@ The keyboard implementation for *Xorg*.
 
 # pylint: disable=R0903
 # We implement stubs
+
+# pylint: disable=W0611
+try:
+    import pynput._util.xorg
+except Exception as e:
+    raise ImportError('failed to aquire X connection: {}'.format(str(e)), e)
+# pylint: enable=W0611
 
 import enum
 import threading
@@ -57,7 +64,7 @@ from . import _base
 
 class KeyCode(_base.KeyCode):
     _PLATFORM_EXTENSIONS = (
-        # The symbol named for this key
+        # The symbol name for this key
         '_symbol',
     )
 

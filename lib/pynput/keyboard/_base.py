@@ -1,6 +1,6 @@
 # coding=utf-8
 # pynput
-# Copyright (C) 2015-2019 Moses Palmér
+# Copyright (C) 2015-2020 Moses Palmér
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -79,7 +79,9 @@ class KeyCode(object):
         if self.char is not None and other.char is not None:
             return self.char == other.char and self.is_dead == other.is_dead
         else:
-            return self.vk == other.vk
+            return self.vk == other.vk and all(
+                getattr(self, f) == getattr(other, f)
+                for f in self._PLATFORM_EXTENSIONS)
 
     def __hash__(self):
         return hash(repr(self))
