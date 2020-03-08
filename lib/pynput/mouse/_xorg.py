@@ -32,7 +32,7 @@ The keyboard implementation for *Xorg*.
 try:
     import pynput._util.xorg
 except Exception as e:
-    raise ImportError('failed to aquire X connection: {}'.format(str(e)), e)
+    raise ImportError('failed to acquire X connection: {}'.format(str(e)), e)
 # pylint: enable=W0611
 
 import enum
