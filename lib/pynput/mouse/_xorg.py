@@ -28,6 +28,13 @@ The keyboard implementation for *Xorg*.
 # pylint: disable=R0903
 # We implement stubs
 
+# pylint: disable=W0611
+try:
+    import pynput._util.xorg
+except Exception as e:
+    raise ImportError('failed to aquire X connection: {}'.format(str(e)), e)
+# pylint: enable=W0611
+
 import enum
 import Xlib.display
 import Xlib.ext
