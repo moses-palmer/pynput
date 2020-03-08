@@ -33,25 +33,14 @@ else:
     Controller = None
     Listener = None
 
-from pynput._util import Events
+from pynput._util import backend, Events
 
 
-if sys.platform == 'darwin':
-    if not Button and not Controller and not Listener:
-        from ._darwin import Button, Controller, Listener
-
-elif sys.platform == 'win32':
-    if not Button and not Controller and not Listener:
-        from ._win32 import Button, Controller, Listener
-
-else:
-    if not Button and not Controller and not Listener:
-        try:
-            from ._xorg import Button, Controller, Listener
-        except ImportError:
-            # For now, since we only support Xlib anyway, we re-raise these
-            # errors to allow users to determine the cause of failures to import
-            raise
+backend = backend(__package__)
+Button = backend.Button
+Controller = backend.Controller
+Listener = backend.Listener
+del backend
 
 
 if not Button or not Controller or not Listener:

@@ -35,29 +35,15 @@ else:
     Controller = None
     Listener = None
 
-from pynput._util import Events
+from pynput._util import backend, Events
 
 
-if sys.platform == 'darwin':
-    if not KeyCode and not Key and not Controller and not Listener:
-        from ._darwin import KeyCode, Key, Controller, Listener
-
-elif sys.platform == 'win32':
-    if not KeyCode and not Key and not Controller and not Listener:
-        from ._win32 import KeyCode, Key, Controller, Listener
-
-else:
-    if not KeyCode and not Key and not Controller and not Listener:
-        try:
-            from ._xorg import KeyCode, Key, Controller, Listener
-        except ImportError:
-            # For now, since we only support Xlib anyway, we re-raise these
-            # errors to allow users to determine the cause of failures to import
-            raise
-
-
-if not KeyCode or not Key or not Controller or not Listener:
-    raise ImportError('this platform is not supported')
+backend = backend(__package__)
+KeyCode = backend.KeyCode
+Key = backend.Key
+Controller = backend.Controller
+Listener = backend.Listener
+del backend
 
 
 # pylint: disable=C0326; it is easier to read column aligned keys
