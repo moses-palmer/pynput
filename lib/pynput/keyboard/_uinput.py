@@ -31,6 +31,8 @@ import subprocess
 
 import evdev
 
+from evdev.events import KeyEvent
+
 from pynput._util import xorg_keysyms
 from pynput._util.uinput import ListenerMixin
 from . import _base
@@ -388,7 +390,55 @@ class Controller(_base.Controller):
 
 
 class Listener(ListenerMixin, _base.Listener):
+    _EVENTS = (
+        evdev.ecodes.EV_KEY,)
+
+    #: A
+    _MODIFIERS = {
+        Key.alt.value.vk: Key.alt,
+        Key.alt_l.value.vk: Key.alt,
+        Key.alt_r.value.vk: Key.alt,
+        Key.alt_gr.value.vk: Key.alt_gr,
+        Key.shift.value.vk: Key.shift,
+        Key.shift_l.value.vk: Key.shift,
+        Key.shift_r.value.vk: Key.shift}
+
     def __init__(self, *args, **kwargs):
         super(Listener, self).__init__(*args, **kwargs)
-        # TODO: Implement
-        raise NotImplementedError()
+        self._layout = Layout()
+        self._modifiers = set()
+
+    def _handle(self, event):
+        is_press = event.value in (KeyEvent.key_down, KeyEvent.key_hold)
+        vk = event.code
+
+        # Update the modifier state
+        if vk in self._MODIFIERS:
+            modifier = self._MODIFIERS[vk]
+            if is_press:
+                self._modifiers.add(modifier)
+            elif modifier in self._modifiers:
+                self._modifiers.remove(modifier)
+
+        # Attempt to map the virtual key code to a character
+        try:
+            char = self._layout.for_vk(vk, self._modifiers)
+        except KeyError:
+            char = None
+
+        # If we find a character, use that, otherwise try with a special key
+        if char is not None:
+            key = KeyCode.from_char(char, vk=vk)
+        else:
+            try:
+                key = next(
+                    key
+                    for key in Key
+                    if key.value.vk == vk)
+            except StopIteration:
+                key = KeyCode.from_vk(vk)
+
+        if is_press:
+            self.on_press(key)
+        else:
+            self.on_release(key)
