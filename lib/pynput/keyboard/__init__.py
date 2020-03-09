@@ -24,16 +24,6 @@ See the documentation for more information.
 # KeyCode, Key, Controller and Listener are not constants
 
 import itertools
-import os
-import sys
-
-if os.environ.get('__PYNPUT_GENERATE_DOCUMENTATION') == 'yes':
-    from ._base import KeyCode, Key, Controller, Listener
-else:
-    KeyCode = None
-    Key = None
-    Controller = None
-    Listener = None
 
 from pynput._util import backend, Events
 

@@ -80,7 +80,7 @@ def notify(message, delay=None, columns=50):
 
 
 
-#: A decorator to make a test run only on Mac OSX
+#: A decorator to make a test run only on macOS
 darwin = functools.partial(_backend, 'darwin')
 
 #: A decorator to make a test run only on Windows

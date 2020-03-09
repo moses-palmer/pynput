@@ -24,7 +24,7 @@ Use ``pynput.mouse.Controller`` like this::
     mouse.release(Button.left)
 
     # Double click; this is different from pressing and releasing
-    # twice on Mac OSX
+    # twice on macOS
     mouse.click(Button.left, 2)
 
     # Scroll two steps down

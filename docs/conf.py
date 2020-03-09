@@ -12,7 +12,7 @@ sys.path.insert(
         os.path.pardir,
         'lib'))
 
-os.environ['__PYNPUT_GENERATE_DOCUMENTATION'] = 'yes'
+os.environ['PYNPUT_BACKEND'] = 'dummy'
 
 import pynput as package
 import pynput._info as INFO

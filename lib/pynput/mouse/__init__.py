@@ -23,16 +23,6 @@ See the documentation for more information.
 # pylint: disable=C0103
 # Button, Controller and Listener are not constants
 
-import os
-import sys
-
-if os.environ.get('__PYNPUT_GENERATE_DOCUMENTATION') == 'yes':
-    from ._base import Button, Controller, Listener
-else:
-    Button = None
-    Controller = None
-    Listener = None
-
 from pynput._util import backend, Events
 
 
@@ -41,10 +31,6 @@ Button = backend.Button
 Controller = backend.Controller
 Listener = backend.Listener
 del backend
-
-
-if not Button or not Controller or not Listener:
-    raise ImportError('this platform is not supported')
 
 
 class Events(Events):

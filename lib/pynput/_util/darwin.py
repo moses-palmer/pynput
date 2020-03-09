@@ -255,7 +255,7 @@ class ListenerMixin(object):
 
     @AbstractListener._emitter
     def _handler(self, proxy, event_type, event, refcon):
-        """The callback registered with *Mac OSX* for mouse events.
+        """The callback registered with *macOS* for mouse events.
 
         This method will call the callbacks registered on initialisation.
         """
