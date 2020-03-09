@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
-The mouse implementation for *OSX*.
+The mouse implementation for *macOS*.
 """
 
 # pylint: disable=C0111
@@ -178,7 +178,7 @@ class Listener(ListenerMixin, _base.Listener):
             None)
 
     def _handle(self, _proxy, event_type, event, _refcon):
-        """The callback registered with *Mac OSX* for mouse events.
+        """The callback registered with *macOS* for mouse events.
 
         This method will call the callbacks registered on initialisation.
         """

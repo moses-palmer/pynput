@@ -22,10 +22,11 @@ work. To work around that, make sure to set ``$DISPLAY``:
     $ DISPLAY=:0 python -c 'import pynput'
 
 
-Mac OSX
-~~~~~~~
 
-Recent versions of *Mac OSX* restrict monitoring of the keyboard for security
+macOS
+~~~~~
+
+Recent versions of *macOS* restrict monitoring of the keyboard for security
 reasons. For that reason, one of the following must be true:
 
 *  The process must run as root.
