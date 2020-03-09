@@ -43,10 +43,6 @@ Listener = backend.Listener
 del backend
 
 
-if not Button or not Controller or not Listener:
-    raise ImportError('this platform is not supported')
-
-
 class Events(Events):
     """A mouse event listener supporting synchronous iteration over the events.
 
