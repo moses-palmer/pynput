@@ -253,7 +253,7 @@ class Events(object):
                 self.__class__.__name__,
                 ', '.join(
                     '{}={}'.format(k, v)
-                    for (k, v) in vars(self)))
+                    for (k, v) in vars(self).items()))
 
         def __eq__(self, other):
             return self.__class__ == other.__class__ \
