@@ -47,7 +47,7 @@ class X11Error(Exception):
 
 
 @contextlib.contextmanager
-def display_manager(display):
+def display_manager(display=DISPLAY):
     """Traps *X* errors and raises an :class:``X11Error`` at the end if any
     error occurred.
 
