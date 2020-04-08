@@ -21,6 +21,7 @@ Utility functions and classes for the *Xorg* backend.
 # pylint: disable=R0903
 # We implement stubs
 
+import atexit
 import contextlib
 import functools
 import itertools
@@ -34,11 +35,8 @@ from .xorg_keysyms import SYMBOLS
 
 
 # Create a display to verify that we have an X connection
-def _check():
-    display = Xlib.display.Display()
-    display.close()
-_check()
-del _check
+DISPLAY = Xlib.display.Display()
+atexit.register(DISPLAY.close)
 
 
 class X11Error(Exception):
