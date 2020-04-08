@@ -80,7 +80,7 @@ class KeyCode(_base.KeyCode):
         :return: a key code
         """
         # First try simple translation
-        keysym = Xlib.XK.string_to_keysym(symbol)
+        keysym = symbol_to_keysym(symbol)
         if keysym:
             return cls.from_vk(keysym, _symbol=symbol, **kwargs)
 
@@ -444,15 +444,11 @@ class Controller(NotifierMixin, _base.Controller):
         if symbol is None:
             return None
 
-        # pylint: disable=W0702; we want to ignore errors
-        try:
-            return symbol_to_keysym(symbol)
-        except:
-            try:
-                return SYMBOLS[symbol][0]
-            except:
-                return None
-        # pylint: enable=W0702
+        keysym = symbol_to_keysym(symbol)
+        if keysym:
+            return keysym
+        else:
+            return None
 
     def _shift_mask(self, modifiers):
         """The *X* modifier mask to apply for a set of modifiers.
