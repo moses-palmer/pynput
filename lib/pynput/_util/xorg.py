@@ -86,13 +86,14 @@ def _find_mask(display, symbol):
     :return: the modifier mask
     """
     # Get the key code for the symbol
-    modifier_keycode = display.keysym_to_keycode(
-        Xlib.XK.string_to_keysym(symbol))
+    with display_manager(display) as dm:
+        modifier_keycode = dm.keysym_to_keycode(
+            Xlib.XK.string_to_keysym(symbol))
 
-    for index, keycodes in enumerate(display.get_modifier_mapping()):
-        for keycode in keycodes:
-            if keycode == modifier_keycode:
-                return 1 << index
+        for index, keycodes in enumerate(dm.get_modifier_mapping()):
+            for keycode in keycodes:
+                if keycode == modifier_keycode:
+                    return 1 << index
 
     return 0
 
@@ -339,16 +340,16 @@ def symbol_to_keysym(symbol):
     :return: the corresponding *keysym*, or ``0`` if it cannot be found
     """
     # First try simple translation
-    keysym = Xlib.XK.string_to_keysym(symbol)
-    if keysym:
-        return keysym
+    with display_manager() as _dm:
+        keysym = Xlib.XK.string_to_keysym(symbol)
+        if keysym:
+            return keysym
 
     # If that fails, try checking a module attribute of Xlib.keysymdef.xkb
-    if not keysym:
-        try:
-            return getattr(Xlib.keysymdef.xkb, 'XK_' + symbol, 0)
-        except AttributeError:
-            return SYMBOLS.get(symbol, (0,))[0]
+    try:
+        return getattr(Xlib.keysymdef.xkb, 'XK_' + symbol, 0)
+    except AttributeError:
+        return SYMBOLS.get(symbol, (0,))[0]
 
 
 class ListenerMixin(object):
