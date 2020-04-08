@@ -52,7 +52,8 @@ from pynput._util.xorg import (
     ListenerMixin,
     numlock_mask,
     shift_to_index,
-    symbol_to_keysym)
+    symbol_to_keysym,
+    X11Error)
 from pynput._util.xorg_keysyms import (
     CHARS,
     DEAD_KEYS,
@@ -70,6 +71,16 @@ class KeyCode(_base.KeyCode):
 
     # Be explicit about fields
     _symbol = None
+
+    @classmethod
+    def from_char(cls, char, **kwargs):
+        if not 'vk' in kwargs:
+            try:
+                keysym = symbol_to_keysym(char)
+                return super(KeyCode, cls).from_char(char, vk=keysym, **kwargs)
+            except X11Error:
+                pass
+        return super(KeyCode, cls).from_char(char, **kwargs)
 
     @classmethod
     def _from_symbol(cls, symbol, **kwargs):
