@@ -299,7 +299,7 @@ class Controller(NotifierMixin, _base.Controller):
                 time=0,
                 root=dm.screen().root,
                 window=window,
-                same_screen=0,
+                same_screen=1,
                 child=Xlib.X.NONE,
                 root_x=0, root_y=0, event_x=0, event_y=0))
 
