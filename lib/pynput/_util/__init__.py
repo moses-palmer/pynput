@@ -304,8 +304,12 @@ class Events(object):
             method may block infinitely.
 
         :return: The next event, or ``None`` if the source has been stopped
+            or on timeout
         """
-        event = self._event_queue.get(timeout=timeout)
+        try:
+            event = self._event_queue.get(timeout=timeout)
+        except queue.Empty:
+            return None
         return event if event is not self._sentinel else None
 
     def _event_mapper(self, event):
