@@ -289,3 +289,7 @@ class KeyboardListenerTest(EventTest):
                 Events.Press(KeyCode.from_char('a')),
                 Events.Release(KeyCode.from_char('a')),
             ])
+
+        self.notify('Do not touch the keyboard', delay=2.0)
+        with Events() as events:
+            self.assertIsNone(events.get(1.0))
