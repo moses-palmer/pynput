@@ -194,3 +194,6 @@ class MouseListenerTest(EventTest):
             for event in events:
                 if isinstance(event, Events.Scroll):
                     break
+
+            self.notify('Do not touch the mouse', delay=2.0)
+            self.assertIsNone(events.get(1.0))

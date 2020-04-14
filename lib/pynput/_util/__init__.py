@@ -303,10 +303,14 @@ class Events(object):
         :param int timeout: An optional timeout. If this is not provided, this
             method may block infinitely.
 
-        :return: The next event, or ``None`` if the source has been stopped
+        :return: the next event, or ``None`` if the source has been stopped or
+            no events were received
         """
-        event = self._event_queue.get(timeout=timeout)
-        return event if event is not self._sentinel else None
+        try:
+            event = self._event_queue.get(timeout=timeout)
+            return event if event is not self._sentinel else None
+        except queue.Empty:
+            return None
 
     def _event_mapper(self, event):
         """Generates an event callback to transforms the callback arguments to
