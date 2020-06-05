@@ -418,6 +418,16 @@ class Controller(object):
 
         self._handle(resolved, False)
 
+    def tap(self, key):
+        """Calls :meth:`press` then :meth:`release`.
+
+        :param key: The key to press then release.
+
+        :raises InvalidKeyException: if the key is invalid
+        """
+        self.press(key)
+        self.release(key)
+
     def touch(self, key, is_press):
         """Calls either :meth:`press` or :meth:`release` depending on the value
         of ``is_press``.
