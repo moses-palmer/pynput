@@ -103,6 +103,14 @@ class KeyboardControllerTest(EventTest):
                 hasattr(pynput.keyboard.Key, key.name),
                 '%s is not defined for the current platform' % key.name)
 
+    def test_press_invalid(self):
+        with self.assertRaises(self.controller.InvalidKeyException):
+            self.controller.press(True)
+
+    def test_release_invalid(self):
+        with self.assertRaises(self.controller.InvalidKeyException):
+            self.controller.release(True)
+
     def test_press_release(self):
         """Asserts that a press followed by a release generates a typed string
         for an ascii character"""

@@ -362,6 +362,8 @@ class Controller(object):
         :raises ValueError: if ``key`` is a string, but its length is not ``1``
         """
         resolved = self._resolve(key)
+        if resolved is None:
+            raise self.InvalidKeyException(key)
         self._update_modifiers(resolved, True)
 
         # Update caps lock state
@@ -410,6 +412,8 @@ class Controller(object):
         :raises ValueError: if ``key`` is a string, but its length is not ``1``
         """
         resolved = self._resolve(key)
+        if resolved is None:
+            raise self.InvalidKeyException(key)
         self._update_modifiers(resolved, False)
 
         # Ignore released dead keys
