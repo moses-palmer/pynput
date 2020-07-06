@@ -422,6 +422,23 @@ class Controller(object):
 
         self._handle(resolved, False)
 
+    def tap(self, key):
+        """Presses and releases a key.
+
+        This is equivalent to the following code::
+
+            controller.press(key)
+            controller.release(key)
+
+        :param key: The key to press.
+
+        :raises InvalidKeyException: if the key is invalid
+
+        :raises ValueError: if ``key`` is a string, but its length is not ``1``
+        """
+        self.press(key)
+        self.release(key)
+
     def touch(self, key, is_press):
         """Calls either :meth:`press` or :meth:`release` depending on the value
         of ``is_press``.

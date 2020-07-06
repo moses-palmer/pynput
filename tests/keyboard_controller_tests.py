@@ -78,8 +78,7 @@ class KeyboardControllerTest(EventTest):
         finally:
             # Send a newline to let sys.stdin.readline return in reader
             reader.running = False
-            self.controller.press(pynput.keyboard.Key.enter)
-            self.controller.release(pynput.keyboard.Key.enter)
+            self.controller.tap(pynput.keyboard.Key.enter)
             thread.join()
 
     def assert_input(self, failure_message, expected):
@@ -115,8 +114,7 @@ class KeyboardControllerTest(EventTest):
         """Asserts that a press followed by a release generates a typed string
         for an ascii character"""
         with self.capture() as collect:
-            self.controller.press(pynput.keyboard.Key.space)
-            self.controller.release(pynput.keyboard.Key.space)
+            self.controller.tap(pynput.keyboard.Key.space)
 
         self.assertIn(
             u' ',
@@ -138,10 +136,8 @@ class KeyboardControllerTest(EventTest):
         """Asserts that pressing dead keys generate combined characters"""
         with self.capture() as collect:
             dead = pynput.keyboard.KeyCode.from_dead(u'~')
-            self.controller.press(dead)
-            self.controller.release(dead)
-            self.controller.press(u'a')
-            self.controller.release(u'a')
+            self.controller.tap(dead)
+            self.controller.tap(u'a')
 
         self.assertIn(
             u'ã',
@@ -153,10 +149,8 @@ class KeyboardControllerTest(EventTest):
         non-dead version"""
         with self.capture() as collect:
             dead = pynput.keyboard.KeyCode.from_dead(u'~')
-            self.controller.press(dead)
-            self.controller.release(dead)
-            self.controller.press(pynput.keyboard.Key.space)
-            self.controller.release(pynput.keyboard.Key.space)
+            self.controller.tap(dead)
+            self.controller.tap(pynput.keyboard.Key.space)
 
         self.assertIn(
             u'~',
@@ -167,10 +161,8 @@ class KeyboardControllerTest(EventTest):
         """Asserts that pressing dead keys twice yields the non-dead version"""
         with self.capture() as collect:
             dead = pynput.keyboard.KeyCode.from_dead(u'~')
-            self.controller.press(dead)
-            self.controller.release(dead)
-            self.controller.press(dead)
-            self.controller.release(dead)
+            self.controller.tap(dead)
+            self.controller.tap(dead)
 
         self.assertIn(
             u'~',
@@ -225,14 +217,12 @@ class KeyboardControllerTest(EventTest):
 
     def test_shift_pressed_caps_lock(self):
         """Asserts that shift_pressed is True when caps lock is toggled"""
-        self.controller.press(pynput.keyboard.Key.caps_lock)
-        self.controller.release(pynput.keyboard.Key.caps_lock)
+        self.controller.tap(pynput.keyboard.Key.caps_lock)
         self.assertTrue(
             self.controller.shift_pressed,
             'shift_pressed was not set with caps lock toggled')
 
-        self.controller.press(pynput.keyboard.Key.caps_lock)
-        self.controller.release(pynput.keyboard.Key.caps_lock)
+        self.controller.tap(pynput.keyboard.Key.caps_lock)
         self.assertFalse(
             self.controller.shift_pressed,
             'shift_pressed was not deactivated with caps lock toggled')
@@ -242,8 +232,7 @@ class KeyboardControllerTest(EventTest):
         shift causes it to shift to upper case"""
         with self.capture() as collect:
             with self.controller.pressed(pynput.keyboard.Key.shift):
-                self.controller.press(u'a')
-                self.controller.release(u'a')
+                self.controller.tap(u'a')
 
                 with self.controller.modifiers as modifiers:
                     self.assertIn(
@@ -259,15 +248,12 @@ class KeyboardControllerTest(EventTest):
         """Asserts that pressed actually releases the key"""
         with self.capture() as collect:
             with self.controller.pressed(pynput.keyboard.Key.shift):
-                self.controller.press(u'a')
-                self.controller.release(u'a')
+                self.controller.tap(u'a')
 
-            self.controller.press(u'a')
-            self.controller.release(u'a')
+            self.controller.tap(u'a')
 
             with self.controller.pressed(pynput.keyboard.Key.shift):
-                self.controller.press(u'a')
-                self.controller.release(u'a')
+                self.controller.tap(u'a')
 
 
         self.assertIn(
@@ -313,6 +299,5 @@ class KeyboardControllerTest(EventTest):
                 on_release=lambda k: getattr(k, 'char', None) == u'a'):
             self.controller.release(u'a')
 
-        self.controller.press(pynput.keyboard.Key.enter)
-        self.controller.release(pynput.keyboard.Key.enter)
+        self.controller.tap(pynput.keyboard.Key.enter)
         input()
