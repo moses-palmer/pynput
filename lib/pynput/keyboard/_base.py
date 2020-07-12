@@ -49,9 +49,13 @@ class KeyCode(object):
         self.is_dead = is_dead
 
         if self.is_dead:
-            self.combining = unicodedata.lookup(
-                'COMBINING ' + unicodedata.name(self.char))
-            if not self.combining:
+            try:
+                self.combining = unicodedata.lookup(
+                    'COMBINING ' + unicodedata.name(self.char))
+            except KeyError:
+                self.is_dead = False
+                self.combining = None
+            if self.is_dead and not self.combining:
                 raise KeyError(char)
         else:
             self.combining = None
