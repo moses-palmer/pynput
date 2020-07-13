@@ -21,6 +21,9 @@ work. To work around that, make sure to set ``$DISPLAY``:
 
     $ DISPLAY=:0 python -c 'import pynput'
 
+Please note that the value ``DISPLAY=:0`` is just an example. To find the
+actual value, please launch a terminal application from your desktop
+environment and issue the command ``echo $DISPLAY``.
 
 
 macOS
