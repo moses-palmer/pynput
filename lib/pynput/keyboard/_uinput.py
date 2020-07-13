@@ -25,7 +25,9 @@ The keyboard implementation for *uinput*.
 # We implement stubs
 
 import enum
+import errno
 import functools
+import os
 import re
 import subprocess
 
@@ -66,6 +68,7 @@ class KeyCode(_base.KeyCode):
             vk = None
         return cls.from_vk(
             vk, _x_name=x_name, _kernel_name=kernel_name, **kwargs)
+
 
 # pylint: disable=W0212
 class Key(enum.Enum):
@@ -194,21 +197,18 @@ class Layout(object):
             return self._values[3]
 
     def __init__(self):
-        try:
-            def as_char(k):
-                return k.value.char if isinstance(k, Key) else k.char
-            self._vk_table = self._load()
-            self._char_table = {
-                as_char(key): (
-                    vk,
-                    set()
-                        | {Key.shift} if i & 1 else set()
-                        | {Key.alt_gr} if i & 2 else set())
-                for vk, keys in self._vk_table.items()
-                for i, key in enumerate(keys)
-                if key is not None and as_char(key) is not None}
-        except subprocess.CalledProcessError:
-            raise OSError('failed to load keyboard layout')
+        def as_char(k):
+            return k.value.char if isinstance(k, Key) else k.char
+        self._vk_table = self._load()
+        self._char_table = {
+            as_char(key): (
+                vk,
+                set()
+                    | {Key.shift} if i & 1 else set()
+                    | {Key.alt_gr} if i & 2 else set())
+            for vk, keys in self._vk_table.items()
+            for i, key in enumerate(keys)
+            if key is not None and as_char(key) is not None}
 
     def for_vk(self, vk, modifiers):
         """Reads a key for a virtual key code and modifier state.
@@ -309,7 +309,7 @@ class Controller(_base.Controller):
 
     def __init__(self, *args, **kwargs):
         super(Controller, self).__init__(*args, **kwargs)
-        self._layout = Layout()
+        self._layout = LAYOUT
         self._dev = evdev.UInput()
 
     def __del__(self):
@@ -405,7 +405,7 @@ class Listener(ListenerMixin, _base.Listener):
 
     def __init__(self, *args, **kwargs):
         super(Listener, self).__init__(*args, **kwargs)
-        self._layout = Layout()
+        self._layout = LAYOUT
         self._modifiers = set()
 
     def _handle(self, event):
@@ -442,3 +442,16 @@ class Listener(ListenerMixin, _base.Listener):
             self.on_press(key)
         else:
             self.on_release(key)
+
+
+try:
+    #: The keyboard layout.
+    LAYOUT = Layout()
+except subprocess.CalledProcessError as e:
+    raise ImportError('failed to load keyboard layout: "' + str(e) + (
+        '"; please make sure you are root' if os.getuid() != 1 else '"'))
+except OSError as e:
+    raise ImportError({
+        errno.ENOENT: 'the binary dumpkeys is not installed'}.get(
+            e.args[0],
+            str(e)))
