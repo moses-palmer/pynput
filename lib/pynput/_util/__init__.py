@@ -36,6 +36,16 @@ import six
 from six.moves import queue
 
 
+#: Possible resolutions for import related errors.
+RESOLUTIONS = {
+    'darwin': 'Please make sure that you have Python bindings for the '
+        'system frameworks installed',
+    'uinput': 'Please make sure that you are running as root, and that '
+        'the utility dumpkeys is installed',
+    'xorg': 'Please make sure that you have an X server running, and that '
+        'the DISPLAY environment variable is set correctly'}
+
+
 def backend(package):
     """Returns the backend module for a package.
 
@@ -54,14 +64,22 @@ def backend(package):
         modules = ['xorg']
 
     errors = []
+    resolutions = []
     for module in modules:
         try:
             return importlib.import_module('._' + module, package)
         except ImportError as e:
             errors.append(e)
+            if module in RESOLUTIONS:
+                resolutions.append(RESOLUTIONS[module])
 
     raise ImportError('this platform is not supported: {}'.format(
-        '; '.join(str(e) for e in errors)))
+        '; '.join(str(e) for e in errors)) + ('\n\n'
+            'Try one of the following resolutions:\n\n'
+            + '\n\n'.join(
+                ' * {}'.format(s)
+                for s in resolutions))
+            if resolutions else '')
 
 
 
