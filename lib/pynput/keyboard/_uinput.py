@@ -67,6 +67,7 @@ class KeyCode(_base.KeyCode):
         return cls.from_vk(
             vk, _x_name=x_name, _kernel_name=kernel_name, **kwargs)
 
+
 # pylint: disable=W0212
 class Key(enum.Enum):
     alt = KeyCode._from_name('Alt_L', 'KEY_LEFTALT')
