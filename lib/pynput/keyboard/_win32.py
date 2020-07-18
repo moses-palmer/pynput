@@ -176,13 +176,30 @@ class Controller(_base.Controller):
         super(Controller, self).__init__(*args, **kwargs)
 
     def _handle(self, key, is_press):
-        SendInput(
-            1,
-            ctypes.byref(INPUT(
-                type=INPUT.KEYBOARD,
-                value=INPUT_union(
-                    ki=KEYBDINPUT(**key._parameters(is_press))))),
-            ctypes.sizeof(INPUT))
+        try:
+            SendInput(
+                1,
+                ctypes.byref(INPUT(
+                    type=INPUT.KEYBOARD,
+                    value=INPUT_union(
+                        ki=KEYBDINPUT(**key._parameters(is_press))))),
+                ctypes.sizeof(INPUT))
+        except ctypes.ArgumentError:
+            self._handle_unicode(key, is_press)
+
+    def _handle_unicode(self, key, is_press):
+        surrogates = bytearray(key.char.encode('utf-16le'))
+        inputs = []
+        state_flags = (KEYBDINPUT.KEYUP if not is_press else 0)
+        for i in range(0, len(surrogates), 2):
+            higher, lower = surrogates[i:i+2]
+            structure = KEYBDINPUT(0, (lower << 8) + higher, KEYBDINPUT.UNICODE | state_flags, 0, None)
+            inputs.append(INPUT(INPUT.KEYBOARD, INPUT_union(ki=structure)))
+        nInputs = len(inputs)
+        LPINPUT = INPUT * nInputs
+        pInputs = LPINPUT(*inputs)
+        cbSize = ctypes.sizeof(INPUT)
+        SendInput(nInputs, pInputs, cbSize)
 
 
 class Listener(ListenerMixin, _base.Listener):
