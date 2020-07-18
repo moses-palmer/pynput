@@ -68,12 +68,17 @@ class KeyCode(_base.KeyCode):
         :return: all arguments to pass to ``SendInput`` for this key
 
         :rtype: dict
+
+        :raise ValueError: if this key is a unicode character that cannot be
+        represented by a single UTF-16 value
         """
         if self.vk:
             vk = self.vk
             scan = self._scan \
                 or MapVirtualKey(vk, MapVirtualKey.MAPVK_VK_TO_VSC)
             flags = 0
+        elif ord(self.char) > 0xFFFF:
+            raise ValueError
         else:
             res = VkKeyScan(self.char)
             if (res >> 8) & 0xFF == 0:
@@ -183,13 +188,37 @@ class Controller(_base.Controller):
         super(Controller, self).__init__(*args, **kwargs)
 
     def _handle(self, key, is_press):
-        SendInput(
-            1,
-            ctypes.byref(INPUT(
-                type=INPUT.KEYBOARD,
-                value=INPUT_union(
-                    ki=KEYBDINPUT(**key._parameters(is_press))))),
-            ctypes.sizeof(INPUT))
+        try:
+            SendInput(
+                1,
+                ctypes.byref(INPUT(
+                    type=INPUT.KEYBOARD,
+                    value=INPUT_union(
+                        ki=KEYBDINPUT(**key._parameters(is_press))))),
+                ctypes.sizeof(INPUT))
+        except ValueError:
+            # If key._parameters raises ValueError, the key is a unicode
+            # characters outsice of the range of a single UTF-16 value, and we
+            # must break it up into its surrogates
+            byte_data = bytearray(key.char.encode('utf-16le'))
+            surrogates = [
+                byte_data[i] | (byte_data[i + 1] << 8)
+                for i in range(0, len(byte_data), 2)]
+
+            state_flags = KEYBDINPUT.UNICODE \
+                | (KEYBDINPUT.KEYUP if not is_press else 0)
+
+            SendInput(
+                len(surrogates),
+                (INPUT * len(surrogates))(*(
+                    INPUT(
+                        INPUT.KEYBOARD,
+                        INPUT_union(
+                            ki=KEYBDINPUT(
+                                dwFlags=state_flags,
+                                wScan=scan)))
+                    for scan in surrogates)),
+                ctypes.sizeof(INPUT))
 
 
 class Listener(ListenerMixin, _base.Listener):
