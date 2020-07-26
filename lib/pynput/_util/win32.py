@@ -545,7 +545,7 @@ class KeyTranslator(object):
                     # If the key is dead, flush the keyboard state
                     if is_dead:
                         self._ToUnicodeEx(
-                            VK.DECIMAL, vks[VK.DECIMAL], ctypes.byref(state),
+                            vk, scan, ctypes.byref(state),
                             ctypes.byref(out), len(out), 0, layout)
 
         return (layout, layout_data)
