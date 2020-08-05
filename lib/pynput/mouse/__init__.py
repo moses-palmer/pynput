@@ -26,7 +26,7 @@ See the documentation for more information.
 from pynput._util import backend, Events
 
 
-backend = backend(__package__)
+backend = backend(__name__.rsplit('.', 1)[-1])
 Button = backend.Button
 Controller = backend.Controller
 Listener = backend.Listener
