@@ -333,6 +333,20 @@ def keyboard_mapping(display):
     return mapping
 
 
+def char_to_keysym(char):
+    """Converts a unicode character to a *keysym*.
+
+    :param str char: The unicode character.
+
+    :return: the corresponding *keysym*, or ``0`` if it cannot be found
+    """
+    ordinal = ord(char)
+    if ordinal < 0x100:
+        return ordinal
+    else:
+        return ordinal | 0x01000000
+
+
 def symbol_to_keysym(symbol):
     """Converts a symbol name to a *keysym*.
 
