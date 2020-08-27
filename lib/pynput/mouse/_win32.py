@@ -49,9 +49,9 @@ class Button(enum.Enum):
     """The various buttons.
     """
     unknown = None
-    left = (MOUSEINPUT.LEFTUP, MOUSEINPUT.LEFTDOWN)
-    middle = (MOUSEINPUT.MIDDLEUP, MOUSEINPUT.MIDDLEDOWN)
-    right = (MOUSEINPUT.RIGHTUP, MOUSEINPUT.RIGHTDOWN)
+    left = (MOUSEINPUT.LEFTUP, MOUSEINPUT.LEFTDOWN, 0)
+    middle = (MOUSEINPUT.MIDDLEUP, MOUSEINPUT.MIDDLEDOWN, 0)
+    right = (MOUSEINPUT.RIGHTUP, MOUSEINPUT.RIGHTDOWN, 0)
 
 
 class Controller(NotifierMixin, _base.Controller):
@@ -107,7 +107,8 @@ class Controller(NotifierMixin, _base.Controller):
                 type=INPUT.MOUSE,
                 value=INPUT_union(
                     mi=MOUSEINPUT(
-                        dwFlags=button.value[1])))),
+                        dwFlags=button.value[1],
+                        mouseData=button.value[2])))),
             ctypes.sizeof(INPUT))
 
     def _release(self, button):
@@ -117,7 +118,8 @@ class Controller(NotifierMixin, _base.Controller):
                 type=INPUT.MOUSE,
                 value=INPUT_union(
                     mi=MOUSEINPUT(
-                        dwFlags=button.value[0])))),
+                        dwFlags=button.value[0],
+                        mouseData=button.value[2])))),
             ctypes.sizeof(INPUT))
 
 
