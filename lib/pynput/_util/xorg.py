@@ -340,13 +340,12 @@ def symbol_to_keysym(symbol):
 
     :return: the corresponding *keysym*, or ``0`` if it cannot be found
     """
-    # First try simple translation
+    # First try simple translation, and if that fails, try checking a module
+    # attribute of Xlib.keysymdef.xkb
     keysym = Xlib.XK.string_to_keysym(symbol)
     if keysym:
         return keysym
-
-    # If that fails, try checking a module attribute of Xlib.keysymdef.xkb
-    if not keysym:
+    else:
         try:
             return getattr(Xlib.keysymdef.xkb, 'XK_' + symbol, 0)
         except AttributeError:
