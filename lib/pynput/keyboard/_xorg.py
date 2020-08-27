@@ -46,6 +46,7 @@ from pynput._util import NotifierMixin
 from pynput._util.xorg import (
     alt_mask,
     alt_gr_mask,
+    char_to_keysym,
     display_manager,
     index_to_shift,
     keyboard_mapping,
@@ -440,10 +441,17 @@ class Controller(NotifierMixin, _base.Controller):
         :return: a keysym if found
         :rtype: int or None
         """
+        # If the key code already has a VK, simply return it
+        if key.vk is not None:
+            return key.vk
+
+        # If the character has no associated symbol, we try to map the
+        # character to a keysym
         symbol = CHARS.get(key.char, None)
         if symbol is None:
-            return None
+            return char_to_keysym(key.char)
 
+        # Otherwise we attempt to convert the symbol to a keysym
         # pylint: disable=W0702; we want to ignore errors
         try:
             return symbol_to_keysym(symbol)

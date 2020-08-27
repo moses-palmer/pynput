@@ -333,6 +333,20 @@ def keyboard_mapping(display):
     return mapping
 
 
+def char_to_keysym(char):
+    """Converts a unicode character to a *keysym*.
+
+    :param str char: The unicode character.
+
+    :return: the corresponding *keysym*, or ``0`` if it cannot be found
+    """
+    ordinal = ord(char)
+    if ordinal < 0x100:
+        return ordinal
+    else:
+        return ordinal | 0x01000000
+
+
 def symbol_to_keysym(symbol):
     """Converts a symbol name to a *keysym*.
 
@@ -340,13 +354,12 @@ def symbol_to_keysym(symbol):
 
     :return: the corresponding *keysym*, or ``0`` if it cannot be found
     """
-    # First try simple translation
+    # First try simple translation, and if that fails, try checking a module
+    # attribute of Xlib.keysymdef.xkb
     keysym = Xlib.XK.string_to_keysym(symbol)
     if keysym:
         return keysym
-
-    # If that fails, try checking a module attribute of Xlib.keysymdef.xkb
-    if not keysym:
+    else:
         try:
             return getattr(Xlib.keysymdef.xkb, 'XK_' + symbol, 0)
         except AttributeError:
