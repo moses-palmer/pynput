@@ -28,7 +28,7 @@ import itertools
 from pynput._util import backend, Events
 
 
-backend = backend(__package__)
+backend = backend(__name__)
 KeyCode = backend.KeyCode
 Key = backend.Key
 Controller = backend.Controller
