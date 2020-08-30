@@ -1,12 +1,17 @@
 Release Notes
 =============
 
+v1.7.1 (2020-08-30) - Corrected release notes
+---------------------------------------------
+*  Corrected thanks for arbitrary unicode character support for *Xorg*.
+
+
 v1.7.0 (2020-08-30) - A new backend and many new features and bug fixes
 -----------------------------------------------------------------------
 *  Added a new *uinput* based keyboard backend for *Linux*, when no *X* server
    is availalbe.
 *  Allow typing arbitrary unicode characters on *Xorg* backend. Thanks to
-   *Yunus Emre*!
+   *gdiShun*!
 *  Allow overriding the automatically selected backend with an environment
    varaible, and added a dummy backend.
 *  Added support for mouse side button on *Windows*. Thanks to *danielkovarik*!
