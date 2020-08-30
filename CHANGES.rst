@@ -1,6 +1,28 @@
 Release Notes
 =============
 
+v1.7.0 (2020-08-30) - A new backend and many new features and bug fixes
+-----------------------------------------------------------------------
+*  Added a new *uinput* based keyboard backend for *Linux*, when no *X* server
+   is availalbe.
+*  Allow typing arbitrary unicode characters on *Xorg* backend. Thanks to
+   *Yunus Emre*!
+*  Allow overriding the automatically selected backend with an environment
+   varaible, and added a dummy backend.
+*  Added support for mouse side button on *Windows*. Thanks to *danielkovarik*!
+*  Added convenience method to tap keys.
+*  Allow specifying raw virtual key codes in hotkeys.
+*  Improved error messages when a backend cannot be loaded.
+*  Include more information in stringification of events.
+*  Corrected return value of ``Events.get`` to that specified by the
+   documentation.
+*  Corrected keyboard listener not to type random characters on certain
+   keyboard layouts.
+*  Corrected errors when pressing certain keys on *Windows*, where the
+   operating system reports that they are dead but no combining version exists.
+*  Improved documentation.
+
+
 v1.6.8 (2020-02-28) - Various fixes
 -----------------------------------
 *  Updated documentation.
