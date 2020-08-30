@@ -16,4 +16,4 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 __author__ = u'Moses Palmér'
-__version__ = (1, 6, 8)
+__version__ = (1, 7, 0)
