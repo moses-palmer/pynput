@@ -49,9 +49,11 @@ class Button(enum.Enum):
     """The various buttons.
     """
     unknown = None
-    left = (MOUSEINPUT.LEFTUP, MOUSEINPUT.LEFTDOWN)
-    middle = (MOUSEINPUT.MIDDLEUP, MOUSEINPUT.MIDDLEDOWN)
-    right = (MOUSEINPUT.RIGHTUP, MOUSEINPUT.RIGHTDOWN)
+    left = (MOUSEINPUT.LEFTUP, MOUSEINPUT.LEFTDOWN, 0)
+    middle = (MOUSEINPUT.MIDDLEUP, MOUSEINPUT.MIDDLEDOWN, 0)
+    right = (MOUSEINPUT.RIGHTUP, MOUSEINPUT.RIGHTDOWN, 0)
+    x1 = (MOUSEINPUT.XUP, MOUSEINPUT.XDOWN, MOUSEINPUT.XBUTTON1)
+    x2 = (MOUSEINPUT.XUP, MOUSEINPUT.XDOWN, MOUSEINPUT.XBUTTON2)
 
 
 class Controller(NotifierMixin, _base.Controller):
@@ -107,7 +109,8 @@ class Controller(NotifierMixin, _base.Controller):
                 type=INPUT.MOUSE,
                 value=INPUT_union(
                     mi=MOUSEINPUT(
-                        dwFlags=button.value[1])))),
+                        dwFlags=button.value[1],
+                        mouseData=button.value[2])))),
             ctypes.sizeof(INPUT))
 
     def _release(self, button):
@@ -117,7 +120,8 @@ class Controller(NotifierMixin, _base.Controller):
                 type=INPUT.MOUSE,
                 value=INPUT_union(
                     mi=MOUSEINPUT(
-                        dwFlags=button.value[0])))),
+                        dwFlags=button.value[0],
+                        mouseData=button.value[2])))),
             ctypes.sizeof(INPUT))
 
 
@@ -135,6 +139,14 @@ class Listener(ListenerMixin, _base.Listener):
     WM_MOUSEHWHEEL = 0x020E
     WM_RBUTTONDOWN = 0x0204
     WM_RBUTTONUP = 0x0205
+    WM_XBUTTONDOWN = 0x20B
+    WM_XBUTTONUP = 0x20C
+
+    MK_XBUTTON1 = 0x0020
+    MK_XBUTTON2 = 0x0040
+
+    XBUTTON1 = 1
+    XBUTTON2 = 2
 
     #: A mapping from messages to button events
     CLICK_BUTTONS = {
@@ -144,6 +156,15 @@ class Listener(ListenerMixin, _base.Listener):
         WM_MBUTTONUP: (Button.middle, False),
         WM_RBUTTONDOWN: (Button.right, True),
         WM_RBUTTONUP: (Button.right, False)}
+
+    #: A mapping from message to X button events.
+    X_BUTTONS = {
+        WM_XBUTTONDOWN: {
+            XBUTTON1: (Button.x1, True),
+            XBUTTON2: (Button.x2, True)},
+        WM_XBUTTONUP: {
+            XBUTTON1: (Button.x1, False),
+            XBUTTON2: (Button.x2, False)}}
 
     #: A mapping from messages to scroll vectors
     SCROLL_BUTTONS = {
@@ -188,6 +209,10 @@ class Listener(ListenerMixin, _base.Listener):
 
         elif msg in self.CLICK_BUTTONS:
             button, pressed = self.CLICK_BUTTONS[msg]
+            self.on_click(data.pt.x, data.pt.y, button, pressed)
+
+        elif msg in self.X_BUTTONS:
+            button, pressed = self.X_BUTTONS[msg][data.mouseData >> 16]
             self.on_click(data.pt.x, data.pt.y, button, pressed)
 
         elif msg in self.SCROLL_BUTTONS:
