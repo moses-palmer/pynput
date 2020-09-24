@@ -176,7 +176,7 @@ class HotKey(object):
         :param key: The key being pressed.
         :type key: Key or KeyCode
         """
-        if key in self._keys and key not in self._state:
+        if key not in self._state:
             self._state.add(key)
             if self._state == self._keys:
                 self._on_activate()
@@ -193,7 +193,7 @@ class HotKey(object):
 
 class GlobalHotKeys(Listener):
     """A keyboard listener supporting a number of global hotkeys.
-
+    
     This is a convenience wrapper to simplify registering a number of global
     hotkeys.
 
@@ -202,6 +202,8 @@ class GlobalHotKeys(Listener):
 
     :raises ValueError: if any hotkey description is invalid
     """
+
+    
     def __init__(self, hotkeys, *args, **kwargs):
         self._hotkeys = [
             HotKey(HotKey.parse(key), value)
