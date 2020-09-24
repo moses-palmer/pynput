@@ -202,8 +202,6 @@ class GlobalHotKeys(Listener):
 
     :raises ValueError: if any hotkey description is invalid
     """
-
-    
     def __init__(self, hotkeys, *args, **kwargs):
         self._hotkeys = [
             HotKey(HotKey.parse(key), value)
