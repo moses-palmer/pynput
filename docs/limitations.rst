@@ -25,6 +25,10 @@ Please note that the value ``DISPLAY=:0`` is just an example. To find the
 actual value, please launch a terminal application from your desktop
 environment and issue the command ``echo $DISPLAY``.
 
+When running under *Wayland*, the *X server* emulator ``Xwayland`` will usually
+run, providing limited functionality. Notably, you will only receive input
+events from applications running under this emulator.
+
 
 macOS
 ~~~~~
