@@ -63,6 +63,10 @@ from pynput._util.xorg_keysyms import (
 from . import _base
 
 
+# Make sure the xf86 group is loaded
+Xlib.XK.load_keysym_group('xf86')
+
+
 class KeyCode(_base.KeyCode):
     _PLATFORM_EXTENSIONS = (
         # The symbol name for this key
@@ -110,7 +114,7 @@ class KeyCode(_base.KeyCode):
 
         :return: a key code
         """
-        return cls._from_symbol('XF86Audio' + name, **kwargs)
+        return cls._from_symbol('XF86_Audio' + name, **kwargs)
 
 
 # pylint: disable=W0212
