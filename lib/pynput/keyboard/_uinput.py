@@ -420,16 +420,10 @@ class Listener(ListenerMixin, _base.Listener):
             elif modifier in self._modifiers:
                 self._modifiers.remove(modifier)
 
-        # Attempt to map the virtual key code to a character
+        # Attempt to map the virtual key code to a key
         try:
-            char = self._layout.for_vk(vk, self._modifiers)
+            key = self._layout.for_vk(vk, self._modifiers)
         except KeyError:
-            char = None
-
-        # If we find a character, use that, otherwise try with a special key
-        if char is not None:
-            key = KeyCode.from_char(char, vk=vk)
-        else:
             try:
                 key = next(
                     key
