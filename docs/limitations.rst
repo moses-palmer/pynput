@@ -50,3 +50,9 @@ Windows
 On *Windows*, virtual events sent by *other* processes may not be received.
 This library takes precautions, however, to dispatch any virtual events
 generated to all currently running listeners of the current process.
+
+Furthermore, sending key press events will properly propagate to the rest of
+the system, but the operating system does not consider the buttons to be truly
+*pressed*. This means that key press events will not be continuously emitted as
+when holding down a physical key, and certain key sequences, such as *shift*
+pressed while pressing arrow keys, do not work as expected.
