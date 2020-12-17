@@ -176,7 +176,7 @@ class KeyboardListenerTest(EventTest):
             *tuple(self.string_to_events('hello world')))
 
     def test_shift(self):
-        """Tests that <shift> yields captial letters"""
+        """Tests that <shift> yields capital letters"""
         self.notify('Type "TEST" with <shift> pressed')
         self.assert_keys(
             'Failed to register event',

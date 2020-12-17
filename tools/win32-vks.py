@@ -24,7 +24,7 @@ import sys
 import unicodedata
 
 
-#: The regular expresion used to extract virtual key codes; they are on the
+#: The regular expression used to extract virtual key codes; they are on the
 #: form:
 #:
 #:     #define VK_<name> <hex vk>

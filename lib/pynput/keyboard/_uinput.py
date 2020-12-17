@@ -186,7 +186,7 @@ class Layout(object):
 
         @property
         def alt(self):
-            """The alterntive key.
+            """The alternative key.
             """
             return self._values[2]
 

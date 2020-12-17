@@ -37,7 +37,7 @@ from . import _base
 def _button_value(base_name, mouse_button):
     """Generates the value tuple for a :class:`Button` value.
 
-    :param str base_name: The base name for the button. This shuld be a string
+    :param str base_name: The base name for the button. This should be a string
         like ``'kCGEventLeftMouse'``.
 
     :param int mouse_button: The mouse button ID.

@@ -259,7 +259,7 @@ class KeyboardControllerTest(EventTest):
         self.assertIn(
             u'AaA',
             collect(),
-            'Keys were not propertly released')
+            'Keys were not properly released')
 
     def test_type_latin(self):
         """Asserts that type works for a Latin string"""
