@@ -241,7 +241,7 @@ class Listener(AbstractListener):
         ``win32_event_filter``
             A callable taking the arguments ``(msg, data)``, where ``msg`` is
             the current message, and ``data`` associated data as a
-            `MSLLHOOKSTRUCT <https://msdn.microsoft.com/en-us/library/windows/desktop/ms644970(v=vs.85).aspx>`_.
+            `MSLLHOOKSTRUCT <https://docs.microsoft.com/en-gb/windows/win32/api/winuser/ns-winuser-msllhookstruct>`_.
 
             If this callback returns ``False``, the event will not
             be propagated to the listener callback.
