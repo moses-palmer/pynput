@@ -25,15 +25,18 @@ this automatic choice is possible to override.
 
 If the environment variables ``$PYNPUT_BACKEND_KEYBOARD`` or
 ``$PYNPUT_BACKEND`` are set, their value will be used as backend name for the
-keyboard classes, and if ``$PYNPUT_BACKEND_KEYBOARD`` or ``$PYNPUT_BACKEND``
+keyboard classes, and if ``$PYNPUT_BACKEND_MOUSE`` or ``$PYNPUT_BACKEND``
 are set, their value will be used as backend name for the mouse classes.
 
 Available backends are:
 
 *  ``darwin``, the default for *macOS*.
 *  ``win32``, the default for *Windows*.
+*  ``uinput``, an optional backend for *Linux* requiring *root* privileges and
+   supporting only keyboards.
 *  ``xorg``, the default for other operating systems.
-*  ``dummy``, a non-functional, but importable, backend.
+*  ``dummy``, a non-functional, but importable, backend. This is useful as
+   mouse backend when using the ``uinput`` backend.
 
 
 Table of contents
@@ -45,6 +48,8 @@ Table of contents
    mouse
 
    keyboard
+
+   faq
 
    limitations
 
