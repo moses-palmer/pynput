@@ -72,7 +72,7 @@ class Events(Events):
         A key was pressed.
 
     :class:`Events.Release`
-        A key was releesed.
+        A key was released.
     """
     _Listener = Listener
 

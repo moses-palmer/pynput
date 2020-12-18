@@ -24,7 +24,7 @@ import sys
 import unicodedata
 
 
-#: The regular expresion used to extract normal values; they are on the form:
+#: The regular expression used to extract normal values; they are on the form:
 #:
 #:     #define XK_<name> <hex keysym> /* <unicode point> <character name> */
 KEYSYM_RE = re.compile(r'''(?mx)
@@ -43,7 +43,7 @@ KEYSYM_RE = re.compile(r'''(?mx)
 #: The prefix used for dead keys
 DEAD_PREFIX = 'dead_'
 
-#: The regular expresion used to extract dead key values; they are on the form:
+#: The regular expression used to extract dead key values; they are on the form:
 #:
 #:     #define XK_dead_<name> <hex keysym> [/* description */]
 DEAD_KEYSYM_RE = re.compile(r'''(?mx)
@@ -62,7 +62,7 @@ DEAD_KEYSYM_RE = re.compile(r'''(?mx)
 #: The prefix used for keypad keys
 KEYPAD_PREFIX = 'KP_'
 
-#: The regular expresion used to extract keypad key values; they are on the
+#: The regular expression used to extract keypad key values; they are on the
 #: form:
 #:
 #:     #define XK_KP_<name> <hex keysym> [/* description */]

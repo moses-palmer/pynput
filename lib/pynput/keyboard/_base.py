@@ -712,7 +712,7 @@ class Listener(AbstractListener):
 
         This method will convert upper case keys to lower case keys, convert
         any modifiers with a right and left version to the same value, and may
-        slao perform additional platform dependent normalisation.
+        slow perform additional platform dependent normalisation.
 
         :param key: The key to normalise.
         :type key: Key or KeyCode

@@ -76,7 +76,7 @@ class Events(Events):
             self.pressed = pressed
 
     class Scroll(Events.Event):
-        """A scoll event.
+        """A scroll event.
         """
         def __init__(self, x, y, dx, dy):
             #: The X screen coordinate.

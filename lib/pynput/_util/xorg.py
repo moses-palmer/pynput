@@ -283,7 +283,7 @@ def shift_to_index(display, shift):
 
     :param int index: The keyboard mapping *key code* index.
 
-    :retur: a shift mask
+    :return: a shift mask
     """
     return (
         (1 if shift & 1 else 0) +

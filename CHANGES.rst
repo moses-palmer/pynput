@@ -9,11 +9,11 @@ v1.7.1 (2020-08-30) - Corrected release notes
 v1.7.0 (2020-08-30) - A new backend and many new features and bug fixes
 -----------------------------------------------------------------------
 *  Added a new *uinput* based keyboard backend for *Linux*, when no *X* server
-   is availalbe.
+   is available.
 *  Allow typing arbitrary unicode characters on *Xorg* backend. Thanks to
    *gdiShun*!
 *  Allow overriding the automatically selected backend with an environment
-   varaible, and added a dummy backend.
+   variable, and added a dummy backend.
 *  Added support for mouse side button on *Windows*. Thanks to *danielkovarik*!
 *  Added convenience method to tap keys.
 *  Allow specifying raw virtual key codes in hotkeys.
@@ -164,7 +164,7 @@ v1.3.9 (2018-01-12) - Correctly handle the letter *A* on *OSX*
 --------------------------------------------------------------
 *  Corrected check for virtual key code when generating keyboard events on
    *OSX*. This fixes an issue where pressing *A* with *shift* explicitly pressed
-   would still type a miniscule letter.
+   would still type a minuscule letter.
 
 
 v1.3.8 (2017-12-08) - Do not crash on some keyboard layouts on *OSX*
@@ -198,7 +198,7 @@ v1.3.4 (2017-06-05) - *Xorg* corrections
 
 v1.3.3 (2017-06-05) - Make dependencies non-optional
 ----------------------------------------------------
-*  Made platform depdendencies non-optional.
+*  Made platform dependencies non-optional.
 
 
 v1.3.2 (2017-05-15) - Fix for button click on Mac

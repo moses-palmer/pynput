@@ -101,7 +101,7 @@ class EventTest(unittest.TestCase):
     #: The listener class; this must be defined for subclasses
     LISTENER_CLASS = None
 
-    #: Tha maximum number of seconds to wait before failing in
+    #: The maximum number of seconds to wait before failing in
     #: :meth:`assert_stop`
     STOP_MAX_WAIT = 3.0
 

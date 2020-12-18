@@ -323,7 +323,7 @@ class Listener(ListenerMixin, _base.Listener):
 
         :param bool is_press: Whether this is a press event.
 
-        :return: a paramter list to the :class:`pynput.keyboard.KeyCode`
+        :return: a parameter list to the :class:`pynput.keyboard.KeyCode`
             constructor
         """
         return self._translator(vk, is_press)
