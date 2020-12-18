@@ -35,7 +35,8 @@ Available backends are:
 *  ``uinput``, an optional backend for *Linux* requiring *root* privileges and
    supporting only keyboards.
 *  ``xorg``, the default for other operating systems.
-*  ``dummy``, a non-functional, but importable, backend.
+*  ``dummy``, a non-functional, but importable, backend. This is useful as
+   mouse backend when using the ``uinput`` backend.
 
 
 Table of contents
