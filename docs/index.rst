@@ -32,6 +32,8 @@ Available backends are:
 
 *  ``darwin``, the default for *macOS*.
 *  ``win32``, the default for *Windows*.
+*  ``uinput``, an optional backend for *Linux* requiring *root* privileges and
+   supporting only keyboards.
 *  ``xorg``, the default for other operating systems.
 *  ``dummy``, a non-functional, but importable, backend.
 
