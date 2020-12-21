@@ -1,6 +1,14 @@
 Release Notes
 =============
 
+v1.7.2 - Corrected uinput key mapping
+-------------------------------------
+*  Corrected mapping of virtual key codes to characters for the *uinput*
+   backend.
+*  Corrected spelling errors. Thanks to *Martin Michlmayr*!
+*  Corrected and improved documentation.
+
+
 v1.7.1 (2020-08-30) - Corrected release notes
 ---------------------------------------------
 *  Corrected thanks for arbitrary unicode character support for *Xorg*.
