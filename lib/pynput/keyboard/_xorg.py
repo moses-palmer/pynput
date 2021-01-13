@@ -106,11 +106,11 @@ class KeyCode(_base.KeyCode):
         """Creates a media key from a partial name.
 
         :param str name: The name. The actual symbol name will be this string
-            with ``'XF86Audio'`` prepended.
+            with ``'XF86_Audio'`` prepended.
 
         :return: a key code
         """
-        return cls._from_symbol('XF86Audio' + name, **kwargs)
+        return cls._from_symbol('XF86_Audio' + name, **kwargs)
 
 
 # pylint: disable=W0212
