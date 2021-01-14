@@ -62,7 +62,7 @@ class Button(enum.Enum):
 
 class Controller(_base.Controller):
     #: The scroll speed
-    _SCROLL_SPEED = 5
+    _SCROLL_SPEED = 10
 
     def __init__(self, *args, **kwargs):
         super(Controller, self).__init__(*args, **kwargs)
@@ -92,20 +92,15 @@ class Controller(_base.Controller):
     def _scroll(self, dx, dy):
         dx = int(dx)
         dy = int(dy)
-        while dx != 0 or dy != 0:
-            xval = 1 if dx > 0 else -1 if dx < 0 else 0
-            dx -= xval
-            yval = 1 if dy > 0 else -1 if dy < 0 else 0
-            dy -= yval
 
-            Quartz.CGEventPost(
-                Quartz.kCGHIDEventTap,
-                Quartz.CGEventCreateScrollWheelEvent(
-                    None,
-                    Quartz.kCGScrollEventUnitPixel,
-                    2,
-                    yval * self._SCROLL_SPEED,
-                    xval * self._SCROLL_SPEED))
+        Quartz.CGEventPost(
+            Quartz.kCGHIDEventTap,
+            Quartz.CGEventCreateScrollWheelEvent(
+                None,
+                Quartz.kCGScrollEventUnitPixel,
+                2,
+                dy * self._SCROLL_SPEED,
+                dx * self._SCROLL_SPEED))
 
     def _press(self, button):
         (press, _, _), mouse_button = button.value
