@@ -26,6 +26,7 @@ import functools
 import itertools
 import operator
 import Xlib.display
+import Xlib.keysymdef
 import Xlib.threaded
 import Xlib.XK
 
@@ -34,11 +35,14 @@ from .xorg_keysyms import SYMBOLS
 
 
 # Create a display to verify that we have an X connection
-def _check():
+def _check_and_initialize():
     display = Xlib.display.Display()
     display.close()
-_check()
-del _check
+
+    for group in Xlib.keysymdef.__all__:
+        Xlib.XK.load_keysym_group(group)
+_check_and_initialize()
+del _check_and_initialize
 
 
 class X11Error(Exception):
