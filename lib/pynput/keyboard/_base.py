@@ -733,5 +733,7 @@ class Listener(AbstractListener):
             return KeyCode.from_char(key.char.lower())
         elif isinstance(key, Key) and key.value in _NORMAL_MODIFIERS:
             return _NORMAL_MODIFIERS[key.value]
+        elif isinstance(key, Key) and key.value.vk is not None:
+            return KeyCode.from_vk(key.value.vk)
         else:
             return key
