@@ -356,14 +356,11 @@ def symbol_to_keysym(symbol):
     """
     # First try simple translation, and if that fails, try checking a module
     # attribute of Xlib.keysymdef.xkb
-    keysym = Xlib.XK.string_to_keysym(symbol)
-    if keysym:
-        return keysym
-    else:
-        try:
-            return getattr(Xlib.keysymdef.xkb, 'XK_' + symbol, 0)
-        except AttributeError:
-            return SYMBOLS.get(symbol, (0,))[0]
+    return (
+        Xlib.XK.string_to_keysym(symbol)
+        or getattr(Xlib.keysymdef.xkb, "XK_" + symbol, 0)
+        or SYMBOLS.get(symbol, (0,))[0]
+    )
 
 
 class ListenerMixin(object):
