@@ -26,6 +26,7 @@ import functools
 import itertools
 import operator
 import Xlib.display
+import Xlib.keysymdef
 import Xlib.threaded
 import Xlib.XK
 
@@ -34,11 +35,14 @@ from .xorg_keysyms import SYMBOLS
 
 
 # Create a display to verify that we have an X connection
-def _check():
+def _check_and_initialize():
     display = Xlib.display.Display()
     display.close()
-_check()
-del _check
+
+    for group in Xlib.keysymdef.__all__:
+        Xlib.XK.load_keysym_group(group)
+_check_and_initialize()
+del _check_and_initialize
 
 
 class X11Error(Exception):
@@ -354,16 +358,12 @@ def symbol_to_keysym(symbol):
 
     :return: the corresponding *keysym*, or ``0`` if it cannot be found
     """
-    # First try simple translation, and if that fails, try checking a module
-    # attribute of Xlib.keysymdef.xkb
-    keysym = Xlib.XK.string_to_keysym(symbol)
-    if keysym:
-        return keysym
-    else:
-        try:
-            return getattr(Xlib.keysymdef.xkb, 'XK_' + symbol, 0)
-        except AttributeError:
-            return SYMBOLS.get(symbol, (0,))[0]
+    # First try simple translation, the try a module attribute of
+    # Xlib.keysymdef.xkb and fall back on our pre-generated table
+    return (0
+        or Xlib.XK.string_to_keysym(symbol)
+        or getattr(Xlib.keysymdef.xkb, "XK_" + symbol, 0)
+        or SYMBOLS.get(symbol, (0,))[0])
 
 
 class ListenerMixin(object):
