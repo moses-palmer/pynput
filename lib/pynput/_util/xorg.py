@@ -358,16 +358,12 @@ def symbol_to_keysym(symbol):
 
     :return: the corresponding *keysym*, or ``0`` if it cannot be found
     """
-    # First try simple translation, and if that fails, try checking a module
-    # attribute of Xlib.keysymdef.xkb
-    keysym = Xlib.XK.string_to_keysym(symbol)
-    if keysym:
-        return keysym
-    else:
-        try:
-            return getattr(Xlib.keysymdef.xkb, 'XK_' + symbol, 0)
-        except AttributeError:
-            return SYMBOLS.get(symbol, (0,))[0]
+    # First try simple translation, the try a module attribute of
+    # Xlib.keysymdef.xkb and fall back on our pre-generated table
+    return (0
+        or Xlib.XK.string_to_keysym(symbol)
+        or getattr(Xlib.keysymdef.xkb, "XK_" + symbol, 0)
+        or SYMBOLS.get(symbol, (0,))[0])
 
 
 class ListenerMixin(object):
