@@ -1,8 +1,22 @@
 Release Notes
 =============
 
-v1.7.2 - Corrected uinput key mapping
--------------------------------------
+v1.7.3 (2021-02-10) - Various fixes
+-----------------------------------
+*  Corrected *keysym* handling on *Xorg*; not all groups were loaded, and the
+   fallback to our internal tables was never triggered. Thanks to *Philipp
+   Klaus*!
+*  Updated the version of *Quartz* used for the *macOS* backend to allow
+   *pynput* to be installed on *Big Sur*. Thanks to *Michael Madden*!
+*  Added missing function keys on *Windows*. Thanks to *Dave Atkinson*!
+*  Corrected scroll speed for mouse controller on *macOS*. Thanks to *Albert
+   Zeyer*!
+*  Corrected media keys for *Xorg*. Thanks to *Gabriele N. Tornetta*!
+*  Corrected parameter name in documentation. Thanks to *Jinesi Yelizati*!
+
+
+v1.7.2 (2020-12-21) - Corrected uinput key mapping
+--------------------------------------------------
 *  Corrected mapping of virtual key codes to characters for the *uinput*
    backend.
 *  Corrected spelling errors. Thanks to *Martin Michlmayr*!
