@@ -100,7 +100,7 @@ class Controller(object):
         """Moves the mouse pointer a number of pixels from its current
         position.
 
-        :param int x: The horizontal offset.
+        :param int dx: The horizontal offset.
 
         :param int dy: The vertical offset.
 
