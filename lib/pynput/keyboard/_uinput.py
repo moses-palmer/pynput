@@ -253,7 +253,7 @@ class Layout(object):
         result = {}
         for keycode, names in self.KEYCODE_RE.findall(
                 subprocess.check_output(
-                    ['dumpkeys', '--full-table']).decode('utf-8')):
+                    ['dumpkeys', '--full-table', '--keys-only']).decode('utf-8')):
             vk = int(keycode)
             keys = tuple(
                 self._parse(vk, name)
