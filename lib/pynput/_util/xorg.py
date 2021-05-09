@@ -361,9 +361,9 @@ def symbol_to_keysym(symbol):
     # First try simple translation, the try a module attribute of
     # Xlib.keysymdef.xkb and fall back on our pre-generated table
     return (0
-        or Xlib.XK.string_to_keysym(symbol)
-        or getattr(Xlib.keysymdef.xkb, "XK_" + symbol, 0)
-        or SYMBOLS.get(symbol, (0,))[0])
+            or Xlib.XK.string_to_keysym(symbol)
+            or getattr(Xlib.keysymdef.xkb, "XK_" + symbol, 0)
+            or SYMBOLS.get(symbol, (0,))[0])
 
 
 class ListenerMixin(object):
@@ -381,7 +381,8 @@ class ListenerMixin(object):
     def _run(self):
         self._display_stop = Xlib.display.Display()
         self._display_record = Xlib.display.Display()
-        with display_manager(self._display_stop) as dm:
+        self._stopped = False
+        with display_manager(self._display_record) as dm:
             self._context = dm.record_create_context(
                 0,
                 [Xlib.ext.record.AllClients],
@@ -401,31 +402,47 @@ class ListenerMixin(object):
             self._initialize(self._display_stop)
             self._mark_ready()
             if self.suppress:
-                with display_manager(self._display_record) as dm:
+                with display_manager(self._display_stop) as dm:
+                    # here we grab the input from our device for the display
+                    # this will redirect the input to the dummy display
                     self._suppress_start(dm)
+            # start recording and block thread
             self._display_record.record_enable_context(
                 self._context, self._handler)
         except:
             # This exception will have been passed to the main thread
             pass
         finally:
-            if self.suppress:
-                with display_manager(self._display_stop) as dm:
-                    self._suppress_stop(dm)
-            self._display_record.record_free_context(self._context)
-            self._display_stop.close()
-            self._display_record.close()
+            self._stop_platform()
+
         # pylint: enable=W0702
 
     def _stop_platform(self):
+        # todo:
+        # without instance initialization 'with listener as l:' 
+        # this method will not be called if exit by user, signal or exception
+        if self._stopped:
+            return
+        self._stopped = True
+
         if not hasattr(self, '_context'):
             self.wait()
         # pylint: disable=W0702; we must ignore errors
-        try:
+
+        if self.suppress:
             with display_manager(self._display_stop) as dm:
-                dm.record_disable_context(self._context)
-        except:
-            pass
+                # ungrab input
+                self._suppress_stop(dm)
+
+        # we need to disable/stop context in other display,
+        # since '_display_record' is active
+        # see also:
+        # https://github.com/python-xlib/python-xlib/blob/c40bd3bc62582a7bbfc3176c9cea837317b04a8c/examples/record_demo.py
+        self._display_stop.record_disable_context(self._context)
+        self._display_stop.flush()
+        # after cleanup, the context is no longer needed
+        self._display_record.record_free_context(self._context)
+
         # pylint: enable=W0702
 
     def _suppress_start(self, display):
