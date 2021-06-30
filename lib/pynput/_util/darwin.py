@@ -29,6 +29,7 @@ import six
 
 import objc
 import CoreFoundation
+import HIServices
 import Quartz
 
 from . import AbstractListener
@@ -188,7 +189,16 @@ class ListenerMixin(object):
     #: The events that we listen to
     _EVENTS = tuple()
 
+    #: Whether this process is trusted to monitor input events.
+    IS_TRUSTED = False
+
     def _run(self):
+        self.IS_TRUSTED = HIServices.AXIsProcessTrusted()
+        if not self.IS_TRUSTED:
+            self._log.warning(
+                'This process is not trusted! Input event monitoring will not '
+                'be possible until it is added to accessibility clients.')
+
         self._loop = None
         try:
             tap = self._create_event_tap()
