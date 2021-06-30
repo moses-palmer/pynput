@@ -29,6 +29,7 @@ SETUP_PACKAGES = [
 #: Packages requires for different environments
 EXTRA_PACKAGES = {
     ':sys_platform == "darwin"': [
+        'pyobjc-framework-ApplicationServices >=7.3',
         'pyobjc-framework-Quartz >=7.3'],
     ':"linux" in sys_platform': [
         'evdev >= 1.3',
