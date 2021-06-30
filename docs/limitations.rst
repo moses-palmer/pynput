@@ -43,6 +43,9 @@ reasons. For that reason, one of the following must be true:
 
 Please note that this does not apply to monitoring of the mouse or trackpad.
 
+All listener classes have the additional attribute ``IS_TRUSTED``, which is
+``True`` if no permissions are lacking.
+
 
 Windows
 ~~~~~~~
