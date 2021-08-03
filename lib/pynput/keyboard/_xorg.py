@@ -112,6 +112,17 @@ class KeyCode(_base.KeyCode):
         """
         return cls._from_symbol('XF86_Audio' + name, **kwargs)
 
+    @classmethod
+    def _from_ISO(cls, name, **kwargs):
+        """Creates a ISO key from a partial name.
+
+        :param str name: The name. The actual symbol name will be this string
+            with ``'ISO_'`` prepended.
+
+        :return: a key code
+        """
+        return cls._from_symbol('ISO_' + name, **kwargs)
+
 
 # pylint: disable=W0212
 class Key(enum.Enum):
@@ -119,7 +130,7 @@ class Key(enum.Enum):
     alt = KeyCode._from_symbol('Alt_L')
     alt_l = KeyCode._from_symbol('Alt_L')
     alt_r = KeyCode._from_symbol('Alt_R')
-    alt_gr = KeyCode._from_symbol('Mode_switch')
+    alt_gr = KeyCode._from_symbol('ISO_Level3_Shift')
     backspace = KeyCode._from_symbol('BackSpace')
     caps_lock = KeyCode._from_symbol('Caps_Lock')
     cmd = KeyCode._from_symbol('Super_L')
@@ -154,7 +165,13 @@ class Key(enum.Enum):
     f19 = KeyCode._from_symbol('F19')
     f20 = KeyCode._from_symbol('F20')
     home = KeyCode._from_symbol('Home')
+    hyper = KeyCode._from_symbol('Hyper_L')
+    hyper_l = KeyCode._from_symbol('Hyper_L')
+    hyper_r = KeyCode._from_symbol('Hyper_R')
     left = KeyCode._from_symbol('Left')
+    meta = KeyCode._from_symbol('Meta_L')
+    meta_l = KeyCode._from_symbol('Meta_L')
+    meta_r = KeyCode._from_symbol('Meta_R')
     page_down = KeyCode._from_symbol('Page_Down')
     page_up = KeyCode._from_symbol('Page_Up')
     right = KeyCode._from_symbol('Right')
@@ -165,15 +182,59 @@ class Key(enum.Enum):
     tab = KeyCode._from_symbol('Tab')
     up = KeyCode._from_symbol('Up')
 
+    iso_lock = KeyCode._from_ISO('Lock')
+    iso_level2_latch = KeyCode._from_ISO('Level2_Latch')
+    iso_level3_shift = KeyCode._from_ISO('Level3_Shift')
+    iso_level3_latch = KeyCode._from_ISO('Level3_Latch')
+    iso_level3_lock = KeyCode._from_ISO('Level3_Lock')
+    iso_group_shift = KeyCode._from_ISO('Group_Shift')
+    iso_group_latch = KeyCode._from_ISO('Group_Latch')
+    iso_group_lock = KeyCode._from_ISO('Group_Lock')
+    iso_next_group = KeyCode._from_ISO('Next_Group')
+    iso_next_group_lock = KeyCode._from_ISO('Next_Group_Lock')
+    iso_prev_group = KeyCode._from_ISO('Prev_Group')
+    iso_prev_group_lock = KeyCode._from_ISO('Prev_Group_Lock')
+    iso_first_group = KeyCode._from_ISO('First_Group')
+    iso_first_group_lock = KeyCode._from_ISO('First_Group_Lock')
+    iso_last_group = KeyCode._from_ISO('Last_Group')
+    iso_last_group_lock = KeyCode._from_ISO('Last_Group_Lock')
+    iso_left_tab = KeyCode._from_ISO('Left_Tab')
+    iso_move_line_up = KeyCode._from_ISO('Move_Line_Up')
+    iso_move_line_down = KeyCode._from_ISO('Move_Line_Down')
+    iso_partial_line_up = KeyCode._from_ISO('Partial_Line_Up')
+    iso_partial_line_down = KeyCode._from_ISO('Partial_Line_Down')
+    iso_partial_space_left = KeyCode._from_ISO('Partial_Space_Left')
+    iso_partial_space_right = KeyCode._from_ISO('Partial_Space_Right')
+    iso_set_margin_left = KeyCode._from_ISO('Set_Margin_Left')
+    iso_set_margin_right = KeyCode._from_ISO('Set_Margin_Right')
+    iso_release_margin_left = KeyCode._from_ISO('Release_Margin_Left')
+    iso_release_margin_right = KeyCode._from_ISO('Release_Margin_Right')
+    iso_release_both_margins = KeyCode._from_ISO('Release_Both_Margins')
+    iso_fast_cursor_left = KeyCode._from_ISO('Fast_Cursor_Left')
+    iso_fast_cursor_right = KeyCode._from_ISO('Fast_Cursor_Right')
+    iso_fast_cursor_up = KeyCode._from_ISO('Fast_Cursor_Up')
+    iso_fast_cursor_down = KeyCode._from_ISO('Fast_Cursor_Down')
+    iso_continuous_underline = KeyCode._from_ISO('Continuous_Underline')
+    iso_discontinuous_underline = KeyCode._from_ISO('Discontinuous_Underline')
+    iso_emphasize = KeyCode._from_ISO('Emphasize')
+    iso_center_object = KeyCode._from_ISO('Center_Object')
+
+    brightness_up = KeyCode._from_symbol('XF86_MonBrightnessUp')
+    brightness_down = KeyCode._from_symbol('XF86_MonBrightnessDown')
+
     media_play_pause = KeyCode._from_media('Play')
+    media_stop = KeyCode._from_media('Stop')
     media_volume_mute = KeyCode._from_media('Mute')
     media_volume_down = KeyCode._from_media('LowerVolume')
     media_volume_up = KeyCode._from_media('RaiseVolume')
     media_previous = KeyCode._from_media('Prev')
     media_next = KeyCode._from_media('Next')
+    mic_mute = KeyCode._from_media('MicMute')
 
     insert = KeyCode._from_symbol('Insert')
     menu = KeyCode._from_symbol('Menu')
+    compose = KeyCode._from_symbol('Multi_key')
+    multi_key = KeyCode._from_symbol('Multi_key')
     num_lock = KeyCode._from_symbol('Num_Lock')
     pause = KeyCode._from_symbol('Pause')
     print_screen = KeyCode._from_symbol('Print')
@@ -513,7 +574,8 @@ class Listener(ListenerMixin, _base.Listener):
         KEYPAD_KEYS['KP_8']: KeyCode.from_char('8'),
         KEYPAD_KEYS['KP_9']: KeyCode.from_char('9'),
         KEYPAD_KEYS['KP_Add']: KeyCode.from_char('+'),
-        KEYPAD_KEYS['KP_Decimal']: KeyCode.from_char(','),
+        KEYPAD_KEYS['KP_Begin']: KeyCode.from_char('Begin'),
+        KEYPAD_KEYS['KP_Decimal']: KeyCode.from_char('.'),
         KEYPAD_KEYS['KP_Delete']: Key.delete,
         KEYPAD_KEYS['KP_Divide']: KeyCode.from_char('/'),
         KEYPAD_KEYS['KP_Down']: Key.down,
