@@ -28,9 +28,15 @@ import ctypes.util
 import six
 
 import objc
-import CoreFoundation
-import HIServices
-import Quartz
+from HIServices import AXIsProcessTrusted
+from CoreFoundation import (
+    CFMachPortCreateRunLoopSource, CFRelease, CFRunLoopAddSource,
+    CFRunLoopGetCurrent, CFRunLoopRunInMode, CFRunLoopStop)
+
+from Quartz import (
+    CGEventTapCreate, CGEventTapEnable, kCFRunLoopDefaultMode,
+    kCFRunLoopDefaultMode, kCFRunLoopRunTimedOut, kCGEventTapOptionDefault,
+    kCGEventTapOptionListenOnly, kCGHeadInsertEventTap, kCGSessionEventTap)
 
 from . import AbstractListener
 
@@ -65,7 +71,7 @@ def _wrapped(value):
     try:
         yield value
     finally:
-        CoreFoundation.CFRelease(wrapped_value)
+        CFRelease(wrapped_value)
 
 
 class CarbonExtra(object):
@@ -193,7 +199,7 @@ class ListenerMixin(object):
     IS_TRUSTED = False
 
     def _run(self):
-        self.IS_TRUSTED = HIServices.AXIsProcessTrusted()
+        self.IS_TRUSTED = AXIsProcessTrusted()
         if not self.IS_TRUSTED:
             self._log.warning(
                 'This process is not trusted! Input event monitoring will not '
@@ -206,23 +212,23 @@ class ListenerMixin(object):
                 self._mark_ready()
                 return
 
-            loop_source = Quartz.CFMachPortCreateRunLoopSource(
+            loop_source = CFMachPortCreateRunLoopSource(
                 None, tap, 0)
-            self._loop = Quartz.CFRunLoopGetCurrent()
+            self._loop = CFRunLoopGetCurrent()
 
-            Quartz.CFRunLoopAddSource(
-                self._loop, loop_source, Quartz.kCFRunLoopDefaultMode)
-            Quartz.CGEventTapEnable(tap, True)
+            CFRunLoopAddSource(
+                self._loop, loop_source, kCFRunLoopDefaultMode)
+            CGEventTapEnable(tap, True)
 
             self._mark_ready()
 
             # pylint: disable=W0702; we want to silence errors
             try:
                 while self.running:
-                    result = Quartz.CFRunLoopRunInMode(
-                        Quartz.kCFRunLoopDefaultMode, 1, False)
+                    result = CFRunLoopRunInMode(
+                        kCFRunLoopDefaultMode, 1, False)
                     try:
-                        if result != Quartz.kCFRunLoopRunTimedOut:
+                        if result != kCFRunLoopRunTimedOut:
                             break
                     except AttributeError:
                         # This happens during teardown of the virtual machine
@@ -241,7 +247,7 @@ class ListenerMixin(object):
         # loop around run loop invocations to terminate and set this event
         try:
             if self._loop is not None:
-                Quartz.CFRunLoopStop(self._loop)
+                CFRunLoopStop(self._loop)
         except AttributeError:
             # The loop may not have been created
             pass
@@ -251,14 +257,14 @@ class ListenerMixin(object):
 
         :return: an event tap
         """
-        return Quartz.CGEventTapCreate(
-            Quartz.kCGSessionEventTap,
-            Quartz.kCGHeadInsertEventTap,
-            Quartz.kCGEventTapOptionListenOnly if (
+        return CGEventTapCreate(
+            kCGSessionEventTap,
+            kCGHeadInsertEventTap,
+            kCGEventTapOptionListenOnly if (
                 True
                 and not self.suppress
                 and self._intercept is None)
-            else Quartz.kCGEventTapOptionDefault,
+            else kCGEventTapOptionDefault,
             self._EVENTS,
             self._handler,
             None)

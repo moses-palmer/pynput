@@ -28,6 +28,17 @@ import enum
 import Quartz
 
 from AppKit import NSEvent
+from Quartz import (
+    CGDisplayPixelsHigh, CGEventCreateMouseEvent, CGEventCreateScrollWheelEvent,
+    CGEventGetIntegerValueField, CGEventGetLocation, CGEventMaskBit,
+    CGEventPost, CGEventSetIntegerValueField, kCGEventLeftMouseDown,
+    kCGEventLeftMouseDragged, kCGEventLeftMouseUp, kCGEventMouseMoved,
+    kCGEventOtherMouseDown, kCGEventOtherMouseDragged, kCGEventOtherMouseUp,
+    kCGEventRightMouseDown, kCGEventRightMouseDragged, kCGEventRightMouseUp,
+    kCGEventScrollWheel, kCGHIDEventTap, kCGMouseEventClickState,
+    kCGScrollEventUnitPixel, kCGScrollWheelEventDeltaAxis1,
+    kCGScrollWheelEventDeltaAxis2)
+
 
 from pynput._util.darwin import (
     ListenerMixin)
@@ -72,18 +83,18 @@ class Controller(_base.Controller):
     def _position_get(self):
         pos = NSEvent.mouseLocation()
 
-        return pos.x, Quartz.CGDisplayPixelsHigh(0) - pos.y
+        return pos.x, CGDisplayPixelsHigh(0) - pos.y
 
     def _position_set(self, pos):
         try:
             (_, _, mouse_type), mouse_button = self._drag_button.value
         except AttributeError:
-            mouse_type = Quartz.kCGEventMouseMoved
+            mouse_type = kCGEventMouseMoved
             mouse_button = 0
 
-        Quartz.CGEventPost(
-            Quartz.kCGHIDEventTap,
-            Quartz.CGEventCreateMouseEvent(
+        CGEventPost(
+            kCGHIDEventTap,
+            CGEventCreateMouseEvent(
                 None,
                 mouse_type,
                 pos,
@@ -93,18 +104,18 @@ class Controller(_base.Controller):
         dx = int(dx)
         dy = int(dy)
 
-        Quartz.CGEventPost(
-            Quartz.kCGHIDEventTap,
-            Quartz.CGEventCreateScrollWheelEvent(
+        CGEventPost(
+            kCGHIDEventTap,
+            CGEventCreateScrollWheelEvent(
                 None,
-                Quartz.kCGScrollEventUnitPixel,
+                kCGScrollEventUnitPixel,
                 2,
                 dy * self._SCROLL_SPEED,
                 dx * self._SCROLL_SPEED))
 
     def _press(self, button):
         (press, _, _), mouse_button = button.value
-        event = Quartz.CGEventCreateMouseEvent(
+        event = CGEventCreateMouseEvent(
             None,
             press,
             self.position,
@@ -113,19 +124,19 @@ class Controller(_base.Controller):
         # If we are performing a click, we need to set this state flag
         if self._click is not None:
             self._click += 1
-            Quartz.CGEventSetIntegerValueField(
+            CGEventSetIntegerValueField(
                 event,
                 Quartz.kCGMouseEventClickState,
                 self._click)
 
-        Quartz.CGEventPost(Quartz.kCGHIDEventTap, event)
+        CGEventPost(kCGHIDEventTap, event)
 
         # Store the button to enable dragging
         self._drag_button = button
 
     def _release(self, button):
         (_, release, _), mouse_button = button.value
-        event = Quartz.CGEventCreateMouseEvent(
+        event = CGEventCreateMouseEvent(
             None,
             release,
             self.position,
@@ -133,12 +144,12 @@ class Controller(_base.Controller):
 
         # If we are performing a click, we need to set this state flag
         if self._click is not None:
-            Quartz.CGEventSetIntegerValueField(
+            CGEventSetIntegerValueField(
                 event,
-                Quartz.kCGMouseEventClickState,
+                kCGMouseEventClickState,
                 self._click)
 
-        Quartz.CGEventPost(Quartz.kCGHIDEventTap, event)
+        CGEventPost(kCGHIDEventTap, event)
 
         if button == self._drag_button:
             self._drag_button = None
@@ -154,17 +165,17 @@ class Controller(_base.Controller):
 class Listener(ListenerMixin, _base.Listener):
     #: The events that we listen to
     _EVENTS = (
-        Quartz.CGEventMaskBit(Quartz.kCGEventMouseMoved) |
-        Quartz.CGEventMaskBit(Quartz.kCGEventLeftMouseDown) |
-        Quartz.CGEventMaskBit(Quartz.kCGEventLeftMouseUp) |
-        Quartz.CGEventMaskBit(Quartz.kCGEventLeftMouseDragged) |
-        Quartz.CGEventMaskBit(Quartz.kCGEventRightMouseDown) |
-        Quartz.CGEventMaskBit(Quartz.kCGEventRightMouseUp) |
-        Quartz.CGEventMaskBit(Quartz.kCGEventRightMouseDragged) |
-        Quartz.CGEventMaskBit(Quartz.kCGEventOtherMouseDown) |
-        Quartz.CGEventMaskBit(Quartz.kCGEventOtherMouseUp) |
-        Quartz.CGEventMaskBit(Quartz.kCGEventOtherMouseDragged) |
-        Quartz.CGEventMaskBit(Quartz.kCGEventScrollWheel))
+        CGEventMaskBit(kCGEventMouseMoved) |
+        CGEventMaskBit(kCGEventLeftMouseDown) |
+        CGEventMaskBit(kCGEventLeftMouseUp) |
+        CGEventMaskBit(kCGEventLeftMouseDragged) |
+        CGEventMaskBit(kCGEventRightMouseDown) |
+        CGEventMaskBit(kCGEventRightMouseUp) |
+        CGEventMaskBit(kCGEventRightMouseDragged) |
+        CGEventMaskBit(kCGEventOtherMouseDown) |
+        CGEventMaskBit(kCGEventOtherMouseUp) |
+        CGEventMaskBit(kCGEventOtherMouseDragged) |
+        CGEventMaskBit(kCGEventScrollWheel))
 
     def __init__(self, *args, **kwargs):
         super(Listener, self).__init__(*args, **kwargs)
@@ -178,22 +189,22 @@ class Listener(ListenerMixin, _base.Listener):
         This method will call the callbacks registered on initialisation.
         """
         try:
-            (px, py) = Quartz.CGEventGetLocation(event)
+            (px, py) = CGEventGetLocation(event)
         except AttributeError:
             # This happens during teardown of the virtual machine
             return
 
         # Quickly detect the most common event type
-        if event_type == Quartz.kCGEventMouseMoved:
+        if event_type == kCGEventMouseMoved:
             self.on_move(px, py)
 
-        elif event_type == Quartz.kCGEventScrollWheel:
-            dx = Quartz.CGEventGetIntegerValueField(
+        elif event_type == kCGEventScrollWheel:
+            dx = CGEventGetIntegerValueField(
                 event,
-                Quartz.kCGScrollWheelEventDeltaAxis2)
-            dy = Quartz.CGEventGetIntegerValueField(
+                kCGScrollWheelEventDeltaAxis2)
+            dy = CGEventGetIntegerValueField(
                 event,
-                Quartz.kCGScrollWheelEventDeltaAxis1)
+                kCGScrollWheelEventDeltaAxis1)
             self.on_scroll(px, py, dx, dy)
 
         else:
