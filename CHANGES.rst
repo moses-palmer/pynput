@@ -1,6 +1,15 @@
 Release Notes
 =============
 
+v1.7.4 (2021-10-10) - Various fixes
+-----------------------------------
+*  Detect whether permissions are lacking on *macOS*. Thanks to *Dane Finlay*!
+*  Eagerly import symbols from ``CoreFoundation`` and ``Quartz``. Thanks to
+   *Ronald Oussoren*!
+*  Improved handling of ``dumpkeys`` utility. Thanks to *Markus Niedermann*!
+*  Removed ambiguous license file.
+
+
 v1.7.3 (2021-02-10) - Various fixes
 -----------------------------------
 *  Corrected *keysym* handling on *Xorg*; not all groups were loaded, and the
