@@ -32,6 +32,7 @@ from pynput._util.darwin import (
     get_unicode_to_keycode_map,
     keycode_context,
     ListenerMixin)
+from pynput._util.darwin_vks import SYMBOLS
 from . import _base
 
 
@@ -329,7 +330,15 @@ class Listener(ListenerMixin, _base.Listener):
         # ...then try characters...
         length, chars = Quartz.CGEventKeyboardGetUnicodeString(
             event, 100, None, None)
-        if length > 0:
+        try:
+            printable = chars.isprintable()
+        except AttributeError:
+            printable = chars.isalnum()
+        if not printable and vk in SYMBOLS \
+                and Quartz.CGEventGetFlags(event) \
+                & Quartz.kCGEventFlagMaskControl:
+            return KeyCode.from_char(SYMBOLS[vk], vk=vk)
+        elif length > 0:
             return KeyCode.from_char(chars, vk=vk)
 
         # ...and fall back on a virtual key code
