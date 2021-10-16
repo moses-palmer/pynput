@@ -8,14 +8,21 @@ cases, however, that is not entirely possible.
 Linux
 ~~~~~
 
-On *Linux*, *pynput* uses *X*, so the following must be true:
+On *Linux*, *pynput* uses *X* or *uinput*.
+
+When running under *X*, the following must be true:
 
 *  An *X server* must be running.
 
 *  The environment variable ``$DISPLAY`` must be set.
 
-The latter requirement means that running *pynput* over *SSH* generally will not
-work. To work around that, make sure to set ``$DISPLAY``:
+When running under *uinput*, the following must be true:
+
+*  You must run your script as root, to that is has the required permissions
+   for *uinput*.
+
+The latter requirement for *X* means that running *pynput* over *SSH* generally
+will not work. To work around that, make sure to set ``$DISPLAY``:
 
 .. code-block:: bash
 
