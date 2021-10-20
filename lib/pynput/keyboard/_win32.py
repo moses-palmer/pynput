@@ -40,6 +40,7 @@ from pynput._util.win32 import (
     KEYBDINPUT,
     KeyTranslator,
     ListenerMixin,
+    MapVirtualKey,
     SendInput,
     SystemHook,
     VkKeyScan)
@@ -70,13 +71,15 @@ class KeyCode(_base.KeyCode):
         """
         if self.vk:
             vk = self.vk
-            scan = self._scan or 0
+            scan = self._scan \
+                or MapVirtualKey(vk, MapVirtualKey.MAPVK_VK_TO_VSC)
             flags = 0
         else:
             res = VkKeyScan(self.char)
             if (res >> 8) & 0xFF == 0:
                 vk = res & 0xFF
-                scan = self._scan or 0
+                scan = self._scan \
+                    or MapVirtualKey(vk, MapVirtualKey.MAPVK_VK_TO_VSC)
                 flags = 0
             else:
                 vk = 0

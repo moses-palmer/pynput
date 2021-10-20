@@ -123,6 +123,12 @@ VkKeyScan = windll.user32.VkKeyScanW
 VkKeyScan.argtypes = (
     wintypes.WCHAR,)
 
+MapVirtualKey = windll.user32.MapVirtualKeyW
+MapVirtualKey.argtypes = (
+    wintypes.UINT,
+    wintypes.UINT)
+MapVirtualKey.MAPVK_VK_TO_VSC = 0
+
 SendInput = windll.user32.SendInput
 SendInput.argtypes = (
     wintypes.UINT,
