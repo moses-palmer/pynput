@@ -281,6 +281,9 @@ class Key(enum.Enum):
 
     #: The play/pause toggle.
     media_play_pause = 0
+    
+    #: The stop button.
+    media_stop = 0
 
     #: The volume mute button.
     media_volume_mute = 0

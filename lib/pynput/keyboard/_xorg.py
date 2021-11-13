@@ -166,6 +166,7 @@ class Key(enum.Enum):
     up = KeyCode._from_symbol('Up')
 
     media_play_pause = KeyCode._from_media('Play')
+    media_stop = KeyCode._from_media('Stop')
     media_volume_mute = KeyCode._from_media('Mute')
     media_volume_down = KeyCode._from_media('LowerVolume')
     media_volume_up = KeyCode._from_media('RaiseVolume')
