@@ -28,37 +28,11 @@ import ctypes.util
 import six
 
 import objc
-
-# Eagerly import these to work around a race condition in pyobjc; this may be
-# removed once pyobjc 8 is released
-from CoreFoundation import (
-    CFMachPortCreateRunLoopSource,
-    CFRelease,
-    CFRunLoopAddSource,
-    CFRunLoopGetCurrent,
-    CFRunLoopRunInMode,
-    CFRunLoopStop,
-    kCFRunLoopDefaultMode,
-    kCFRunLoopRunTimedOut)
-from HIServices import (
-    AXIsProcessTrusted)
-from Quartz import (
-    CGEventTapCreate,
-    CGEventTapEnable,
-    kCGEventTapOptionDefault,
-    kCGEventTapOptionListenOnly,
-    kCGHeadInsertEventTap,
-    kCGSessionEventTap)
-
+import CoreFoundation
+import HIServices
+import Quartz
 
 from . import AbstractListener
-
-
-#: The objc module as a library handle
-OBJC = ctypes.PyDLL(objc._objc.__file__)
-
-OBJC.PyObjCObject_New.restype = ctypes.py_object
-OBJC.PyObjCObject_New.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int]
 
 
 def _wrap_value(value):
@@ -68,7 +42,7 @@ def _wrap_value(value):
 
     :return: a wrapped value
     """
-    return OBJC.PyObjCObject_New(value, 0, 1)
+    return objc.objc_object(c_void_p=value)
 
 
 @contextlib.contextmanager
@@ -84,7 +58,7 @@ def _wrapped(value):
     try:
         yield value
     finally:
-        CFRelease(wrapped_value)
+        CoreFoundation.CFRelease(wrapped_value)
 
 
 class CarbonExtra(object):
@@ -212,7 +186,7 @@ class ListenerMixin(object):
     IS_TRUSTED = False
 
     def _run(self):
-        self.IS_TRUSTED = AXIsProcessTrusted()
+        self.IS_TRUSTED = HIServices.AXIsProcessTrusted()
         if not self.IS_TRUSTED:
             self._log.warning(
                 'This process is not trusted! Input event monitoring will not '
@@ -225,22 +199,23 @@ class ListenerMixin(object):
                 self._mark_ready()
                 return
 
-            loop_source = CFMachPortCreateRunLoopSource(
+            loop_source = Quartz.CFMachPortCreateRunLoopSource(
                 None, tap, 0)
-            self._loop = CFRunLoopGetCurrent()
+            self._loop = Quartz.CFRunLoopGetCurrent()
 
-            CFRunLoopAddSource(self._loop, loop_source, kCFRunLoopDefaultMode)
-            CGEventTapEnable(tap, True)
+            Quartz.CFRunLoopAddSource(
+                self._loop, loop_source, Quartz.kCFRunLoopDefaultMode)
+            Quartz.CGEventTapEnable(tap, True)
 
             self._mark_ready()
 
             # pylint: disable=W0702; we want to silence errors
             try:
                 while self.running:
-                    result = CFRunLoopRunInMode(
-                        kCFRunLoopDefaultMode, 1, False)
+                    result = Quartz.CFRunLoopRunInMode(
+                        Quartz.kCFRunLoopDefaultMode, 1, False)
                     try:
-                        if result != kCFRunLoopRunTimedOut:
+                        if result != Quartz.kCFRunLoopRunTimedOut:
                             break
                     except AttributeError:
                         # This happens during teardown of the virtual machine
@@ -259,7 +234,7 @@ class ListenerMixin(object):
         # loop around run loop invocations to terminate and set this event
         try:
             if self._loop is not None:
-                CFRunLoopStop(self._loop)
+                Quartz.CFRunLoopStop(self._loop)
         except AttributeError:
             # The loop may not have been created
             pass
@@ -269,14 +244,14 @@ class ListenerMixin(object):
 
         :return: an event tap
         """
-        return CGEventTapCreate(
-            kCGSessionEventTap,
-            kCGHeadInsertEventTap,
-            kCGEventTapOptionListenOnly if (
+        return Quartz.CGEventTapCreate(
+            Quartz.kCGSessionEventTap,
+            Quartz.kCGHeadInsertEventTap,
+            Quartz.kCGEventTapOptionListenOnly if (
                 True
                 and not self.suppress
                 and self._intercept is None)
-            else kCGEventTapOptionDefault,
+            else Quartz.kCGEventTapOptionDefault,
             self._EVENTS,
             self._handler,
             None)
