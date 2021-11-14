@@ -77,4 +77,4 @@ man_pages = [
         package.__package__,
         u'%s Documentation' % package.__package__,
         [package._info.__author__],
-        1)]
+        3)]
