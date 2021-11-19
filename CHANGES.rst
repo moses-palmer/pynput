@@ -1,6 +1,16 @@
 Release Notes
 =============
 
+v1.7.5 (2021-11-19) - Various fixes
+-----------------------------------
+*  Corrected crashes on *Xorg* when a listener was configured to suppress
+   system events. Thanks to *jpramosi*!
+*  Improved handling of keyboard controller on *Windows*. The controller now
+   has a greater change of working with applications using lower level events.
+   Thanks to *bhudax*!
+*  Updated *macOS* implementation to use new version of *pyobjc*.
+
+
 v1.7.4 (2021-10-10) - Various fixes
 -----------------------------------
 *  Detect whether permissions are lacking on *macOS*. Thanks to *Dane Finlay*!
