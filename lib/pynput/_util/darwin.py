@@ -42,7 +42,7 @@ def _wrap_value(value):
 
     :return: a wrapped value
     """
-    return objc.objc_object(c_void_p=value)
+    return objc.objc_object(c_void_p=value) if value is not None else None
 
 
 @contextlib.contextmanager
