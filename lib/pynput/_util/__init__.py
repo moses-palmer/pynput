@@ -82,6 +82,23 @@ def backend(package):
             if resolutions else '')
 
 
+def prefix(base, cls):
+    """Calculates the prefix to use for platform specific options for a
+    specific class.
+
+    The prefix if the name of the module containing the class that is an
+    immediate subclass of ``base`` among the super classes of ``cls``.
+    """
+    for super_cls in filter(
+            lambda cls: issubclass(cls, base),
+            cls.__mro__[1:]):
+        if super_cls is base:
+            return cls.__module__.rsplit('.', 1)[-1][1:] + '_'
+        else:
+            result = prefix(base, super_cls)
+            if result is not None:
+                return result
+
 
 class AbstractListener(threading.Thread):
     """A class implementing the basic behaviour for event listeners.
