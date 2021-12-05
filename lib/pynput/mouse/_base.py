@@ -26,7 +26,7 @@ is located in a platform dependent module.
 
 import enum
 
-from pynput._util import AbstractListener
+from pynput._util import AbstractListener, prefix
 from pynput import _logger
 
 
@@ -252,11 +252,11 @@ class Listener(AbstractListener):
     def __init__(self, on_move=None, on_click=None, on_scroll=None,
                  suppress=False, **kwargs):
         self._log = _logger(self.__class__)
-        prefix = self.__class__.__module__.rsplit('.', 1)[-1][1:] + '_'
+        option_prefix = prefix(Listener, self.__class__)
         self._options = {
-            key[len(prefix):]: value
+            key[len(option_prefix):]: value
             for key, value in kwargs.items()
-            if key.startswith(prefix)}
+            if key.startswith(option_prefix)}
         super(Listener, self).__init__(
             on_move=on_move, on_click=on_click, on_scroll=on_scroll,
             suppress=suppress)
