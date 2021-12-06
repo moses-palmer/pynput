@@ -681,6 +681,14 @@ class Listener(AbstractListener):
             ``Quartz.CGEventSetIntegerValueField``. If this callable does not
             return the event, the event is suppressed system wide.
 
+        ``uinput_device_paths``
+            A list of device paths.
+
+            If this is specified, *pynput* will limit the number of devices
+            checked for the capabilities needed to those passed, otherwise all
+            system devices will be used. Passing this might be required if an
+            incorrect device is chosen.
+
         ``win32_event_filter``
             A callable taking the arguments ``(msg, data)``, where ``msg`` is
             the current message, and ``data`` associated data as a
