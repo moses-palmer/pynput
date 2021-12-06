@@ -667,8 +667,8 @@ class Listener(AbstractListener):
         system.
 
     :param kwargs: Any non-standard platform dependent options. These should be
-        prefixed with the platform name thus: ``darwin_``, ``xorg_`` or
-        ``win32_``.
+        prefixed with the platform name thus: ``darwin_``, ``uinput_``,
+        ``xorg_`` or ``win32_``.
 
         Supported values are:
 
@@ -680,6 +680,14 @@ class Listener(AbstractListener):
             This callable can freely modify the event using functions like
             ``Quartz.CGEventSetIntegerValueField``. If this callable does not
             return the event, the event is suppressed system wide.
+
+        ``uinput_device_paths``
+            A list of device paths.
+
+            If this is specified, *pynput* will limit the number of devices
+            checked for the capabilities needed to those passed, otherwise all
+            system devices will be used. Passing this might be required if an
+            incorrect device is chosen.
 
         ``win32_event_filter``
             A callable taking the arguments ``(msg, data)``, where ``msg`` is

@@ -8,14 +8,21 @@ cases, however, that is not entirely possible.
 Linux
 ~~~~~
 
-On *Linux*, *pynput* uses *X*, so the following must be true:
+On *Linux*, *pynput* uses *X* or *uinput*.
+
+When running under *X*, the following must be true:
 
 *  An *X server* must be running.
 
 *  The environment variable ``$DISPLAY`` must be set.
 
-The latter requirement means that running *pynput* over *SSH* generally will not
-work. To work around that, make sure to set ``$DISPLAY``:
+When running under *uinput*, the following must be true:
+
+*  You must run your script as root, to that is has the required permissions
+   for *uinput*.
+
+The latter requirement for *X* means that running *pynput* over *SSH* generally
+will not work. To work around that, make sure to set ``$DISPLAY``:
 
 .. code-block:: bash
 
@@ -24,6 +31,10 @@ work. To work around that, make sure to set ``$DISPLAY``:
 Please note that the value ``DISPLAY=:0`` is just an example. To find the
 actual value, please launch a terminal application from your desktop
 environment and issue the command ``echo $DISPLAY``.
+
+When running under *Wayland*, the *X server* emulator ``Xwayland`` will usually
+run, providing limited functionality. Notably, you will only receive input
+events from applications running under this emulator.
 
 
 macOS
