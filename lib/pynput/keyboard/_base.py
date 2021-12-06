@@ -667,8 +667,8 @@ class Listener(AbstractListener):
         system.
 
     :param kwargs: Any non-standard platform dependent options. These should be
-        prefixed with the platform name thus: ``darwin_``, ``xorg_`` or
-        ``win32_``.
+        prefixed with the platform name thus: ``darwin_``, ``uinput_``,
+        ``xorg_`` or ``win32_``.
 
         Supported values are:
 
