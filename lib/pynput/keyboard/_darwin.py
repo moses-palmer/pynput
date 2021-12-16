@@ -28,7 +28,7 @@ import enum
 
 import Quartz
 
-from pynput._util.darwin import (
+from .._util.darwin import (
     get_unicode_to_keycode_map,
     keycode_context,
     ListenerMixin)
