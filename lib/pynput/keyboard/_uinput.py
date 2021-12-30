@@ -219,18 +219,12 @@ class Layout(object):
 
         :return: a mapped key
 
-        :raises ValueError: if ``modifiers`` contains keys other than
-            :attr:`Key.shift` and :attr:`Key.alt_gr`
-
         :raises KeyError: if ``vk`` is an unknown key
         """
-        if not {Key.shift, Key.alt_gr}.issuperset(modifiers):
-            raise ValueError(modifiers)
-        else:
-            return self._vk_table[vk][
-                0
-                | (1 if Key.shift in modifiers else 0)
-                | (2 if Key.alt_gr in modifiers else 0)]
+        return self._vk_table[vk][
+            0
+            | (1 if Key.shift in modifiers else 0)
+            | (2 if Key.alt_gr in modifiers else 0)]
 
     def for_char(self, char):
         """Reads a virtual key code and modifier state for a character.
