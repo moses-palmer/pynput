@@ -1,6 +1,17 @@
 Release Notes
 =============
 
+v1.7.6 (2022-01-01) - Various fixes
+-----------------------------------
+*  Allow passing virtual key codes to the parser for global hot keys.
+*  Stop the recording context asynchronously on *Xorg*.
+*  Do not pass ``None`` to ``objc.objc_object``. Thanks to *yejunxi*!
+*  Do not crash when pressing the *alt* key on *uinput*. Thanks to *Caldas
+   Lopes*!
+*  Use the correct option prefix for listeners derived from the backend
+   implementations. Thanks to *Yu Wang*!
+
+
 v1.7.5 (2021-11-19) - Various fixes
 -----------------------------------
 *  Corrected crashes on *Xorg* when a listener was configured to suppress
