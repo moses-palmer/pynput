@@ -144,7 +144,9 @@ class HotKey(object):
             elif len(s) > 2 and (s[0], s[-1]) == ('<', '>'):
                 p = s[1:-1]
                 try:
-                    return Key[p.lower()]
+                    if Key[p.lower()] in _NORMAL_MODIFIERS.values():
+                        return Key[p.lower()]
+                    return KeyCode.from_vk(Key[p.lower()].value.vk)
                 except KeyError:
                     try:
                         return KeyCode.from_vk(int(p))
