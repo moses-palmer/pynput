@@ -144,7 +144,13 @@ class HotKey(object):
             elif len(s) > 2 and (s[0], s[-1]) == ('<', '>'):
                 p = s[1:-1]
                 try:
-                    return Key[p.lower()]
+                    # We want to represent modifiers as Key instances, and all
+                    # other keys as KeyCodes
+                    key = Key[p.lower()]
+                    if key in _NORMAL_MODIFIERS.values():
+                        return key
+                    else:
+                        return KeyCode.from_vk(key.value.vk)
                 except KeyError:
                     try:
                         return KeyCode.from_vk(int(p))
