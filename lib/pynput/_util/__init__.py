@@ -30,6 +30,7 @@ import importlib
 import os
 import sys
 import threading
+import time
 
 import six
 
@@ -265,15 +266,23 @@ class AbstractListener(threading.Thread):
         """
         raise NotImplementedError()
 
-    def join(self, *args):
-        super(AbstractListener, self).join(*args)
+    def join(self, timeout=None, *args):
+        start = time.time()
+        super(AbstractListener, self).join(timeout, *args)
+        timeout = max(0.0, timeout - (time.time() - start)) \
+            if timeout is not None \
+            else None
 
-        # Reraise any exceptions
+        # Reraise any exceptions; make sure not to block if a timeout was
+        # provided
         try:
-            exc_type, exc_value, exc_traceback = self._queue.get()
+            exc_type, exc_value, exc_traceback = self._queue.get(
+                timeout=timeout)
+            six.reraise(exc_type, exc_value, exc_traceback)
+        except queue.Empty:
+            pass
         except TypeError:
             return
-        six.reraise(exc_type, exc_value, exc_traceback)
 
 
 class Events(object):
