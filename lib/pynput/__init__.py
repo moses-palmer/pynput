@@ -16,8 +16,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 The main *pynput* module.
-
-This module imports ``keyboard`` and ``mouse``.
 """
 
 def _logger(cls):
@@ -35,7 +33,3 @@ def _logger(cls):
     return logging.getLogger('{}.{}'.format(
         '.'.join(cls.__module__.split('.', 2)[:2]),
         cls.__name__))
-
-
-from . import keyboard
-from . import mouse
