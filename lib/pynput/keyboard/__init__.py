@@ -112,6 +112,7 @@ class HotKey(object):
         self._state = set()
         self._keys = set(keys)
         self._on_activate = on_activate
+        self._any_press = "<*>" in keys
 
     @staticmethod
     def parse(keys):
@@ -147,7 +148,7 @@ class HotKey(object):
                     return Key[p.lower()]
                 except KeyError:
                     try:
-                        return KeyCode.from_vk(int(p))
+                        return '<*>' if p == '*' else KeyCode.from_vk(int(p))
                     except ValueError:
                         raise ValueError(s)
             else:
@@ -161,6 +162,9 @@ class HotKey(object):
 
         # Ensure no duplicate parts
         if len(parsed_parts) != len(set(parsed_parts)):
+            raise ValueError(keys)
+        # Ensure any_press key is the only part
+        if len(parsed_parts) > 1 and '<*>' in parsed_parts:
             raise ValueError(keys)
         else:
             return parsed_parts
@@ -180,6 +184,8 @@ class HotKey(object):
             self._state.add(key)
             if self._state == self._keys:
                 self._on_activate()
+        elif self._any_press:
+            self._on_activate(key)
 
     def release(self, key):
         """Updates the hotkey state for a released key.
@@ -204,8 +210,8 @@ class GlobalHotKeys(Listener):
     """
     def __init__(self, hotkeys, *args, **kwargs):
         self._hotkeys = [
-            HotKey(HotKey.parse(key), value)
-            for key, value in hotkeys.items()]
+            HotKey(HotKey.parse(key), func)
+            for key, func in hotkeys.items()]
         super(GlobalHotKeys, self).__init__(
             on_press=self._on_press,
             on_release=self._on_release,
