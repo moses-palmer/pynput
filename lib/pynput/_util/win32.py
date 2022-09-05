@@ -462,6 +462,10 @@ class KeyTranslator(object):
 
     def __init__(self):
         self.update_layout()
+        self._modifier_state = [False, False, False]
+        self.keyIndex = {0x10: 0, 0xA0: 0, 0xA1: 0,
+                         0x11: 1, 0xA2: 1, 0xA3: 1,
+                         0x12: 2, 0xA4: 2, 0xA5: 2}
 
     def __call__(self, vk, is_press):
         """Converts a virtual key code to a string.
@@ -476,7 +480,10 @@ class KeyTranslator(object):
         :raises OSError: if a call to any *win32* function fails
         """
         # Get a string representation of the key
-        layout_data = self._layout_data[self._modifier_state()]
+        try: self._modifier_state[self.keyIndex[vk]] = is_press
+        except KeyError: pass
+        
+        layout_data = self._layout_data[tuple(self._modifier_state)]
         scan = self._to_scan(vk, self._layout)
         character, is_dead = layout_data[scan]
 
