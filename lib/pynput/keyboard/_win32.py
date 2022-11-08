@@ -206,6 +206,9 @@ class Listener(ListenerMixin, _base.Listener):
     # UTF-16 character code
     _UTF16_FLAG = 0x1000
 
+    # A bit flag attached to messages indicating that the event was injected
+    _INJECTED_FLAG = 0x2000
+
     # A special virtual key code designating unicode characters
     _VK_PACKET = 0xE7
 
@@ -232,6 +235,8 @@ class Listener(ListenerMixin, _base.Listener):
         """Contains information about a mouse event passed to a
         ``WH_KEYBOARD_LL`` hook procedure, ``LowLevelKeyboardProc``.
         """
+        LLKHF_INJECTED = 0x00000010
+        LLKHF_LOWER_IL_INJECTED = 0x00000002
         _fields_ = [
             ('vkCode', wintypes.DWORD),
             ('scanCode', wintypes.DWORD),
@@ -255,14 +260,20 @@ class Listener(ListenerMixin, _base.Listener):
 
         data = ctypes.cast(lpdata, self._LPKBDLLHOOKSTRUCT).contents
         is_packet = data.vkCode == self._VK_PACKET
+        injected = (data.flags & (0
+            | self._KBDLLHOOKSTRUCT.LLKHF_INJECTED
+            | self._KBDLLHOOKSTRUCT.LLKHF_LOWER_IL_INJECTED)) != 0
+        message = (msg
+            | (self._UTF16_FLAG if is_packet else 0)
+            | (self._INJECTED_FLAG if injected else 0))
 
         # Suppress further propagation of the event if it is filtered
         if self._event_filter(msg, data) is False:
             return None
         elif is_packet:
-            return (msg | self._UTF16_FLAG, data.scanCode)
+            return (message, data.scanCode)
         else:
-            return (msg, data.vkCode)
+            return (message, data.vkCode)
 
     @AbstractListener._emitter
     def _process(self, wparam, lparam):
@@ -273,8 +284,9 @@ class Listener(ListenerMixin, _base.Listener):
         # otherwise convert the event to a KeyCode; this may fail, and in that
         # case we pass None
         is_utf16 = msg & self._UTF16_FLAG
+        injected = msg & self._INJECTED_FLAG
+        message = msg & ~(self._UTF16_FLAG | self._INJECTED_FLAG)
         if is_utf16:
-            msg = msg ^ self._UTF16_FLAG
             scan = vk
             key = KeyCode.from_char(six.unichr(scan))
         else:
@@ -283,11 +295,11 @@ class Listener(ListenerMixin, _base.Listener):
             except OSError:
                 key = None
 
-        if msg in self._PRESS_MESSAGES:
-            self.on_press(key)
+        if message in self._PRESS_MESSAGES:
+            self.on_press(key, injected)
 
-        elif msg in self._RELEASE_MESSAGES:
-            self.on_release(key)
+        elif message in self._RELEASE_MESSAGES:
+            self.on_release(key, injected)
 
     # pylint: disable=R0201
     @contextlib.contextmanager

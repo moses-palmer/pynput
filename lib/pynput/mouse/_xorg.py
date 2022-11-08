@@ -134,7 +134,7 @@ class Listener(ListenerMixin, _base.Listener):
     def __init__(self, *args, **kwargs):
         super(Listener, self).__init__(*args, **kwargs)
 
-    def _handle(self, dummy_display, event):
+    def _handle(self, dummy_display, event, injected):
         px = event.root_x
         py = event.root_y
 
@@ -143,17 +143,20 @@ class Listener(ListenerMixin, _base.Listener):
             # button codes
             scroll = self._SCROLL_BUTTONS.get(event.detail, None)
             if scroll:
-                self.on_scroll(px, py, *scroll)
+                self.on_scroll(
+                    px, py, scroll[0], scroll[1], injected)
             else:
-                self.on_click(px, py, self._button(event.detail), True)
+                self.on_click(
+                    px, py, self._button(event.detail), True, injected)
 
         elif event.type == Xlib.X.ButtonRelease:
             # Send an event only if this was not a scroll event
             if event.detail not in self._SCROLL_BUTTONS:
-                self.on_click(px, py, self._button(event.detail), False)
+                self.on_click(
+                    px, py, self._button(event.detail), False, injected)
 
         else:
-            self.on_move(px, py)
+            self.on_move(px, py, injected)
 
 
     def _suppress_start(self, display):
