@@ -1,6 +1,6 @@
 # coding=utf-8
 # pynput
-# Copyright (C) 2015-2021 Moses Palmér
+# Copyright (C) 2015-2022 Moses Palmér
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -414,11 +414,26 @@ class Controller(NotifierMixin, _base.Controller):
         #: Registers a keycode for a specific key and modifier state
         def register(dm, keycode, index):
             i = kc2i(keycode)
-            mapping[i][index] = keysym
-            dm.change_keyboard_mapping(
-                keycode,
-                mapping[i:i + 1])
-            self._borrows[keysym] = (keycode, index, 0)
+
+            # Check for use of empty mapping with a character that has upper
+            # and lower forms
+            lower = key.char.lower()
+            upper = key.char.upper()
+            if lower != upper and len(lower) == 1 and len(upper) == 1 and all(
+                    m == Xlib.XK.NoSymbol
+                    for m in mapping[i]):
+                lower = self._key_to_keysym(KeyCode.from_char(lower))
+                upper = self._key_to_keysym(KeyCode.from_char(upper))
+                if lower:
+                    mapping[i][0] = lower
+                    self._borrows[lower] = (keycode, 0, 0)
+                if upper:
+                    mapping[i][1] = upper
+                    self._borrows[upper] = (keycode, 1, 0)
+            else:
+                mapping[i][index] = keysym
+                self._borrows[keysym] = (keycode, index, 0)
+            dm.change_keyboard_mapping(keycode, mapping[i:i + 1])
 
         try:
             with display_manager(self._display) as dm, self._borrow_lock as _:

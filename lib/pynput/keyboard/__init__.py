@@ -1,6 +1,6 @@
 # coding=utf-8
 # pynput
-# Copyright (C) 2015-2021 Moses Palmér
+# Copyright (C) 2015-2022 Moses Palmér
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -144,7 +144,13 @@ class HotKey(object):
             elif len(s) > 2 and (s[0], s[-1]) == ('<', '>'):
                 p = s[1:-1]
                 try:
-                    return Key[p.lower()]
+                    # We want to represent modifiers as Key instances, and all
+                    # other keys as KeyCodes
+                    key = Key[p.lower()]
+                    if key in _NORMAL_MODIFIERS.values():
+                        return key
+                    else:
+                        return KeyCode.from_vk(key.value.vk)
                 except KeyError:
                     try:
                         return KeyCode.from_vk(int(p))
