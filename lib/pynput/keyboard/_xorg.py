@@ -205,7 +205,7 @@ class Controller(NotifierMixin, _base.Controller):
         # pylint: enable=C0103
 
     def __del__(self):
-        if self._display:
+        if hasattr(self, '_display'):
             self._display.close()
 
     @property
