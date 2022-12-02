@@ -9,19 +9,21 @@ import functools
 
 from pynput import keyboard
 
+__author__ = "Paolo Pastori"
+
 """
 I was looking for a way to use both HotKeys and regular callabacks
 (i.e. on_press and on_release) and still being able to pass the
 suppress argument to the Listener.
 
-The main issue here is the call for keyboard.Listener.canonical.
+The main issue was the call for keyboard.Listener.canonical.
 """
 
 # these might be provided by the package
 def notify_hotkeys(hotkeys, is_press):
-    """Decorator to add HotKey capabilities to event callbacks.
+    """Decorator factory to add HotKey capabilities to event callbacks.
     """
-    def decorator_factory(callback):
+    def decorator(callback):
         @functools.wraps(callback)
         def wrapper(key):
             if callback(key) is False:
@@ -31,7 +33,7 @@ def notify_hotkeys(hotkeys, is_press):
             for hk in hotkeys:
                 getattr(hk, hot_callback)(can_key)
         return wrapper
-    return decorator_factory
+    return decorator
 
 def activate_hotkeys(hotkeys):
     return notify_hotkeys(hotkeys, True)
@@ -42,8 +44,7 @@ def deactivate_hotkeys(hotkeys):
 
 def on_ctrl_c():
     print("=> HotKey('<ctrl>+c')")
-    # here return False should work as for other callbacks
-    raise keyboard.Listener.StopException()
+    return False
 
 hotkeys = [
     keyboard.HotKey(
