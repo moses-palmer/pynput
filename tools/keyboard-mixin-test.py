@@ -5,6 +5,8 @@ import sys
 sys.path.insert(0,
     os.path.join(os.path.dirname(__file__), '..', 'lib'))
 
+import functools
+
 from pynput import keyboard
 
 """
@@ -15,8 +17,32 @@ suppress argument to the Listener.
 The main issue here is the call for keyboard.Listener.canonical.
 """
 
+# these might be provided by the package
+def notify_hotkeys(hotkeys, is_press):
+    """Decorator to add HotKey capabilities to event callbacks.
+    """
+    def decorator_factory(callback):
+        @functools.wraps(callback)
+        def wrapper(key):
+            if callback(key) is False:
+                return False
+            can_key = keyboard.Listener.canonical(key)
+            hot_callback = 'press' if is_press else 'release'
+            for hk in hotkeys:
+                getattr(hk, hot_callback)(can_key)
+        return wrapper
+    return decorator_factory
+
+def activate_hotkeys(hotkeys):
+    return notify_hotkeys(hotkeys, True)
+
+def deactivate_hotkeys(hotkeys):
+    return notify_hotkeys(hotkeys, False)
+
+
 def on_ctrl_c():
     print("=> HotKey('<ctrl>+c')")
+    # here return False should work as for other callbacks
     raise keyboard.Listener.StopException()
 
 hotkeys = [
@@ -25,19 +51,15 @@ hotkeys = [
         on_ctrl_c)
 ]
 
+@activate_hotkeys(hotkeys)
 def on_press(key):
     print("=> {}".format(key))
-    can_key = keyboard.Listener.canonical(key)
-    for hk in hotkeys:
-        hk.press(can_key)
 
+@deactivate_hotkeys(hotkeys)
 def on_release(key):
     print("=< {}".format(key))
     if key == keyboard.Key.esc:
         return False
-    can_key = keyboard.Listener.canonical(key)
-    for hk in hotkeys:
-        hk.release(can_key)
 
 
 with keyboard.Listener(
