@@ -168,152 +168,152 @@ class Key(enum.Enum):
     everywhere.
     """
     #: A generic Alt key. This is a modifier.
-    alt = 0
+    alt = KeyCode.from_vk(0)
 
     #: The left Alt key. This is a modifier.
-    alt_l = 0
+    alt_l = KeyCode.from_vk(0)
 
     #: The right Alt key. This is a modifier.
-    alt_r = 0
+    alt_r = KeyCode.from_vk(0)
 
     #: The AltGr key. This is a modifier.
-    alt_gr = 0
+    alt_gr = KeyCode.from_vk(0)
 
     #: The Backspace key.
-    backspace = 0
+    backspace = KeyCode.from_vk(0)
 
     #: The CapsLock key.
-    caps_lock = 0
+    caps_lock = KeyCode.from_vk(0)
 
     #: A generic command button. On *PC* platforms, this corresponds to the
     #: Super key or Windows key, and on *Mac* it corresponds to the Command
     #: key. This may be a modifier.
-    cmd = 0
+    cmd = KeyCode.from_vk(0)
 
     #: The left command button. On *PC* platforms, this corresponds to the
     #: Super key or Windows key, and on *Mac* it corresponds to the Command
     #: key. This may be a modifier.
-    cmd_l = 0
+    cmd_l = KeyCode.from_vk(0)
 
     #: The right command button. On *PC* platforms, this corresponds to the
     #: Super key or Windows key, and on *Mac* it corresponds to the Command
     #: key. This may be a modifier.
-    cmd_r = 0
+    cmd_r = KeyCode.from_vk(0)
 
     #: A generic Ctrl key. This is a modifier.
-    ctrl = 0
+    ctrl = KeyCode.from_vk(0)
 
     #: The left Ctrl key. This is a modifier.
-    ctrl_l = 0
+    ctrl_l = KeyCode.from_vk(0)
 
     #: The right Ctrl key. This is a modifier.
-    ctrl_r = 0
+    ctrl_r = KeyCode.from_vk(0)
 
     #: The Delete key.
-    delete = 0
+    delete = KeyCode.from_vk(0)
 
     #: A down arrow key.
-    down = 0
+    down = KeyCode.from_vk(0)
 
     #: The End key.
-    end = 0
+    end = KeyCode.from_vk(0)
 
     #: The Enter or Return key.
-    enter = 0
+    enter = KeyCode.from_vk(0)
 
     #: The Esc key.
-    esc = 0
+    esc = KeyCode.from_vk(0)
 
     #: The function keys. F1 to F20 are defined.
-    f1 = 0
-    f2 = 0
-    f3 = 0
-    f4 = 0
-    f5 = 0
-    f6 = 0
-    f7 = 0
-    f8 = 0
-    f9 = 0
-    f10 = 0
-    f11 = 0
-    f12 = 0
-    f13 = 0
-    f14 = 0
-    f15 = 0
-    f16 = 0
-    f17 = 0
-    f18 = 0
-    f19 = 0
-    f20 = 0
+    f1 = KeyCode.from_vk(0)
+    f2 = KeyCode.from_vk(0)
+    f3 = KeyCode.from_vk(0)
+    f4 = KeyCode.from_vk(0)
+    f5 = KeyCode.from_vk(0)
+    f6 = KeyCode.from_vk(0)
+    f7 = KeyCode.from_vk(0)
+    f8 = KeyCode.from_vk(0)
+    f9 = KeyCode.from_vk(0)
+    f10 = KeyCode.from_vk(0)
+    f11 = KeyCode.from_vk(0)
+    f12 = KeyCode.from_vk(0)
+    f13 = KeyCode.from_vk(0)
+    f14 = KeyCode.from_vk(0)
+    f15 = KeyCode.from_vk(0)
+    f16 = KeyCode.from_vk(0)
+    f17 = KeyCode.from_vk(0)
+    f18 = KeyCode.from_vk(0)
+    f19 = KeyCode.from_vk(0)
+    f20 = KeyCode.from_vk(0)
 
     #: The Home key.
-    home = 0
+    home = KeyCode.from_vk(0)
 
     #: A left arrow key.
-    left = 0
+    left = KeyCode.from_vk(0)
 
     #: The PageDown key.
-    page_down = 0
+    page_down = KeyCode.from_vk(0)
 
     #: The PageUp key.
-    page_up = 0
+    page_up = KeyCode.from_vk(0)
 
     #: A right arrow key.
-    right = 0
+    right = KeyCode.from_vk(0)
 
     #: A generic Shift key. This is a modifier.
-    shift = 0
+    shift = KeyCode.from_vk(0)
 
     #: The left Shift key. This is a modifier.
-    shift_l = 0
+    shift_l = KeyCode.from_vk(0)
 
     #: The right Shift key. This is a modifier.
-    shift_r = 0
+    shift_r = KeyCode.from_vk(0)
 
     #: The Space key.
-    space = 0
+    space = KeyCode.from_vk(0)
 
     #: The Tab key.
-    tab = 0
+    tab = KeyCode.from_vk(0)
 
     #: An up arrow key.
-    up = 0
+    up = KeyCode.from_vk(0)
 
     #: The play/pause toggle.
-    media_play_pause = 0
+    media_play_pause = KeyCode.from_vk(0)
 
     #: The volume mute button.
-    media_volume_mute = 0
+    media_volume_mute = KeyCode.from_vk(0)
 
     #: The volume down button.
-    media_volume_down = 0
+    media_volume_down = KeyCode.from_vk(0)
 
     #: The volume up button.
-    media_volume_up = 0
+    media_volume_up = KeyCode.from_vk(0)
 
     #: The previous track button.
-    media_previous = 0
+    media_previous = KeyCode.from_vk(0)
 
     #: The next track button.
-    media_next = 0
+    media_next = KeyCode.from_vk(0)
 
     #: The Insert key. This may be undefined for some platforms.
-    insert = 0
+    insert = KeyCode.from_vk(0)
 
     #: The Menu key. This may be undefined for some platforms.
-    menu = 0
+    menu = KeyCode.from_vk(0)
 
     #: The NumLock key. This may be undefined for some platforms.
-    num_lock = 0
+    num_lock = KeyCode.from_vk(0)
 
     #: The Pause/Break key. This may be undefined for some platforms.
-    pause = 0
+    pause = KeyCode.from_vk(0)
 
     #: The PrintScreen key. This may be undefined for some platforms.
-    print_screen = 0
+    print_screen = KeyCode.from_vk(0)
 
     #: The ScrollLock key. This may be undefined for some platforms.
-    scroll_lock = 0
+    scroll_lock = KeyCode.from_vk(0)
 
 
 class Controller(object):
