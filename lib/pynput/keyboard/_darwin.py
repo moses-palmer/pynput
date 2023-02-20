@@ -26,7 +26,8 @@ The keyboard implementation for *macOS*.
 
 import enum
 
-import Quartz
+from CoreFoundation import CFRelease, CFMachPortCreateRunLoopSource, CFRunLoopGetCurrent, CFRunLoopAddSource, kCFRunLoopDefaultMode, CFRunLoopRunInMode, kCFRunLoopRunTimedOut, CFRunLoopStop
+from Quartz import CGEventTapEnable, CGEventTapCreate, kCGSessionEventTap, kCGHeadInsertEventTap, kCGEventTapOptionListenOnly, kCGEventTapOptionDefault
 
 from pynput._util.darwin import (
     get_unicode_to_keycode_map,
