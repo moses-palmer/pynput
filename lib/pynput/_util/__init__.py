@@ -280,7 +280,7 @@ class AbstractListener(threading.Thread):
         if f is None:
             return lambda *a: None
         else:
-            argspec = inspect.getargspec(f)
+            argspec = inspect.getfullargspec(f)
             actual = len(argspec.args)
             defaults = len(argspec.defaults) if argspec.defaults else 0
             if actual - defaults > args:
