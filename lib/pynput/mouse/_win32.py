@@ -73,7 +73,7 @@ class Controller(NotifierMixin, _base.Controller):
     def _position_set(self, pos):
         pos = int(pos[0]), int(pos[1])
         self.__SetCursorPos(*pos)
-        self._emit('on_move', *pos)
+        self._emit('on_move', *pos, True)
 
     def _scroll(self, dx, dy):
         if dy:
@@ -100,7 +100,7 @@ class Controller(NotifierMixin, _base.Controller):
 
         if dx or dy:
             px, py = self._position_get()
-            self._emit('on_scroll', px, py, dx, dy)
+            self._emit('on_scroll', px, py, dx, dy, True)
 
     def _press(self, button):
         SendInput(
@@ -178,6 +178,8 @@ class Listener(ListenerMixin, _base.Listener):
         """Contains information about a mouse event passed to a ``WH_MOUSE_LL``
         hook procedure, ``MouseProc``.
         """
+        LLMHF_INJECTED = 0x00000001
+        LLMHF_LOWER_IL_INJECTED = 0x00000002
         _fields_ = [
             ('pt', wintypes.POINT),
             ('mouseData', wintypes.DWORD),
@@ -199,17 +201,20 @@ class Listener(ListenerMixin, _base.Listener):
             return
 
         data = ctypes.cast(lpdata, self._LPMSLLHOOKSTRUCT).contents
+        injected = data.flags & (0
+            | self._MSLLHOOKSTRUCT.LLMHF_INJECTED
+            | self._MSLLHOOKSTRUCT.LLMHF_LOWER_IL_INJECTED) != 0
 
         # Suppress further propagation of the event if it is filtered
         if self._event_filter(msg, data) is False:
             return
 
         if msg == self.WM_MOUSEMOVE:
-            self.on_move(data.pt.x, data.pt.y)
+            self.on_move(data.pt.x, data.pt.y,injected)
 
         elif msg in self.CLICK_BUTTONS:
             button, pressed = self.CLICK_BUTTONS[msg]
-            self.on_click(data.pt.x, data.pt.y, button, pressed)
+            self.on_click(data.pt.x, data.pt.y, button, pressed,injected)
 
         elif msg in self.X_BUTTONS:
             button, pressed = self.X_BUTTONS[msg][data.mouseData >> 16]
@@ -218,4 +223,4 @@ class Listener(ListenerMixin, _base.Listener):
         elif msg in self.SCROLL_BUTTONS:
             mx, my = self.SCROLL_BUTTONS[msg]
             dd = wintypes.SHORT(data.mouseData >> 16).value // WHEEL_DELTA
-            self.on_scroll(data.pt.x, data.pt.y, dd * mx, dd * my)
+            self.on_scroll(data.pt.x, data.pt.y, dd * mx, dd * my, injected)

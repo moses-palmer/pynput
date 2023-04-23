@@ -34,17 +34,17 @@ Use ``pynput.keyboard.Listener`` like this::
 
     from pynput import keyboard
 
-    def on_press(key):
+    def on_press(key, injected):
         try:
-            print('alphanumeric key {0} pressed'.format(
-                key.char))
+            print('alphanumeric key {} pressed; it was {}'.format(
+                key.char, 'faked' if injected else 'not faked'))
         except AttributeError:
-            print('special key {0} pressed'.format(
+            print('special key {} pressed'.format(
                 key))
 
-    def on_release(key):
-        print('{0} released'.format(
-            key))
+    def on_release(key, injected):
+        print('{} released; it was {}'.format(
+            key, 'faked' if injected else 'not faked'))
         if key == keyboard.Key.esc:
             # Stop listener
             return False
@@ -114,7 +114,7 @@ instance::
         try:
             listener.join()
         except MyException as e:
-            print('{0} was pressed'.format(e.args[0]))
+            print('{} was pressed'.format(e.args[0]))
 
 
 Toggling event listening for the keyboard listener
