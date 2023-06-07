@@ -5,7 +5,7 @@ import re
 import subprocess
 import sys
 
-DESCRIPTION='''Makes a full release.
+DESCRIPTION = '''Makes a full release.
 
 This script will update the version number of the package and perform all steps
 necessary to make a full release.

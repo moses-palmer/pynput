@@ -675,7 +675,7 @@ class Listener(AbstractListener):
         ``darwin_intercept``
             A callable taking the arguments ``(event_type, event)``, where
             ``event_type`` is ``Quartz.kCGEventKeyDown`` or
-            ``Quartz.kCGEventKeyDown``, and ``event`` is a ``CGEventRef``.
+            ``Quartz.kCGEventKeyUp``, and ``event`` is a ``CGEventRef``.
 
             This callable can freely modify the event using functions like
             ``Quartz.CGEventSetIntegerValueField``. If this callable does not
