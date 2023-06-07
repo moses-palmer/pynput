@@ -5,7 +5,7 @@ import re
 import subprocess
 import sys
 
-DESCRIPTION='''Makes a full release.
+DESCRIPTION = '''Makes a full release.
 
 This script will update the version number of the package and perform all steps
 necessary to make a full release.
@@ -28,16 +28,25 @@ PACKAGE_DIR = os.path.join(LIB_DIR, PACKAGE_NAME)
 def main(version):
     assert_current_branch_is_clean()
     update_info(version)
-    check_readme()
-    check_release_notes(version)
-    commit_changes(version)
     try:
-        tag_release(version)
+        check_readme()
+        check_release_notes(version)
+        commit_changes(version)
+        try:
+            tag_release(version)
+            try:
+                push_to_origin()
+                build_packages()
+                upload_to_pypi(version)
+            except:
+                tag_release.undo(version)
+                raise
+        except:
+            commit_changes.undo()
+            raise
     except:
-        commit_changes.undo()
+        update_info.undo()
         raise
-    push_to_origin()
-    upload_to_pypi()
 
 
 def assert_current_branch_is_clean():
@@ -62,6 +71,13 @@ def update_info(version):
         re.compile(r'__version__\s*=\s*(\([0-9]+(\s*,\s*[0-9]+)*\))'),
         1,
         repr(version))
+
+
+def _update_info_undo():
+    command(
+        'git',
+        'checkout', ROOT)
+update_info.undo = _update_info_undo
 
 
 def check_readme():
@@ -142,6 +158,13 @@ def tag_release(version):
         'v' + '.'.join(str(v) for v in version))
 
 
+def _tag_release_undo(version):
+    git('tag',
+        '-d',
+        'v' + '.'.join(str(v) for v in version))
+tag_release.undo = _tag_release_undo
+
+
 def push_to_origin():
     """Pushes master to origin.
     """
@@ -151,17 +174,30 @@ def push_to_origin():
     git('push', '--tags')
 
 
-def upload_to_pypi():
-    """Uploads this project to PyPi.
+def build_packages():
+    """Builds the packages, generating artifacts under ``dist``.
     """
-    print('Uploading to PyPi...')
+    print('Building packages...')
 
     python(
         os.path.join(ROOT, 'setup.py'),
         'sdist',
         'bdist_egg',
-        'bdist_wheel',
-        'upload')
+        'bdist_wheel')
+
+
+def upload_to_pypi(version):
+    """Uploads this project to PyPi.
+
+    :param tuple version: The version that is being released.
+    """
+    print('Uploading to PyPi...')
+
+    python(
+        '-m', 'twine',
+        'upload',
+        '--skip-existing',
+        os.path.join(ROOT, 'dist', '*'))
 
 
 def git(*args):
@@ -235,7 +271,8 @@ def command(*args):
         raise RuntimeError(
             'Failed to execute <%s> (%d): %s',
             ' '.join(args),
-            g.returncode, stderr)
+            g.returncode,
+            stderr)
     else:
         return stdout.decode('utf-8')
 
