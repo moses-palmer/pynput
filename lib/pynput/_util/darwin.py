@@ -78,6 +78,7 @@ def _wrapped(value):
         yield value
     finally:
         CFRelease(wrapped_value)
+        CFRelease(wrapped_value)
 
 
 class CarbonExtra(object):

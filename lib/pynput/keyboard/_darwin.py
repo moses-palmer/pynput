@@ -27,19 +27,26 @@ The keyboard implementation for *macOS*.
 import enum
 
 from Quartz import (
-    NSEvent, NSSystemDefined, CGEventCreateKeyboardEvent, 
-    CGEventSetFlags, kCGEventFlagMaskAlternate, 
-    kCGEventFlagMaskCommand, kCGEventFlagMaskControl, 
-    kCGEventFlagMaskShift, CGEventKeyboardSetUnicodeString,
-    kCGEventKeyDown, kCGEventKeyUp, kCGEventFlagsChanged,
-    CGEventMaskBit, CGEventPost, kCGHIDEventTap, CGEventGetFlags, 
-    CGEventGetIntegerValueField, kCGKeyboardEventKeycode, CGEventGetType, 
-    CGEventKeyboardGetUnicodeString
-    
-    
-    
-    
-    )
+    CGEventCreateKeyboardEvent,
+    CGEventGetFlags,
+    CGEventGetIntegerValueField,
+    CGEventGetType,
+    CGEventKeyboardGetUnicodeString,
+    CGEventKeyboardSetUnicodeString,
+    CGEventMaskBit,
+    CGEventPost,
+    CGEventSetFlags,
+    kCGEventFlagMaskAlternate,
+    kCGEventFlagMaskCommand,
+    kCGEventFlagMaskControl,
+    kCGEventFlagMaskShift,
+    kCGEventFlagsChanged,
+    kCGEventKeyDown,
+    kCGEventKeyUp,
+    kCGHIDEventTap,
+    kCGKeyboardEventKeycode,
+    NSEvent,
+    NSSystemDefined)
 
 from pynput._util.darwin import (
     get_unicode_to_keycode_map,
