@@ -205,7 +205,7 @@ class Controller(NotifierMixin, _base.Controller):
         # pylint: enable=C0103
 
     def __del__(self):
-        if self._display:
+        if hasattr(self, '_display'):
             self._display.close()
 
     @property
@@ -223,9 +223,8 @@ class Controller(NotifierMixin, _base.Controller):
     def _handle(self, key, is_press):
         """Resolves a key identifier and sends a keyboard event.
 
-        :param event: The *X* keyboard event.
-
-        :param int keysym: The keysym to handle.
+        :param int key: The key to handle.
+        :param bool is_press: Whether this is a press.
         """
         event = Xlib.display.event.KeyPress if is_press \
             else Xlib.display.event.KeyRelease
@@ -560,7 +559,7 @@ class Listener(ListenerMixin, _base.Listener):
             super(Listener, self)._run()
 
     def _initialize(self, display):
-        # Get the keyboard mapping to be able to translate events details to
+        # Get the keyboard mapping to be able to translate event details to
         # key codes
         min_keycode = display.display.info.min_keycode
         keycode_count = display.display.info.max_keycode - min_keycode + 1

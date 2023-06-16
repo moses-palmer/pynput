@@ -24,7 +24,8 @@ RUNTIME_PACKAGES = [
 #: Additional requirements used during setup
 SETUP_PACKAGES = [
     'setuptools-lint >=0.5',
-    'sphinx >=1.3.1']
+    'sphinx >=1.3.1',
+    'twine >=4.0']
 
 #: Packages requires for different environments
 EXTRA_PACKAGES = {
