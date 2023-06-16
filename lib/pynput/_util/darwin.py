@@ -28,7 +28,9 @@ import ctypes.util
 import six
 
 import objc
-import HIServices
+from HIServices import (
+    AXIsProcessTrusted
+)
 
 from CoreFoundation import (
     CFRelease
@@ -206,7 +208,7 @@ class ListenerMixin(object):
     IS_TRUSTED = False
 
     def _run(self):
-        self.IS_TRUSTED = HIServices.AXIsProcessTrusted()
+        self.IS_TRUSTED = AXIsProcessTrusted()
         if not self.IS_TRUSTED:
             self._log.warning(
                 'This process is not trusted! Input event monitoring will not '
