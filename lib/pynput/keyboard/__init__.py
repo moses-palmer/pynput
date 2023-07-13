@@ -185,7 +185,8 @@ class HotKey(object):
         if key in self._keys and key not in self._state:
             self._state.add(key)
             if self._state == self._keys:
-                self._on_activate()
+                if self._on_activate() is False:
+                    raise Listener.StopException()
 
     def release(self, key):
         """Updates the hotkey state for a released key.

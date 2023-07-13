@@ -712,7 +712,8 @@ class Listener(AbstractListener):
             on_press=on_press, on_release=on_release, suppress=suppress)
 # pylint: enable=W0223
 
-    def canonical(self, key):
+    @staticmethod
+    def canonical(key):
         """Performs normalisation of a key.
 
         This method attempts to convert key events to their canonical form, so
