@@ -210,8 +210,8 @@ class GlobalHotKeys(Listener):
     """
     def __init__(self, hotkeys, *args, **kwargs):
         self._hotkeys = [
-            HotKey(HotKey.parse(key), value)
-            for key, value in hotkeys.items()]
+            HotKey(HotKey.parse(key), func)
+            for key, func in hotkeys.items()]
         super(GlobalHotKeys, self).__init__(
             on_press=self._on_press,
             on_release=self._on_release,
@@ -235,5 +235,73 @@ class GlobalHotKeys(Listener):
 
         :param key: The key provided by the base class.
         """
+        for hotkey in self._hotkeys:
+            hotkey.release(self.canonical(key))
+
+
+class GlobalHotKeysWithOptions(Listener):
+    """A keyboard listener supporting a number of global hotkeys.
+    
+    Same as GlobalHotKeys class with addition of an options argument for features like
+    'every_press', etc
+    """
+    def __init__(self, hotkeys, options={}, *args, **kwargs):
+        self._hotkeys = [
+            HotKey(HotKey.parse(key), value)
+            for key, value in hotkeys.items()]
+        self._GlobalHotKeys_options = options
+        super(GlobalHotKeysWithOptions, self).__init__(
+            on_press=self._on_press,
+            on_release=self._on_release,
+            *args,
+            **kwargs)
+
+    def _on_press(self, key):
+        try:
+            if 'every_press' in self._GlobalHotKeys_options:
+                for func in self._GlobalHotKeys_options['every_press']:
+                    func(key)
+        
+        except TypeError:
+            raise TypeError(self._GlobalHotKeys_options['every_press'])
+
+        for hotkey in self._hotkeys:
+            hotkey.press(self.canonical(key))
+
+    def _on_release(self, key):
+        for hotkey in self._hotkeys:
+            hotkey.release(self.canonical(key))
+
+
+class GlobalHotKeysWithOptions(Listener):
+    """A keyboard listener supporting a number of global hotkeys.
+    
+    Same as GlobalHotKeys class with addition of an options argument for features like
+    'every_press', etc
+    """
+    def __init__(self, hotkeys, options={}, *args, **kwargs):
+        self._hotkeys = [
+            HotKey(HotKey.parse(key), value)
+            for key, value in hotkeys.items()]
+        self._GlobalHotKeys_options = options
+        super(GlobalHotKeysWithOptions, self).__init__(
+            on_press=self._on_press,
+            on_release=self._on_release,
+            *args,
+            **kwargs)
+
+    def _on_press(self, key):
+        try:
+            if 'every_press' in self._GlobalHotKeys_options:
+                for func in self._GlobalHotKeys_options['every_press']:
+                    func(key)
+        
+        except TypeError:
+            raise TypeError(self._GlobalHotKeys_options['every_press'])
+
+        for hotkey in self._hotkeys:
+            hotkey.press(self.canonical(key))
+
+    def _on_release(self, key):
         for hotkey in self._hotkeys:
             hotkey.release(self.canonical(key))
