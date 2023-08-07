@@ -14,8 +14,8 @@ sys.path.insert(
 
 os.environ['PYNPUT_BACKEND'] = 'dummy'
 
-import pynput as package
-import pynput._info as INFO
+import oa_pynput as package
+import oa_pynput._info as INFO
 
 
 # Add any Sphinx extension module names here, as strings. They can be

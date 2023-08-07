@@ -3,7 +3,7 @@ import sys
 sys.path.append(
     os.path.join(os.path.dirname(__file__), '..', 'lib'))
 
-from pynput import keyboard
+from oa_pynput import keyboard
 
 
 def on_press(key):

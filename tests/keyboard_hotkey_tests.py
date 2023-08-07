@@ -19,7 +19,7 @@ import unittest
 
 from six.moves import queue
 
-from pynput.keyboard import (
+from oa_pynput.keyboard import (
     GlobalHotKeys,
     HotKey,
     Key as k,

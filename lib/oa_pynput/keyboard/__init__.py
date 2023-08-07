@@ -25,7 +25,7 @@ See the documentation for more information.
 
 import itertools
 
-from pynput._util import backend, Events
+from oa_pynput._util import backend, Events
 
 
 backend = backend(__name__)

@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-import pynput.mouse
+import oa_pynput.mouse
 import time
 
 from . import EventTest, darwin, win32, xorg
@@ -26,7 +26,7 @@ class MouseListenerTest(EventTest):
         'This test case is interactive, so you must follow the instructions '
         'on screen.\n'
         'You do not have to perform any actions on this specific window.')
-    LISTENER_CLASS = pynput.mouse.Listener
+    LISTENER_CLASS = oa_pynput.mouse.Listener
 
     def test_stop(self):
         """Tests that stopping the listener from a different thread works"""
@@ -91,7 +91,7 @@ class MouseListenerTest(EventTest):
         self.assert_stop(
             'No left click registered',
             on_click=lambda x, y, button, pressed: not (
-                pressed and button == pynput.mouse.Button.left))
+                pressed and button == oa_pynput.mouse.Button.left))
 
     def test_click_right(self):
         """Tests that right click events are emitted"""
@@ -99,7 +99,7 @@ class MouseListenerTest(EventTest):
         self.assert_stop(
             'No right click registered',
             on_click=lambda x, y, button, pressed: not (
-                pressed and button == pynput.mouse.Button.right))
+                pressed and button == oa_pynput.mouse.Button.right))
 
     def test_scroll_up(self):
         """Tests that scroll up events are emitted"""
@@ -126,7 +126,7 @@ class MouseListenerTest(EventTest):
         self.assert_stop(
             'No right click registered',
             on_click=lambda x, y, button, pressed: not (
-                pressed and button == pynput.mouse.Button.left))
+                pressed and button == oa_pynput.mouse.Button.left))
         self.confirm('Was the action suppressed?')
 
     def test_reraise(self):
@@ -137,7 +137,7 @@ class MouseListenerTest(EventTest):
             raise MyException()
 
         with self.assertRaises(MyException):
-            with pynput.mouse.Listener(
+            with oa_pynput.mouse.Listener(
                     on_click=on_click) as l:
                 self.notify('Click any button')
                 l.join()
@@ -146,7 +146,7 @@ class MouseListenerTest(EventTest):
     def test_options_darwin(self):
         """Tests that options are correctly set on OSX"""
         self.assertTrue(
-            pynput.mouse.Listener(
+            oa_pynput.mouse.Listener(
                 darwin_test=True,
                 win32_test=False,
                 xorg_test=False)._options['test'])
@@ -155,7 +155,7 @@ class MouseListenerTest(EventTest):
     def test_options_win32(self):
         """Tests that options are correctly set on Windows"""
         self.assertTrue(
-            pynput.mouse.Listener(
+            oa_pynput.mouse.Listener(
                 darwin_test=False,
                 win32_test=True,
                 xorg_test=False)._options['test'])
@@ -164,14 +164,14 @@ class MouseListenerTest(EventTest):
     def test_options_xorg(self):
         """Tests that options are correctly set on Linux"""
         self.assertTrue(
-            pynput.mouse.Listener(
+            oa_pynput.mouse.Listener(
                 darwin_test=False,
                 win32_test=False,
                 xorg_test=True)._options['test'])
 
     def test_events(self):
         """Tests that events are correctly yielded"""
-        from pynput.mouse import Button, Events
+        from oa_pynput.mouse import Button, Events
         with Events() as events:
             self.notify('Move the mouse')
             for event in events:
