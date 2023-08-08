@@ -15,7 +15,7 @@ MAIN_PACKAGE_NAME = 'oa_pynput'
 PACKAGE_URL = 'https://github.com/OpenAdaptAI/pynput'
 
 #: The author email
-AUTHOR_EMAIL = 'richard.abrich@mldsai.com'
+AUTHOR_EMAIL = 'moses.palmer@gmail.com'
 
 #: The runtime requirements
 RUNTIME_PACKAGES = [
