@@ -30,7 +30,7 @@ The keyboard implementation for *Xorg*.
 
 # pylint: disable=W0611
 try:
-    import pynput._util.xorg
+    import oa_pynput._util.xorg
 except Exception as e:
     raise ImportError('failed to acquire X connection: {}'.format(str(e)), e)
 # pylint: enable=W0611
@@ -42,7 +42,7 @@ import Xlib.ext.xtest
 import Xlib.X
 import Xlib.protocol
 
-from pynput._util.xorg import (
+from oa_pynput._util.xorg import (
     display_manager,
     ListenerMixin)
 from . import _base

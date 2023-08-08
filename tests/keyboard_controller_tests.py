@@ -20,7 +20,7 @@ import locale
 import sys
 import threading
 
-import pynput.keyboard
+import oa_pynput.keyboard
 
 from six.moves import input
 
@@ -32,8 +32,8 @@ class KeyboardControllerTest(EventTest):
         'This test case is non-interactive, so you must not use the '
         'keyboard.\n'
         'You must, however, keep this window focused.')
-    CONTROLLER_CLASS = pynput.keyboard.Controller
-    LISTENER_CLASS = pynput.keyboard.Listener
+    CONTROLLER_CLASS = oa_pynput.keyboard.Controller
+    LISTENER_CLASS = oa_pynput.keyboard.Listener
 
     def decode(self, string):
         """Decodes a string read from ``stdin``.
@@ -78,7 +78,7 @@ class KeyboardControllerTest(EventTest):
         finally:
             # Send a newline to let sys.stdin.readline return in reader
             reader.running = False
-            self.controller.tap(pynput.keyboard.Key.enter)
+            self.controller.tap(oa_pynput.keyboard.Key.enter)
             thread.join()
 
     def assert_input(self, failure_message, expected):
@@ -96,10 +96,10 @@ class KeyboardControllerTest(EventTest):
     def test_keys(self):
         """Asserts that all keys defined for the base keyboard interface are
         defined for the current platform"""
-        from pynput.keyboard._base import Key
+        from oa_pynput.keyboard._base import Key
         for key in Key:
             self.assertTrue(
-                hasattr(pynput.keyboard.Key, key.name),
+                hasattr(oa_pynput.keyboard.Key, key.name),
                 '%s is not defined for the current platform' % key.name)
 
     def test_press_invalid(self):
@@ -114,7 +114,7 @@ class KeyboardControllerTest(EventTest):
         """Asserts that a press followed by a release generates a typed string
         for an ascii character"""
         with self.capture() as collect:
-            self.controller.tap(pynput.keyboard.Key.space)
+            self.controller.tap(oa_pynput.keyboard.Key.space)
 
         self.assertIn(
             u' ',
@@ -124,8 +124,8 @@ class KeyboardControllerTest(EventTest):
     def test_touch(self):
         """Asserts that the touch shortcut behaves as expected"""
         with self.capture() as collect:
-            self.controller.touch(pynput.keyboard.Key.space, True)
-            self.controller.touch(pynput.keyboard.Key.space, False)
+            self.controller.touch(oa_pynput.keyboard.Key.space, True)
+            self.controller.touch(oa_pynput.keyboard.Key.space, False)
 
         self.assertIn(
             u' ',
@@ -135,7 +135,7 @@ class KeyboardControllerTest(EventTest):
     def test_touch_dead(self):
         """Asserts that pressing dead keys generate combined characters"""
         with self.capture() as collect:
-            dead = pynput.keyboard.KeyCode.from_dead(u'~')
+            dead = oa_pynput.keyboard.KeyCode.from_dead(u'~')
             self.controller.tap(dead)
             self.controller.tap(u'a')
 
@@ -148,9 +148,9 @@ class KeyboardControllerTest(EventTest):
         """Asserts that pressing dead keys followed by space yields the
         non-dead version"""
         with self.capture() as collect:
-            dead = pynput.keyboard.KeyCode.from_dead(u'~')
+            dead = oa_pynput.keyboard.KeyCode.from_dead(u'~')
             self.controller.tap(dead)
-            self.controller.tap(pynput.keyboard.Key.space)
+            self.controller.tap(oa_pynput.keyboard.Key.space)
 
         self.assertIn(
             u'~',
@@ -160,7 +160,7 @@ class KeyboardControllerTest(EventTest):
     def test_touch_dead_twice(self):
         """Asserts that pressing dead keys twice yields the non-dead version"""
         with self.capture() as collect:
-            dead = pynput.keyboard.KeyCode.from_dead(u'~')
+            dead = oa_pynput.keyboard.KeyCode.from_dead(u'~')
             self.controller.tap(dead)
             self.controller.tap(dead)
 
@@ -174,8 +174,8 @@ class KeyboardControllerTest(EventTest):
         # We do not test alt_r, since that does not necessarily exist on the
         # keyboard
         for key in (
-                pynput.keyboard.Key.alt,
-                pynput.keyboard.Key.alt_l):
+                oa_pynput.keyboard.Key.alt,
+                oa_pynput.keyboard.Key.alt_l):
             self.controller.press(key)
             self.assertTrue(
                 self.controller.alt_pressed,
@@ -188,9 +188,9 @@ class KeyboardControllerTest(EventTest):
     def test_ctrl_pressed(self):
         """Asserts that ctrl_pressed works"""
         for key in (
-                pynput.keyboard.Key.ctrl,
-                pynput.keyboard.Key.ctrl_l,
-                pynput.keyboard.Key.ctrl_r):
+                oa_pynput.keyboard.Key.ctrl,
+                oa_pynput.keyboard.Key.ctrl_l,
+                oa_pynput.keyboard.Key.ctrl_r):
             self.controller.press(key)
             self.assertTrue(
                 self.controller.ctrl_pressed,
@@ -203,9 +203,9 @@ class KeyboardControllerTest(EventTest):
     def test_shift_pressed(self):
         """Asserts that shift_pressed works with normal presses"""
         for key in (
-                pynput.keyboard.Key.shift,
-                pynput.keyboard.Key.shift_l,
-                pynput.keyboard.Key.shift_r):
+                oa_pynput.keyboard.Key.shift,
+                oa_pynput.keyboard.Key.shift_l,
+                oa_pynput.keyboard.Key.shift_r):
             self.controller.press(key)
             self.assertTrue(
                 self.controller.shift_pressed,
@@ -217,12 +217,12 @@ class KeyboardControllerTest(EventTest):
 
     def test_shift_pressed_caps_lock(self):
         """Asserts that shift_pressed is True when caps lock is toggled"""
-        self.controller.tap(pynput.keyboard.Key.caps_lock)
+        self.controller.tap(oa_pynput.keyboard.Key.caps_lock)
         self.assertTrue(
             self.controller.shift_pressed,
             'shift_pressed was not set with caps lock toggled')
 
-        self.controller.tap(pynput.keyboard.Key.caps_lock)
+        self.controller.tap(oa_pynput.keyboard.Key.caps_lock)
         self.assertFalse(
             self.controller.shift_pressed,
             'shift_pressed was not deactivated with caps lock toggled')
@@ -231,12 +231,12 @@ class KeyboardControllerTest(EventTest):
         """Asserts that pressing and releasing a Latin character while pressing
         shift causes it to shift to upper case"""
         with self.capture() as collect:
-            with self.controller.pressed(pynput.keyboard.Key.shift):
+            with self.controller.pressed(oa_pynput.keyboard.Key.shift):
                 self.controller.tap(u'a')
 
                 with self.controller.modifiers as modifiers:
                     self.assertIn(
-                        pynput.keyboard.Key.shift,
+                        oa_pynput.keyboard.Key.shift,
                         modifiers)
 
         self.assertIn(
@@ -247,12 +247,12 @@ class KeyboardControllerTest(EventTest):
     def test_pressed_is_release(self):
         """Asserts that pressed actually releases the key"""
         with self.capture() as collect:
-            with self.controller.pressed(pynput.keyboard.Key.shift):
+            with self.controller.pressed(oa_pynput.keyboard.Key.shift):
                 self.controller.tap(u'a')
 
             self.controller.tap(u'a')
 
-            with self.controller.pressed(pynput.keyboard.Key.shift):
+            with self.controller.pressed(oa_pynput.keyboard.Key.shift):
                 self.controller.tap(u'a')
 
 
@@ -299,5 +299,5 @@ class KeyboardControllerTest(EventTest):
                 on_release=lambda k: getattr(k, 'char', None) == u'a'):
             self.controller.release(u'a')
 
-        self.controller.tap(pynput.keyboard.Key.enter)
+        self.controller.tap(oa_pynput.keyboard.Key.enter)
         input()

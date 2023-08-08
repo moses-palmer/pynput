@@ -22,11 +22,11 @@ import unittest
 
 from six.moves import input
 
-import pynput
+import oa_pynput
 
 
 #: The name of the current backend
-BACKEND = pynput.keyboard.Controller.__module__.rsplit('.', 1)[-1][1:]
+BACKEND = oa_pynput.keyboard.Controller.__module__.rsplit('.', 1)[-1][1:]
 
 
 def _backend(name, f):

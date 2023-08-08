@@ -1,5 +1,5 @@
 # coding=utf-8
-# pynput
+# oa_pynput
 # Copyright (C) 2015-2022 Moses Palmér
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -31,8 +31,8 @@ import unicodedata
 
 import six
 
-from pynput._util import AbstractListener, prefix
-from pynput import _logger
+from oa_pynput._util import AbstractListener, prefix
+from oa_pynput import _logger
 
 
 class KeyCode(object):
@@ -694,7 +694,7 @@ class Listener(AbstractListener):
         ``uinput_device_paths``
             A list of device paths.
 
-            If this is specified, *pynput* will limit the number of devices
+            If this is specified, *oa_pynput* will limit the number of devices
             checked for the capabilities needed to those passed, otherwise all
             system devices will be used. Passing this might be required if an
             incorrect device is chosen.
@@ -740,7 +740,7 @@ class Listener(AbstractListener):
         :return: a key
         :rtype: Key or KeyCode
         """
-        from pynput.keyboard import Key, KeyCode, _NORMAL_MODIFIERS
+        from oa_pynput.keyboard import Key, KeyCode, _NORMAL_MODIFIERS
         if isinstance(key, KeyCode) and key.char is not None:
             return KeyCode.from_char(key.char.lower())
         elif isinstance(key, Key) and key.value in _NORMAL_MODIFIERS:

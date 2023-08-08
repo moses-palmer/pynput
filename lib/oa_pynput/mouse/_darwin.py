@@ -29,7 +29,7 @@ import Quartz
 
 from AppKit import NSEvent
 
-from pynput._util.darwin import (
+from oa_pynput._util.darwin import (
     ListenerMixin)
 from . import _base
 

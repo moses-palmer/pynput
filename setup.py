@@ -6,13 +6,13 @@ import setuptools
 
 
 #: The name of the package on PyPi
-PYPI_PACKAGE_NAME = 'pynput'
+PYPI_PACKAGE_NAME = 'oa_pynput'
 
 #: The name of the main Python package
-MAIN_PACKAGE_NAME = 'pynput'
+MAIN_PACKAGE_NAME = 'oa_pynput'
 
 #: The package URL
-PACKAGE_URL = 'https://github.com/moses-palmer/pynput'
+PACKAGE_URL = 'https://github.com/OpenAdaptAI/pynput'
 
 #: The author email
 AUTHOR_EMAIL = 'moses.palmer@gmail.com'
@@ -55,40 +55,16 @@ with open(os.path.join(
 
 
 # Load the read me
-try:
-    with open(os.path.join(
-            os.path.dirname(__file__),
-            'README.rst'), 'rb') as f:
-        README = f.read().decode('utf-8')
-
-    with open(os.path.join(
-            os.path.dirname(__file__),
-            os.path.join('docs', 'mouse-usage.rst')), 'rb') as f:
-        README += '\n\n' + f.read().decode('utf-8')
-
-    with open(os.path.join(
-            os.path.dirname(__file__),
-            os.path.join('docs', 'keyboard-usage.rst')), 'rb') as f:
-        README += '\n\n' + f.read().decode('utf-8')
-except IOError:
-    README = ''
-
-
-# Load the release notes
-try:
-    with open(os.path.join(
-            os.path.dirname(__file__),
-            'CHANGES.rst'), 'rb') as f:
-        CHANGES = f.read().decode('utf-8')
-except IOError:
-    CHANGES = ''
+with open("README.md", "r", encoding="utf-8") as fh:
+    README = fh.read()
 
 
 setuptools.setup(
     name=PYPI_PACKAGE_NAME,
     version='.'.join(str(i) for i in INFO['version']),
     description='Monitor and control user input devices',
-    long_description=README + '\n\n' + CHANGES,
+    long_description=README,
+    long_description_content_type='text/markdown', 
 
     install_requires=RUNTIME_PACKAGES,
     setup_requires=RUNTIME_PACKAGES + SETUP_PACKAGES,

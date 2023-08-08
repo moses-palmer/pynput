@@ -31,8 +31,8 @@ from ctypes import (
     windll,
     wintypes)
 
-from pynput._util import NotifierMixin
-from pynput._util.win32 import (
+from oa_pynput._util import NotifierMixin
+from oa_pynput._util.win32 import (
     INPUT,
     INPUT_union,
     ListenerMixin,

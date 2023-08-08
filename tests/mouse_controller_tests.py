@@ -16,7 +16,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import numbers
-import pynput.mouse
+import oa_pynput.mouse
 import time
 
 from . import EventTest
@@ -27,8 +27,8 @@ class MouseControllerTest(EventTest):
         'This test case is non-interactive, so you must not use the mouse.\n'
         'You may need to keep the mouse pointer away from this window to '
         'avoid interference.')
-    CONTROLLER_CLASS = pynput.mouse.Controller
-    LISTENER_CLASS = pynput.mouse.Listener
+    CONTROLLER_CLASS = oa_pynput.mouse.Controller
+    LISTENER_CLASS = oa_pynput.mouse.Listener
 
     def assert_movement(self, failure_message, d):
         """Asserts that movement results in corresponding change of pointer
@@ -49,10 +49,10 @@ class MouseControllerTest(EventTest):
     def test_buttons(self):
         """Asserts that all buttons defined for the base mouse interface are
         defined for the current platform"""
-        from pynput.mouse._base import Button
+        from oa_pynput.mouse._base import Button
         for button in Button:
             self.assertTrue(
-                hasattr(pynput.mouse.Button, button.name),
+                hasattr(oa_pynput.mouse.Button, button.name),
                 '%s is not defined for the current platform' % button.name)
 
     def test_position_get(self):
@@ -91,8 +91,8 @@ class MouseControllerTest(EventTest):
     def test_press(self):
         """Tests that press works"""
         for b in (
-                pynput.mouse.Button.left,
-                pynput.mouse.Button.right):
+                oa_pynput.mouse.Button.left,
+                oa_pynput.mouse.Button.right):
             with self.assert_event(
                     'Failed to send press event',
                     on_click=lambda x, y, button, pressed:
@@ -103,8 +103,8 @@ class MouseControllerTest(EventTest):
     def test_release(self):
         """Tests that release works"""
         for b in (
-                pynput.mouse.Button.left,
-                pynput.mouse.Button.right):
+                oa_pynput.mouse.Button.left,
+                oa_pynput.mouse.Button.right):
             self.controller.press(b)
             with self.assert_event(
                     'Failed to send release event',
@@ -155,8 +155,8 @@ class MouseControllerTest(EventTest):
     def test_click(self):
         """Tests that click works"""
         for b in (
-                pynput.mouse.Button.left,
-                pynput.mouse.Button.right):
+                oa_pynput.mouse.Button.left,
+                oa_pynput.mouse.Button.right):
             events = [True, False]
             events.reverse()
 
