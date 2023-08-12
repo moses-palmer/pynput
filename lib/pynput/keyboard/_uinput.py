@@ -35,8 +35,8 @@ import evdev
 
 from evdev.events import KeyEvent
 
-from pynput._util import xorg_keysyms
-from pynput._util.uinput import ListenerMixin
+from .._util import xorg_keysyms
+from .._util.uinput import ListenerMixin
 from . import _base
 
 

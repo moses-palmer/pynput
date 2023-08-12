@@ -31,10 +31,10 @@ import six
 
 from ctypes import wintypes
 
-import pynput._util.win32_vks as VK
+from .._util import win32_vks as VK
 
-from pynput._util import AbstractListener
-from pynput._util.win32 import (
+from .._util import AbstractListener
+from .._util.win32 import (
     INPUT,
     INPUT_union,
     KEYBDINPUT,
