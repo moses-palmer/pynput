@@ -196,7 +196,7 @@ class Listener(ListenerMixin, _base.Listener):
     #: The Windows hook ID for low level keyboard events, ``WH_KEYBOARD_LL``
     _EVENTS = 13
 
-    _WM_INPUTLANGCHANGEREQUeST = 0x0050
+    _WM_INPUTLANGCHANGEREQUEST = 0x0050
     _WM_INPUTLANGCHANGE = 0x0051
     _WM_KEYDOWN = 0x0100
     _WM_KEYUP = 0x0101
