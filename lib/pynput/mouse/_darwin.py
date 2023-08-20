@@ -64,8 +64,8 @@ class Controller(_base.Controller):
     #: The scroll speed
     _SCROLL_SPEED = 10
 
-    def __init__(self, *args, **kwargs):
-        super(Controller, self).__init__(*args, **kwargs)
+    def __init__(self):
+        super(Controller, self).__init__()
         self._click = None
         self._drag_button = None
 

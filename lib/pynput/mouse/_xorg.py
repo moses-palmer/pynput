@@ -67,8 +67,8 @@ Button = enum.Enum(
 
 
 class Controller(_base.Controller):
-    def __init__(self, *args, **kwargs):
-        super(Controller, self).__init__(*args, **kwargs)
+    def __init__(self):
+        super(Controller, self).__init__()
         self._display = Xlib.display.Display()
 
     def __del__(self):
