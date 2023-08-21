@@ -52,8 +52,18 @@ class Button(enum.Enum):
 
 class Controller(object):
     """A controller for sending virtual mouse events to the system.
+
+    :param kwargs: Any non-standard platform dependent options. These should be
+        prefixed with the platform name thus: ``darwin_``, ``uinput_``,
+        ``xorg_`` or ``win32_``.
+
+        Supported values are:
+
+        ``xorg_display``
+            The display to which to connect. If not specified, the value of the
+            environment variable ``$DISPLAY`` is used.
     """
-    def __init__(self):
+    def __init__(self, **kwargs):
         self._log = _logger(self.__class__)
 
     @property
@@ -248,6 +258,10 @@ class Listener(AbstractListener):
 
             If ``self.suppress_event()`` is called, the event is suppressed
             system wide.
+
+        ``xorg_display``
+            The display to which to connect. If not specified, the value of the
+            environment variable ``$DISPLAY`` is used.
     """
     def __init__(self, on_move=None, on_click=None, on_scroll=None,
                  suppress=False, **kwargs):

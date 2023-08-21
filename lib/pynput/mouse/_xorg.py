@@ -69,7 +69,9 @@ Button = enum.Enum(
 class Controller(_base.Controller):
     def __init__(self, *args, **kwargs):
         super(Controller, self).__init__(*args, **kwargs)
-        self._display = Xlib.display.Display()
+        self._display = Xlib.display.Display(self._options.get(
+            'display',
+            None))
 
     def __del__(self):
         if hasattr(self, '_display'):

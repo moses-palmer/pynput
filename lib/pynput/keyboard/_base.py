@@ -318,6 +318,16 @@ class Key(enum.Enum):
 
 class Controller(object):
     """A controller for sending virtual keyboard events to the system.
+
+    :param kwargs: Any non-standard platform dependent options. These should be
+        prefixed with the platform name thus: ``darwin_``, ``uinput_``,
+        ``xorg_`` or ``win32_``.
+
+        Supported values are:
+
+        ``xorg_display``
+            The display to which to connect. If not specified, the value of the
+            environment variable ``$DISPLAY`` is used.
     """
     #: The virtual key codes
     _KeyCode = KeyCode
@@ -342,7 +352,7 @@ class Controller(object):
         """
         pass
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         self._log = _logger(self.__class__)
         self._modifiers_lock = threading.RLock()
         self._modifiers = set()
@@ -699,6 +709,10 @@ class Listener(AbstractListener):
 
             If ``self.suppress_event()`` is called, the event is suppressed
             system wide.
+
+        ``xorg_display``
+            The display to which to connect. If not specified, the value of the
+            environment variable ``$DISPLAY`` is used.
     """
     def __init__(self, on_press=None, on_release=None, suppress=False,
                  **kwargs):

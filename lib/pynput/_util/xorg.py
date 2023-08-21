@@ -381,8 +381,8 @@ class ListenerMixin(object):
     _EVENT_PARSER = Xlib.protocol.rq.EventField(None)
 
     def _run(self):
-        self._display_stop = Xlib.display.Display()
-        self._display_record = Xlib.display.Display()
+        self._display_stop = self._create_display()
+        self._display_record = self._create_display()
         self._stopped = False
         with display_manager(self._display_record) as dm:
             self._context = dm.record_create_context(
@@ -492,6 +492,15 @@ class ListenerMixin(object):
         :param event: The event.
         """
         pass
+
+    def _create_display(self):
+        """Creates an X connection.
+
+        :return: a display
+        """
+        return Xlib.display.Display(self._options.get(
+            'display',
+            None))
 
 
 class NotifierMixin(_NotifierMixin):
