@@ -268,12 +268,12 @@ class Listener(ListenerMixin, _base.Listener):
             None)
 
     def _run(self):
-        with keycode_context() as context:
-            self._context = context
-            try:
-                super(Listener, self)._run()
-            finally:
-                self._context = None
+        context = keycode_context()
+        self._context = context
+        try:
+            super(Listener, self)._run()
+        finally:
+            self._context = None
 
     def _handle(self, _proxy, event_type, event, _refcon):
         # Convert the event to a KeyCode; this may fail, and in that case we
