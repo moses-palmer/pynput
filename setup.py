@@ -19,24 +19,30 @@ AUTHOR_EMAIL = 'moses.palmer@gmail.com'
 
 #: The runtime requirements
 RUNTIME_PACKAGES = [
-    'six']
+    'six'
+]
 
 #: Additional requirements used during setup
 SETUP_PACKAGES = [
     'setuptools-lint >=0.5',
     'sphinx >=1.3.1',
-    'twine >=4.0']
+    'twine >=4.0'
+]
 
 #: Packages requires for different environments
 EXTRA_PACKAGES = {
     ':sys_platform == "darwin"': [
         'pyobjc-framework-ApplicationServices >=8.0',
-        'pyobjc-framework-Quartz >=8.0'],
+        'pyobjc-framework-Quartz >=8.0'
+    ],
     ':"linux" in sys_platform': [
         'evdev >= 1.3',
-        'python-xlib >= 0.17'],
+        'python-xlib >= 0.17'
+    ],
     ':python_version == "2.7"': [
-        'enum34']}
+        'enum34'
+    ]
+}
 
 
 # Read globals from ._info without loading it
