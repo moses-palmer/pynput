@@ -44,7 +44,10 @@ _MODIFIER_KEYS = (
     (Key.alt,    (Key.alt.value,   Key.alt_l.value,   Key.alt_r.value)),
     (Key.cmd,    (Key.cmd.value,   Key.cmd_l.value,   Key.cmd_r.value)),
     (Key.ctrl,   (Key.ctrl.value,  Key.ctrl_l.value,  Key.ctrl_r.value)),
-    (Key.shift,  (Key.shift.value, Key.shift_l.value, Key.shift_r.value)))
+    (Key.shift,  (Key.shift.value, Key.shift_l.value, Key.shift_r.value)),
+    (Key.space,  (Key.space.value,)), # added space to _MODIFIER_KEYS
+    (Key.tab,  (Key.tab.value,)), # added tab to _MODIFIER_KEYS
+)
 
 #: Normalised modifiers as a mapping from virtual key code to basic modifier.
 _NORMAL_MODIFIERS = {
