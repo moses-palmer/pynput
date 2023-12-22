@@ -79,16 +79,18 @@ class Events(Events):
     class Press(Events.Event):
         """A key press event.
         """
-        def __init__(self, key):
+        def __init__(self, key, time):
             #: The key.
             self.key = key
+            self.time = time
 
     class Release(Events.Event):
         """A key release event.
         """
-        def __init__(self, key):
+        def __init__(self, key, time):
             #: The key.
             self.key = key
+            self.time = time
 
     def __init__(self):
         super(Events, self).__init__(

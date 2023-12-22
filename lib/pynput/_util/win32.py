@@ -358,7 +358,7 @@ class ListenerMixin(object):
                         if not self.running:
                             break
                         if msg.message == self._WM_PROCESS:
-                            self._process(msg.wParam, msg.lParam)
+                            self._process(msg.wParam, msg.lParam, msg.time)
                         elif msg.message in self._WM_NOTIFICATIONS:
                             self._on_notification(
                                 msg.message, msg.wParam, msg.lParam)
@@ -400,7 +400,7 @@ class ListenerMixin(object):
         """
         raise NotImplementedError()
 
-    def _process(self, wparam, lparam):
+    def _process(self, wparam, lparam, time):
         """The device specific callback handler.
 
         This method performs the actual dispatching of events.
