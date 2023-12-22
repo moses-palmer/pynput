@@ -294,7 +294,7 @@ class Listener(ListenerMixin, _base.Listener):
             return (msg, data.vkCode)
 
     @AbstractListener._emitter
-    def _process(self, wparam, lparam):
+    def _process(self, wparam, lparam, time):
         msg = wparam
         vk = lparam
 
@@ -311,12 +311,13 @@ class Listener(ListenerMixin, _base.Listener):
                 key = self._event_to_key(msg, vk)
             except OSError:
                 key = None
+                time = None
 
         if msg in self._PRESS_MESSAGES:
-            self.on_press(key)
+            self.on_press(key, time)
 
         elif msg in self._RELEASE_MESSAGES:
-            self.on_release(key)
+            self.on_release(key, time)
 
     # pylint: disable=R0201
     @contextlib.contextmanager
