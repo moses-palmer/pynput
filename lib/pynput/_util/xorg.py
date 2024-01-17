@@ -425,7 +425,8 @@ class ListenerMixin(object):
             self.wait()
 
         # Do this asynchronously to avoid deadlocks
-        self._display_record.record_disable_context(self._context)
+        self._display_stop.record_disable_context(self._context)
+        self._display_stop.flush()
 
     def _suppress_start(self, display):
         """Starts suppressing events.
