@@ -50,7 +50,7 @@ Windows
 For *Windows*, pass the argument named ``win32_event_filter`` to the listener
 constructor. This argument should be a callable taking the arguments
 ``(msg, data)``, where ``msg`` is the current message, and ``data`` associated
-data as a `MSLLHOOKSTRUCT`_ or a `KBDLLHOOKSTRUCT`, depending on whether you
+data as a `MSLLHOOKSTRUCT`_ or a `KBDLLHOOKSTRUCT`_, depending on whether you
 are creating a mouse or keyboard listener.
 
 If the filter function determines that the event should be suppressed, call
@@ -70,6 +70,60 @@ Here is a keyboard example::
 .. _MSLLHOOKSTRUCT: https://docs.microsoft.com/en-gb/windows/win32/api/winuser/ns-winuser-msllhookstruct
 
 .. _KBDLLHOOKSTRUCT: https://docs.microsoft.com/en-gb/windows/win32/api/winuser/ns-winuser-kbdllhookstruct
+
+Here is a mouse example::
+
+    from ctypes import wintypes
+    from pynput import mouse
+    from pynput.mouse._win32 import Listener, WHEEL_DELTA
+    
+    def win32_event_filter(self, msg, data: Listener._MSLLHOOKSTRUCT):
+        # return False: event passed to system, but not passed to the listener
+        # self.suppress_event(): event not passed to the system and listener
+        #   NOTE: self.suppress_event() raises exception, and you should not catch it
+        # raise self.StopException(): stop the listener (same as return False in normal on_click listener)
+        
+        x: int
+        y: int
+        button: mouse.Button
+        pressed: bool
+        
+        if msg == self.WM_MOUSEMOVE:
+            x, y = data.pt.x, data.pt.y
+            # self.on_move(x, y)
+        
+        elif msg in self.CLICK_BUTTONS:
+            button, pressed = self.CLICK_BUTTONS[msg]
+            assert isinstance(button, mouse.Button)
+            assert isinstance(pressed, bool)
+            x, y = data.pt.x, data.pt.y
+            # self.on_click(x, y, button, pressed)
+            
+            if pressed:
+                self.pos_press = (x, y)
+                self.suppress_event()
+            else:
+                self.pos_release = (x, y)
+                # NOTE: you cannot suppress event when you want to stop listener
+                # self.suppress_event()
+                raise self.StopException()
+            
+        elif msg in self.X_BUTTONS:
+            button, pressed = self.X_BUTTONS[msg][data.mouseData >> 16]
+            assert isinstance(button, mouse.Button)
+            assert isinstance(pressed, bool)
+            x, y = data.pt.x, data.pt.y
+            # self.on_click(x, y, button, pressed)
+            
+        elif msg in self.SCROLL_BUTTONS:
+            mx, my = self.SCROLL_BUTTONS[msg]
+            assert isinstance(mx, int)
+            assert isinstance(my, int)
+            dd = wintypes.SHORT(data.mouseData >> 16).value // WHEEL_DELTA
+            x, y = data.pt.x, data.pt.y
+            dx: int = dd * mx
+            dy: int = dd * my
+            # self.on_scroll(x, y, dx, dy)
 
 
 When using a packager I get an ``ImportError`` on startup
