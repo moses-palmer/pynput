@@ -6,14 +6,14 @@ sys.path.append(
 from pynput import keyboard
 
 
-def on_press(key):
-    print('=> %s' % key)
+def on_press(key, time):
+    print('%r => %s' % (time, key))
     if key == keyboard.Key.esc:
         return False
 
 
-def on_release(key):
-    print('=< %s' % key)
+def on_release(key, time):
+    print('%r =< %s' % (time, key))
 
 
 with keyboard.Listener(
