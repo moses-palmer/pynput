@@ -225,6 +225,7 @@ class Listener(ListenerMixin, _base.Listener):
     #: The Windows hook ID for low level keyboard events, ``WH_KEYBOARD_LL``
     _EVENTS = 13
 
+    _WM_INPUTLANGCHANGEREQUEST = 0x0050
     _WM_INPUTLANGCHANGE = 0x0051
     _WM_KEYDOWN = 0x0100
     _WM_KEYUP = 0x0101
@@ -247,6 +248,7 @@ class Listener(ListenerMixin, _base.Listener):
     #: Additional window messages to propagate to the subclass handler.
     _WM_NOTIFICATIONS = (
         _WM_INPUTLANGCHANGE,
+        _WM_INPUTLANGCHANGEREQUEST,
     )
 
     #: A mapping from keysym to special key
@@ -327,9 +329,11 @@ class Listener(ListenerMixin, _base.Listener):
     # pylint: enable=R0201
 
     def _on_notification(self, code, wparam, lparam):
-        """Receives ``WM_INPUTLANGCHANGE`` and updates the cached layout.
+        """Receives ``WM_INPUTLANGCHANGE`` or ``WM_INPUTLANGCHANGE_REQUEST''
+        and updates the cached layout.
         """
-        if code == self._WM_INPUTLANGCHANGE:
+        if code == self._WM_INPUTLANGCHANGE \
+                or code == self._WM_INPUTLANGCHANGEREQUEST:
             self._translator.update_layout()
 
     def _event_to_key(self, msg, vk):

@@ -28,7 +28,9 @@ import ctypes.util
 import six
 
 import objc
-import HIServices
+from HIServices import (
+    AXIsProcessTrusted
+)
 
 from CoreFoundation import (
     CFRelease
@@ -36,18 +38,19 @@ from CoreFoundation import (
 
 from Quartz import (
     CFMachPortCreateRunLoopSource,
+    CFRunLoopGetCurrent, 
     CFRunLoopAddSource,
-    CFRunLoopGetCurrent,
+    kCFRunLoopDefaultMode,
+    CGEventTapEnable,
     CFRunLoopRunInMode,
+    kCFRunLoopRunTimedOut,
     CFRunLoopStop,
     CGEventTapCreate,
-    CGEventTapEnable,
-    kCFRunLoopDefaultMode,
-    kCFRunLoopRunTimedOut,
-    kCGEventTapOptionDefault,
-    kCGEventTapOptionListenOnly,
+    kCGSessionEventTap,
     kCGHeadInsertEventTap,
-    kCGSessionEventTap)
+    kCGEventTapOptionListenOnly,
+    kCGEventTapOptionDefault
+)
 
 
 from . import AbstractListener
@@ -76,6 +79,7 @@ def _wrapped(value):
     try:
         yield value
     finally:
+        CFRelease(wrapped_value)
         CFRelease(wrapped_value)
 
 
@@ -204,7 +208,7 @@ class ListenerMixin(object):
     IS_TRUSTED = False
 
     def _run(self):
-        self.IS_TRUSTED = HIServices.AXIsProcessTrusted()
+        self.IS_TRUSTED = AXIsProcessTrusted()
         if not self.IS_TRUSTED:
             self._log.warning(
                 'This process is not trusted! Input event monitoring will not '
