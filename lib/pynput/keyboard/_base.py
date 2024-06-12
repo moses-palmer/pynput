@@ -27,6 +27,7 @@ implementation is located in a platform dependent module.
 import contextlib
 import enum
 import threading
+import time
 import unicodedata
 
 import six
@@ -473,7 +474,7 @@ class Controller(object):
             for key in reversed(args):
                 self.release(key)
 
-    def type(self, string):
+    def type(self, string, interval=0):
         """Types a string.
 
         This method will send all key presses and releases necessary to type
@@ -490,6 +491,7 @@ class Controller(object):
             try:
                 self.press(key)
                 self.release(key)
+                time.sleep(interval)
 
             except (ValueError, self.InvalidKeyException):
                 raise self.InvalidCharacterException(i, character)
