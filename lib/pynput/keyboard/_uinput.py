@@ -301,8 +301,8 @@ class Controller(_base.Controller):
     _KeyCode = KeyCode
     _Key = Key
 
-    def __init__(self, *args, **kwargs):
-        super(Controller, self).__init__(*args, **kwargs)
+    def __init__(self):
+        super(Controller, self).__init__()
         self._layout = LAYOUT
         self._dev = evdev.UInput()
 
