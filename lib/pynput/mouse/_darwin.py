@@ -199,7 +199,7 @@ class Listener(ListenerMixin, _base.Listener):
         else:
             for button in Button:
                 try:
-                    (press, release, drag), _ = button.value
+                    (press, release, drag), value = button.value
                 except TypeError:
                     # Button.unknown cannot be enumerated
                     continue
@@ -207,6 +207,11 @@ class Listener(ListenerMixin, _base.Listener):
                 # Press and release generate click events, and drag
                 # generates move events
                 if event_type in (press, release):
+                    # case mouseEventButtonNumber = 3
+                    button_value = Quartz.CGEventGetIntegerValueField(event, 3)
+                    if value != button_value:
+                        # This is a button >= 3, like a side button
+                        button = button_value
                     self.on_click(px, py, button, event_type == press)
                 elif event_type == drag:
                     self.on_move(px, py)
