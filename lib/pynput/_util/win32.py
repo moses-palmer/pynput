@@ -389,7 +389,7 @@ class ListenerMixin(object):
         except NotImplementedError:
             self._handle(code, msg, lpdata)
 
-        if self.suppress:
+        if self.suppress or self._get_suppress_after(msg, lpdata):
             self.suppress_event()
 
     def _convert(self, code, msg, lpdata):
@@ -399,6 +399,9 @@ class ListenerMixin(object):
         ``WPARAM`` / ``LPARAM`` pair.
         """
         raise NotImplementedError()
+
+    def _get_suppress_after(self, msg, lpdata):
+        raise NotImplementedError
 
     def _process(self, wparam, lparam):
         """The device specific callback handler.

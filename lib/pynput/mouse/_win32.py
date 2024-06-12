@@ -193,12 +193,13 @@ class Listener(ListenerMixin, _base.Listener):
         self._event_filter = self._options.get(
             'event_filter',
             lambda msg, data: True)
+        self._get_suppress_after_ = self._options.get("get_suppress_after")
 
     def _handle(self, code, msg, lpdata):
         if code != SystemHook.HC_ACTION:
             return
 
-        data = ctypes.cast(lpdata, self._LPMSLLHOOKSTRUCT).contents
+        data = self._get_data(lpdata)
 
         # Suppress further propagation of the event if it is filtered
         if self._event_filter(msg, data) is False:
@@ -219,3 +220,11 @@ class Listener(ListenerMixin, _base.Listener):
             mx, my = self.SCROLL_BUTTONS[msg]
             dd = wintypes.SHORT(data.mouseData >> 16).value // WHEEL_DELTA
             self.on_scroll(data.pt.x, data.pt.y, dd * mx, dd * my)
+
+    def _get_suppress_after(self, msg, lpdata):
+        if self._get_suppress_after_ is None:
+            return False
+        return self._get_suppress_after_(msg, self._get_data(lpdata))
+
+    def _get_data(self, lpdata):
+        return ctypes.cast(lpdata, self._LPMSLLHOOKSTRUCT).contents

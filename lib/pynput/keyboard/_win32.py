@@ -277,12 +277,13 @@ class Listener(ListenerMixin, _base.Listener):
         self._event_filter = self._options.get(
             'event_filter',
             lambda msg, data: True)
+        self._get_suppress_after_ = self._options.get("get_suppress_after")
 
     def _convert(self, code, msg, lpdata):
         if code != SystemHook.HC_ACTION:
             return
 
-        data = ctypes.cast(lpdata, self._LPKBDLLHOOKSTRUCT).contents
+        data = self._get_data(lpdata)
         is_packet = data.vkCode == self._VK_PACKET
 
         # Suppress further propagation of the event if it is filtered
@@ -292,6 +293,14 @@ class Listener(ListenerMixin, _base.Listener):
             return (msg | self._UTF16_FLAG, data.scanCode)
         else:
             return (msg, data.vkCode)
+
+    def _get_suppress_after(self, msg, lpdata):
+        if self._get_suppress_after_ is None:
+            return False
+        return self._get_suppress_after_(msg, self._get_data(lpdata))
+
+    def _get_data(self, lpdata):
+        return ctypes.cast(lpdata, self._LPKBDLLHOOKSTRUCT).contents
 
     @AbstractListener._emitter
     def _process(self, wparam, lparam):
