@@ -143,6 +143,10 @@ class Controller(_base.Controller):
         if button == self._drag_button:
             self._drag_button = None
 
+    def _size(self):
+        return Quartz.CGDisplayPixelsWide(Quartz.CGMainDisplayID()), \
+            Quartz.CGDisplayPixelsHigh(Quartz.CGMainDisplayID())
+
     def __enter__(self):
         self._click = 0
         return self
