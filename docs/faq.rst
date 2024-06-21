@@ -64,7 +64,23 @@ Here is a keyboard example::
     def win32_event_filter(msg, data):
         if data.vkCode == 0x58:
             # Suppress x
-            listener.suppress_event()
+            Listener.suppress_event(pynput.keyboard.Listener)
+
+On mouse it is different because the data is a `MSLLHOOKSTRUCT`_ instead of a `KBDLLHOOKSTRUCT`_.
+so it is better to listen to the message and suppress the event if needed.
+
+Here is a mouse example::
+
+    #Values for msg can be found here:
+    #https://learn.microsoft.com/en-us/windows/win32/inputdev/mouse-input-notifications
+    # you can also just use print(msg) to see the messages
+    def win32_event_filter(msg,data):
+        if(msg == 0x201): 
+            #0x21 is the left mouse button down event
+            Listener.suppress_event(pynput.mouse.Listener)
+
+You can use the win32_event_filter as such::
+    mouse_listen = pynput.mouse.Listener(win32_event_filter=win32_event_filter)
 
 
 .. _MSLLHOOKSTRUCT: https://docs.microsoft.com/en-gb/windows/win32/api/winuser/ns-winuser-msllhookstruct
