@@ -272,7 +272,7 @@ def command(*args):
             'Failed to execute <%s> (%d): %s',
             ' '.join(args),
             g.returncode,
-            stderr)
+            stdout.decode('utf-8') + '\n\n' + stderr.decode('utf-8'))
     else:
         return stdout.decode('utf-8')
 
