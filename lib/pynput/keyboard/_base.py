@@ -474,7 +474,7 @@ class Controller(object):
             for key in reversed(args):
                 self.release(key)
 
-    def type(self, string, interval=0):
+    def type(self, string, interval=0, hold=0):
         """Types a string.
 
         This method will send all key presses and releases necessary to type
@@ -490,6 +490,7 @@ class Controller(object):
             key = _CONTROL_CODES.get(character, character)
             try:
                 self.press(key)
+                time.sleep(hold)
                 self.release(key)
                 time.sleep(interval)
 
