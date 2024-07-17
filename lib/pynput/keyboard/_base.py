@@ -482,6 +482,10 @@ class Controller(object):
 
         :param str string: The string to type.
 
+        :param float interval: delay between key presses
+
+        :param float hold: seconds that each key will be held down
+
         :raises InvalidCharacterException: if an untypable character is
             encountered
         """
