@@ -1,6 +1,6 @@
 # coding=utf-8
 # pystray
-# Copyright (C) 2015-2022 Moses Palmér
+# Copyright (C) 2015-2024 Moses Palmér
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -16,4 +16,4 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 __author__ = u'Moses Palmér'
-__version__ = (1, 7, 6)
+__version__ = (1, 7, 7)

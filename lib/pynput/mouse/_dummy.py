@@ -1,5 +1,5 @@
 # pynput
-# Copyright (C) 2015-2022 Moses Palmér
+# Copyright (C) 2015-2024 Moses Palmér
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free

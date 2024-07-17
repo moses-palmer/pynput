@@ -1,6 +1,20 @@
 Release Notes
 =============
 
+v1.7.7 (2024-05-10) - Various fixes
+-----------------------------------
+*  Small corrections to the documentation.
+*  Handle explicit timeout when calling ``join`` on listeners.
+*  Correct regression in hot key handling for special keys.
+*  Reverted changes to lazy loading of ``CoreFoundation`` and ``Quartz``, since
+   this still does not appear to work. Thanks to *Zach Zaiman*!
+*  Let the type of values in ``Key`` be ``KeyCode`` so that type checkers are
+   not confused. Thanks to *Amund Eggen Svandal*!
+*  Do not crash in ``__del__`` on *Xorg* if display creation fails. Thanks to
+   *Gabriele Pongelli*!
+*  Correct support for emojis on *Windows*. Thanks to *Yunus Emre*!
+
+
 v1.7.6 (2022-01-01) - Various fixes
 -----------------------------------
 *  Allow passing virtual key codes to the parser for global hot keys.
