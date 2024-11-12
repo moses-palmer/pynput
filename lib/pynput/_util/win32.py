@@ -319,7 +319,7 @@ class ListenerMixin(object):
     """A mixin for *win32* event listeners.
 
     Subclasses should set a value for :attr:`_EVENTS` and implement
-    :meth:`_handle`.
+    :meth:`_handle_message`.
 
     Subclasses must also be decorated with a decorator compatible with
     :meth:`pynput._util.NotifierMixin._receiver` or implement the method
@@ -387,7 +387,7 @@ class ListenerMixin(object):
             if converted is not None:
                 self._message_loop.post(self._WM_PROCESS, *converted)
         except NotImplementedError:
-            self._handle(code, msg, lpdata)
+            self._handle_message(code, msg, lpdata)
 
         if self.suppress:
             self.suppress_event()
@@ -407,7 +407,7 @@ class ListenerMixin(object):
         """
         raise NotImplementedError()
 
-    def _handle(self, code, msg, lpdata):
+    def _handle_message(self, code, msg, lpdata):
         """The device specific callback handler.
 
         This method calls the appropriate callback registered when this
