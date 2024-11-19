@@ -195,7 +195,7 @@ class ListenerMixin(object):
     """A mixin for *Quartz* event listeners.
 
     Subclasses should set a value for :attr:`_EVENTS` and implement
-    :meth:`_handle`.
+    :meth:`_handle_message`.
     """
     #: The events that we listen to
     _EVENTS = tuple()
@@ -280,13 +280,13 @@ class ListenerMixin(object):
 
         This method will call the callbacks registered on initialisation.
         """
-        self._handle(proxy, event_type, event, refcon)
+        self._handle_message(proxy, event_type, event, refcon)
         if self._intercept is not None:
             return self._intercept(event_type, event)
         elif self.suppress:
             return None
 
-    def _handle(self, proxy, event_type, event, refcon):
+    def _handle_message(self, proxy, event_type, event, refcon):
         """The device specific callback handler.
 
         This method calls the appropriate callback registered when this
