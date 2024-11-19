@@ -402,7 +402,7 @@ class Listener(ListenerMixin, _base.Listener):
         self._layout = LAYOUT
         self._modifiers = set()
 
-    def _handle(self, event):
+    def _handle_message(self, event):
         is_press = event.value in (KeyEvent.key_down, KeyEvent.key_hold)
         vk = event.code
 

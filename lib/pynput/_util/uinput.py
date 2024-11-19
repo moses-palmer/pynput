@@ -36,7 +36,7 @@ class ListenerMixin(object):
     """A mixin for *uinput* event listeners.
 
     Subclasses should set a value for :attr:`_EVENTS` and implement
-    :meth:`_handle`.
+    :meth:`_handle_message`.
     """
     #: The events for which to listen
     _EVENTS = tuple()
@@ -52,7 +52,7 @@ class ListenerMixin(object):
     def _run(self):
         for event in self._dev.read_loop():
             if event.type in self._EVENTS:
-                self._handle(event)
+                self._handle_message(event)
 
     def _stop_platform(self):
         self._dev.close()
@@ -89,7 +89,7 @@ class ListenerMixin(object):
         else:
             return dev
 
-    def _handle(self, event):
+    def _handle_message(self, event):
         """Handles a single event.
 
         This method should call one of the registered event callbacks.
