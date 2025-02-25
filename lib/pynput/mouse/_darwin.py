@@ -190,10 +190,10 @@ class Listener(ListenerMixin, _base.Listener):
         elif event_type == Quartz.kCGEventScrollWheel:
             dx = Quartz.CGEventGetIntegerValueField(
                 event,
-                Quartz.kCGScrollWheelEventDeltaAxis2)
+                Quartz.kCGScrollWheelEventPointDeltaAxis2)
             dy = Quartz.CGEventGetIntegerValueField(
                 event,
-                Quartz.kCGScrollWheelEventDeltaAxis1)
+                Quartz.kCGScrollWheelEventPointDeltaAxis1)
             self.on_scroll(px, py, dx, dy)
 
         else:
