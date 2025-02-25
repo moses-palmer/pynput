@@ -566,7 +566,7 @@ class Listener(ListenerMixin, _base.Listener):
         self._keyboard_mapping = display.get_keyboard_mapping(
             min_keycode, keycode_count)
 
-    def _handle(self, display, event):
+    def _handle_message(self, display, event):
         # Convert the event to a KeyCode; this may fail, and in that case we
         # pass None
         try:

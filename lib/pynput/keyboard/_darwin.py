@@ -275,7 +275,7 @@ class Listener(ListenerMixin, _base.Listener):
             finally:
                 self._context = None
 
-    def _handle(self, _proxy, event_type, event, _refcon):
+    def _handle_message(self, _proxy, event_type, event, _refcon):
         # Convert the event to a KeyCode; this may fail, and in that case we
         # pass None
         try:

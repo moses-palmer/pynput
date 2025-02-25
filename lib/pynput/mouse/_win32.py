@@ -194,7 +194,7 @@ class Listener(ListenerMixin, _base.Listener):
             'event_filter',
             lambda msg, data: True)
 
-    def _handle(self, code, msg, lpdata):
+    def _handle_message(self, code, msg, lpdata):
         if code != SystemHook.HC_ACTION:
             return
 
