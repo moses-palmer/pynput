@@ -63,6 +63,7 @@ NX_KEYTYPE_SOUND_DOWN = 1
 NX_KEYTYPE_SOUND_UP = 0
 NX_KEYTYPE_NEXT = 17
 NX_KEYTYPE_PREVIOUS = 18
+NX_KEYTYPE_EJECT = 14
 
 # pylint: disable=C0103; We want to use the names from the C API
 # This is undocumented, but still widely known
@@ -209,6 +210,7 @@ class Key(enum.Enum):
     media_volume_up = KeyCode._from_media(NX_KEYTYPE_SOUND_UP)
     media_previous = KeyCode._from_media(NX_KEYTYPE_PREVIOUS)
     media_next = KeyCode._from_media(NX_KEYTYPE_NEXT)
+    media_eject = KeyCode._from_media(NX_KEYTYPE_EJECT)
 # pylint: enable=W0212
 
 
