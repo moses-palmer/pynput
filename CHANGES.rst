@@ -1,6 +1,13 @@
 Release Notes
 =============
 
+v1.8.0 (2025-03-03) - Allow detecting injected events
+-----------------------------------------------------
+*  Add a flag to callbacks to allow detecting injected input events.
+*  Add ``media_stop`` key for *macOS*. Thanks to *laura-3*!
+*  Add ``eject`` key for *macOS*. Thanks to *DiMNDev*!
+
+
 v1.7.8 (2025-02-28) - Fixes for Python 3.12
 -------------------------------------------
 *  Rename method for listeners to not conflict with new ``threading.Thread``
