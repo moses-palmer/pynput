@@ -426,10 +426,11 @@ class Listener(ListenerMixin, _base.Listener):
             except StopIteration:
                 key = KeyCode.from_vk(vk)
 
+        # We do not know whether these events are injected
         if is_press:
-            self.on_press(key)
+            self.on_press(key, False)
         else:
-            self.on_release(key)
+            self.on_release(key, False)
 
 
 try:
