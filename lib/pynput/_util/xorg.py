@@ -469,7 +469,6 @@ class ListenerMixin(object):
                 data, self._display_record.display, None, None)
 
             injected = event.send_event
-            self._handle(self._display_stop, event, injected)
             self._handle_message(self._display_stop, event, injected)
 
     def _initialize(self, display):
