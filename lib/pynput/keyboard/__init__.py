@@ -79,16 +79,22 @@ class Events(Events):
     class Press(Events.Event):
         """A key press event.
         """
-        def __init__(self, key):
+        def __init__(self, key, injected):
             #: The key.
             self.key = key
+
+            #: Whether this event is synthetic.
+            self.injected = injected
 
     class Release(Events.Event):
         """A key release event.
         """
-        def __init__(self, key):
+        def __init__(self, key, injected):
             #: The key.
             self.key = key
+
+            #: Whether this event is synthetic.
+            self.injected = injected
 
     def __init__(self):
         super(Events, self).__init__(
