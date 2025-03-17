@@ -1,6 +1,13 @@
 Release Notes
 =============
 
+v1.8.1 (2025-03-17) - Various fixes
+-----------------------------------
+*  Remove incorrectly merged line for the *Xorg* backend. Thanks to *sphh*!
+*  Let events know about the new ``injected`` parameter. Thanks to
+   *phpjunkie420*!
+
+
 v1.8.0 (2025-03-03) - Allow detecting injected events
 -----------------------------------------------------
 *  Add a flag to callbacks to allow detecting injected input events.
