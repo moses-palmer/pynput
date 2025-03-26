@@ -28,6 +28,7 @@ import contextlib
 import ctypes
 import itertools
 import threading
+import platform
 
 from ctypes import (
     windll,
@@ -137,6 +138,11 @@ SendInput.argtypes = (
 
 GetCurrentThreadId = windll.kernel32.GetCurrentThreadId
 GetCurrentThreadId.restype = wintypes.DWORD
+
+GetModuleHandle = windll.kernel32.GetModuleHandleW
+GetModuleHandle.restype = wintypes.HMODULE
+GetModuleHandle.argtypes = [wintypes.LPCWSTR]
+
 
 
 class MessageLoop(object):
@@ -276,13 +282,17 @@ class SystemHook(object):
     def __enter__(self):
         key = threading.current_thread().ident
         assert key not in self._HOOKS
+        
+        _hInstance = None
+        if platform.release() == "XP":
+            _hInstance = GetModuleHandle(None)
 
         # Add ourself to lookup table and install the hook
         self._HOOKS[key] = self
         self._hook = self._SetWindowsHookEx(
             self.hook_id,
             self._handler,
-            None,
+            _hInstance,  #For XP, it should be a valid hInstance, Updated by Sampson, 2022.10.21
             0)
 
         return self
