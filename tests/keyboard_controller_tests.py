@@ -89,7 +89,7 @@ class KeyboardControllerTest(EventTest):
         :param text: The text to type and expect.
         """
         with self.capture() as collect:
-            self.controller.type(expected)
+            self.controller.type(expected, interval = 0, hold = 0)
 
         self.assertIn(expected, collect(), failure_message)
 
