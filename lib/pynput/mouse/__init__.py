@@ -52,17 +52,20 @@ class Events(Events):
     class Move(Events.Event):
         """A move event.
         """
-        def __init__(self, x, y):
+        def __init__(self, x, y, injected):
             #: The X screen coordinate.
             self.x = x
 
             #: The Y screen coordinate.
             self.y = y
 
+            #: Whether this event is synthetic.
+            self.injected = injected
+
     class Click(Events.Event):
         """A click event.
         """
-        def __init__(self, x, y, button, pressed):
+        def __init__(self, x, y, button, pressed, injected):
             #: The X screen coordinate.
             self.x = x
 
@@ -75,10 +78,13 @@ class Events(Events):
             #: Whether the button was pressed.
             self.pressed = pressed
 
+            #: Whether this event is synthetic.
+            self.injected = injected
+
     class Scroll(Events.Event):
         """A scroll event.
         """
-        def __init__(self, x, y, dx, dy):
+        def __init__(self, x, y, dx, dy, injected):
             #: The X screen coordinate.
             self.x = x
 
@@ -90,6 +96,9 @@ class Events(Events):
 
             #: The number of vertical steps.
             self.dy = dy
+
+            #: Whether this event is synthetic.
+            self.injected = injected
 
     def __init__(self):
         super(Events, self).__init__(

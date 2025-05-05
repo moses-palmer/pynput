@@ -21,6 +21,8 @@ When running under *uinput*, the following must be true:
 *  You must run your script as root, to that is has the required permissions
    for *uinput*.
 
+Also please note that the ``injected`` flag is not supported for *uinput*.
+
 The latter requirement for *X* means that running *pynput* over *SSH* generally
 will not work. To work around that, make sure to set ``$DISPLAY``:
 

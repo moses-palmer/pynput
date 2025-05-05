@@ -63,6 +63,7 @@ NX_KEYTYPE_SOUND_DOWN = 1
 NX_KEYTYPE_SOUND_UP = 0
 NX_KEYTYPE_NEXT = 17
 NX_KEYTYPE_PREVIOUS = 18
+NX_KEYTYPE_EJECT = 14
 
 # pylint: disable=C0103; We want to use the names from the C API
 # This is undocumented, but still widely known
@@ -209,6 +210,7 @@ class Key(enum.Enum):
     media_volume_up = KeyCode._from_media(NX_KEYTYPE_SOUND_UP)
     media_previous = KeyCode._from_media(NX_KEYTYPE_PREVIOUS)
     media_next = KeyCode._from_media(NX_KEYTYPE_NEXT)
+    media_eject = KeyCode._from_media(NX_KEYTYPE_EJECT)
 # pylint: enable=W0212
 
 
@@ -275,7 +277,7 @@ class Listener(ListenerMixin, _base.Listener):
             finally:
                 self._context = None
 
-    def _handle(self, _proxy, event_type, event, _refcon):
+    def _handle_message(self, _proxy, event_type, event, _refcon, injected):
         # Convert the event to a KeyCode; this may fail, and in that case we
         # pass None
         try:
@@ -286,17 +288,17 @@ class Listener(ListenerMixin, _base.Listener):
         try:
             if event_type == kCGEventKeyDown:
                 # This is a normal key press
-                self.on_press(key)
+                self.on_press(key, injected)
 
             elif event_type == kCGEventKeyUp:
                 # This is a normal key release
-                self.on_release(key)
+                self.on_release(key, injected)
 
             elif key == Key.caps_lock:
                 # We only get an event when caps lock is toggled, so we fake
                 # press and release
-                self.on_press(key)
-                self.on_release(key)
+                self.on_press(key, injected)
+                self.on_release(key, injected)
 
             elif event_type == NSSystemDefined:
                 sys_event = NSEvent.eventWithCGEvent_(event)
@@ -319,9 +321,9 @@ class Listener(ListenerMixin, _base.Listener):
                 flags = CGEventGetFlags(event)
                 is_press = flags & self._MODIFIER_FLAGS.get(key, 0)
                 if is_press:
-                    self.on_press(key)
+                    self.on_press(key, injected)
                 else:
-                    self.on_release(key)
+                    self.on_release(key, injected)
 
         finally:
             # Store the current flag mask to be able to detect modifier state

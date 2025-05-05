@@ -1,6 +1,26 @@
 Release Notes
 =============
 
+v1.8.1 (2025-03-17) - Various fixes
+-----------------------------------
+*  Remove incorrectly merged line for the *Xorg* backend. Thanks to *sphh*!
+*  Let events know about the new ``injected`` parameter. Thanks to
+   *phpjunkie420*!
+
+
+v1.8.0 (2025-03-03) - Allow detecting injected events
+-----------------------------------------------------
+*  Add a flag to callbacks to allow detecting injected input events.
+*  Add ``media_stop`` key for *macOS*. Thanks to *laura-3*!
+*  Add ``eject`` key for *macOS*. Thanks to *DiMNDev*!
+
+
+v1.7.8 (2025-02-28) - Fixes for Python 3.12
+-------------------------------------------
+*  Rename method for listeners to not conflict with new ``threading.Thread``
+   field.
+
+
 v1.7.7 (2024-05-10) - Various fixes
 -----------------------------------
 *  Small corrections to the documentation.

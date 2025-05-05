@@ -402,7 +402,7 @@ class Listener(ListenerMixin, _base.Listener):
         self._layout = LAYOUT
         self._modifiers = set()
 
-    def _handle(self, event):
+    def _handle_message(self, event):
         is_press = event.value in (KeyEvent.key_down, KeyEvent.key_hold)
         vk = event.code
 
@@ -426,10 +426,11 @@ class Listener(ListenerMixin, _base.Listener):
             except StopIteration:
                 key = KeyCode.from_vk(vk)
 
+        # We do not know whether these events are injected
         if is_press:
-            self.on_press(key)
+            self.on_press(key, False)
         else:
-            self.on_release(key)
+            self.on_release(key, False)
 
 
 try:

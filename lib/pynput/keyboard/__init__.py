@@ -79,16 +79,22 @@ class Events(Events):
     class Press(Events.Event):
         """A key press event.
         """
-        def __init__(self, key):
+        def __init__(self, key, injected):
             #: The key.
             self.key = key
+
+            #: Whether this event is synthetic.
+            self.injected = injected
 
     class Release(Events.Event):
         """A key release event.
         """
-        def __init__(self, key):
+        def __init__(self, key, injected):
             #: The key.
             self.key = key
+
+            #: Whether this event is synthetic.
+            self.injected = injected
 
     def __init__(self):
         super(Events, self).__init__(
@@ -218,22 +224,26 @@ class GlobalHotKeys(Listener):
             *args,
             **kwargs)
 
-    def _on_press(self, key):
+    def _on_press(self, key, injected):
         """The press callback.
 
         This is automatically registered upon creation.
 
         :param key: The key provided by the base class.
+        :param injected: Whether the event was injected.
         """
-        for hotkey in self._hotkeys:
-            hotkey.press(self.canonical(key))
+        if not injected:
+            for hotkey in self._hotkeys:
+                hotkey.press(self.canonical(key))
 
-    def _on_release(self, key):
+    def _on_release(self, key, injected):
         """The release callback.
 
         This is automatically registered upon creation.
 
         :param key: The key provided by the base class.
+        :param injected: Whether the event was injected.
         """
-        for hotkey in self._hotkeys:
-            hotkey.release(self.canonical(key))
+        if not injected:
+            for hotkey in self._hotkeys:
+                hotkey.release(self.canonical(key))

@@ -566,7 +566,7 @@ class Listener(ListenerMixin, _base.Listener):
         self._keyboard_mapping = display.get_keyboard_mapping(
             min_keycode, keycode_count)
 
-    def _handle(self, display, event):
+    def _handle_message(self, display, event, injected):
         # Convert the event to a KeyCode; this may fail, and in that case we
         # pass None
         try:
@@ -575,10 +575,10 @@ class Listener(ListenerMixin, _base.Listener):
             key = None
 
         if event.type == Xlib.X.KeyPress:
-            self.on_press(key)
+            self.on_press(key, injected)
 
         elif event.type == Xlib.X.KeyRelease:
-            self.on_release(key)
+            self.on_release(key, injected)
 
     def _suppress_start(self, display):
         display.screen().root.grab_keyboard(
@@ -596,7 +596,7 @@ class Listener(ListenerMixin, _base.Listener):
         :param bool is_press: Whether this is a press event.
         """
         (self.on_press if is_press else self.on_release)(
-            self._SPECIAL_KEYS.get(key.vk, key))
+            self._SPECIAL_KEYS.get(key.vk, key), True)
 
     def _keycode_to_keysym(self, display, keycode, index):
         """Converts a keycode and shift state index to a keysym.
