@@ -23,7 +23,10 @@ See the documentation for more information.
 # pylint: disable=C0103
 # KeyCode, Key, Controller and Listener are not constants
 
+import asyncio
 import itertools
+import sys
+from functools import cached_property, wraps
 
 from pynput._util import backend, Events
 
@@ -247,3 +250,59 @@ class GlobalHotKeys(Listener):
         if not injected:
             for hotkey in self._hotkeys:
                 hotkey.release(self.canonical(key))
+
+
+class AsyncListener:
+    """Run keyboard listener from an async loop.
+
+    After catching the keys pressed in the thread, it transmits the tasks to be
+    processed in the event loop.
+    """
+    def __init__(self, on_press=None, on_release=None, suppress=False, **kwargs):
+        self.running = False
+
+        self._listener = Listener(
+            on_press=self._transmit_to_event_loop(on_press),
+            on_release=self._transmit_to_event_loop(on_release),
+            suppress=suppress,
+            **kwargs
+        )
+
+    def __enter__(self):
+        self.start()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.stop()
+
+    @cached_property
+    def _loop(self):
+        # Prefer the encoraged usage of running_loop, but be compatible with older python.
+        # This cannot be instantiated until the loop is surely running.
+        _version = sys.version_info
+        return asyncio.get_running_loop if _version >= (3, 7) else asyncio.get_event_loop
+
+    def _transmit_to_event_loop(self, func):
+        @wraps(func)
+        def wrapper(key):
+            return self._loop.call_soon_threadsafe(func, key)
+
+        @wraps(func)
+        def async_wrapper(key):
+            return asyncio.run_coroutine_threadsafe(func(key), self._loop)
+
+        if func is None:
+            return None
+        elif asyncio.iscoroutinefunction(func):
+            return async_wrapper
+        else:
+            return wrapper
+
+    def start(self):
+        self._listener.start()
+        self.running = True
+
+    def stop(self):
+        self._listener.stop()
+        self._listener.join()
+        self.running = False
