@@ -252,6 +252,13 @@ class GlobalHotKeys(Listener):
                 hotkey.release(self.canonical(key))
 
 
+# Prefer the encoraged usage of running_loop, but be compatible with older python.
+# In the latest python this cannot be instantiated until the loop is surely running.
+if sys.version_info >= (3, 7):
+    _get_loop = asyncio.get_running_loop
+else:
+    _get_loop = asyncio.get_event_loop
+
 class AsyncListener:
     """Run keyboard listener from an async loop.
 
@@ -259,6 +266,7 @@ class AsyncListener:
     processed in the event loop.
     """
     def __init__(self, on_press=None, on_release=None, suppress=False, **kwargs):
+        self._loop = None
         self.running = False
 
         self._listener = Listener(
@@ -274,13 +282,6 @@ class AsyncListener:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.stop()
-
-    @cached_property
-    def _loop(self):
-        # Prefer the encoraged usage of running_loop, but be compatible with older python.
-        # This cannot be instantiated until the loop is surely running.
-        _version = sys.version_info
-        return asyncio.get_running_loop if _version >= (3, 7) else asyncio.get_event_loop
 
     def _transmit_to_event_loop(self, func):
         @wraps(func)
@@ -299,6 +300,7 @@ class AsyncListener:
             return wrapper
 
     def start(self):
+        self._loop = _get_loop()
         self._listener.start()
         self.running = True
 
