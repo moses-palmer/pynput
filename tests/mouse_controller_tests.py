@@ -186,3 +186,25 @@ class MouseControllerTest(EventTest):
                 'Failed to send scroll down event',
                 on_scroll=lambda x, y, dx, dy: dy < 0):
             self.controller.scroll(0, -1)
+
+    def test_scroll_no_duplicate(self):
+        """Tests that a single scroll call yields a single scroll event.
+
+        Regression test for an issue where Windows ``Controller._scroll``
+        fired ``on_scroll`` twice: once via ``NotifierMixin._emit`` and once
+        via the ``WH_MOUSE_LL`` hook that already receives ``SendInput``
+        events.
+        """
+        events = []
+        listener = self.listener(
+            on_scroll=lambda x, y, dx, dy: events.append((dx, dy)))
+        with listener:
+            time.sleep(0.2)
+            del events[:]
+            self.controller.scroll(0, 1)
+            time.sleep(0.5)
+
+        self.assertEqual(
+            1, len(events),
+            'Expected exactly one scroll event, got %d: %r' % (
+                len(events), events))
