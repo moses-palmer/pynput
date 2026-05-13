@@ -62,8 +62,11 @@ def notify(message, delay=None, columns=50):
         if lines:
             lines.append('')
         for word in line.split():
-            if not lines or not lines[-1] \
-                    or len(lines[-1]) + 1 + len(word) > max_length:
+            if (
+                not lines
+                or not lines[-1]
+                or len(lines[-1]) + 1 + len(word) > max_length
+            ):
                 lines.append(word)
             else:
                 lines[-1] += ' ' + word
@@ -77,7 +80,6 @@ def notify(message, delay=None, columns=50):
 
     if delay:
         time.sleep(delay)
-
 
 
 #: A decorator to make a test run only on macOS
@@ -119,7 +121,8 @@ class EventTest(unittest.TestCase):
         remaining = [
             listener
             for listener in self.listeners
-            if not (listener.join(0.5) or listener.is_alive)]
+            if not (listener.join(0.5) or listener.is_alive)
+        ]
         for listener in remaining:
             listener.join()
 
@@ -152,6 +155,7 @@ class EventTest(unittest.TestCase):
 
         :param kwargs: Arguments to pass to the listener constructor.
         """
+
         def wrapper(name, callback):
             def inner(*a):
                 if callback(*a):
@@ -160,9 +164,12 @@ class EventTest(unittest.TestCase):
 
             return inner if callback else None
 
-        with self.listener(**{
+        with self.listener(
+            **{
                 name: wrapper(name, callback)
-                for name, callback in kwargs.items()}) as listener:
+                for name, callback in kwargs.items()
+            }
+        ) as listener:
             time.sleep(0.1)
             listener.success = False
             yield
@@ -172,9 +179,7 @@ class EventTest(unittest.TestCase):
                 if listener.success:
                     break
 
-        self.assertTrue(
-            listener.success,
-            failure_message)
+        self.assertTrue(listener.success, failure_message)
 
     def assert_stop(self, failure_message, **callbacks):
         """Asserts that a listener stop within :attr:`STOP_MAX_WAIT` seconds.
@@ -195,9 +200,7 @@ class EventTest(unittest.TestCase):
                     success = True
                     break
 
-        self.assertTrue(
-            success,
-            failure_message)
+        self.assertTrue(success, failure_message)
 
     def assert_cumulative(self, failure_message, **callbacks):
         """Asserts that the callback returns true for at least two thirds of
@@ -211,9 +214,7 @@ class EventTest(unittest.TestCase):
             occurred.
         """
         # The lists of accumulated events
-        events = {
-            name: []
-            for name in callbacks}
+        events = {name: [] for name in callbacks}
 
         def wrapper(name, callback):
             def inner(*a):
@@ -222,19 +223,26 @@ class EventTest(unittest.TestCase):
 
                 total_length = len(cache)
                 if total_length > self.CHANGE_MIN_EVENTS:
-                    change_length = len([
-                        None
-                        for i, b in enumerate(cache[1:])
-                        if callback(cache[i], b)])
+                    change_length = len(
+                        [
+                            None
+                            for i, b in enumerate(cache[1:])
+                            if callback(cache[i], b)
+                        ]
+                    )
 
                     if change_length > (2 * total_length) / 3:
                         return False
 
             return inner if callback else None
 
-        self.assert_stop(failure_message, **{
-            name: wrapper(name, callback)
-            for name, callback in callbacks.items()})
+        self.assert_stop(
+            failure_message,
+            **{
+                name: wrapper(name, callback)
+                for name, callback in callbacks.items()
+            },
+        )
 
     def confirm(self, statement, *fmt):
         """Asks the user to confirm a statement.
@@ -251,10 +259,13 @@ class EventTest(unittest.TestCase):
             response = input(message)
             if response.lower() in valid_responses:
                 self.assertIn(
-                    response.lower(), accept_responses,
-                    'User declined statement "%s"' % message)
+                    response.lower(),
+                    accept_responses,
+                    'User declined statement "%s"' % message,
+                )
                 return
             else:
                 print(
-                    'Please respond %s' % ', '.join(
-                        '"%s"' % r for r in valid_responses))
+                    'Please respond %s'
+                    % ', '.join('"%s"' % r for r in valid_responses)
+                )

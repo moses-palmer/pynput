@@ -31,7 +31,8 @@ class KeyboardControllerTest(EventTest):
     NOTIFICATION = (
         'This test case is non-interactive, so you must not use the '
         'keyboard.\n'
-        'You must, however, keep this window focused.')
+        'You must, however, keep this window focused.'
+    )
     CONTROLLER_CLASS = pynput.keyboard.Controller
     LISTENER_CLASS = pynput.keyboard.Listener
 
@@ -44,9 +45,10 @@ class KeyboardControllerTest(EventTest):
             yield string
         else:
             for encoding in (
-                    'utf-8',
-                    locale.getpreferredencoding(),
-                    sys.stdin.encoding):
+                'utf-8',
+                locale.getpreferredencoding(),
+                sys.stdin.encoding,
+            ):
                 if encoding:
                     try:
                         yield string.decode(encoding)
@@ -65,6 +67,7 @@ class KeyboardControllerTest(EventTest):
         def reader():
             while reader.running:
                 data.append(sys.stdin.readline()[:-1])
+
         reader.running = True
 
         # Start the thread
@@ -97,10 +100,12 @@ class KeyboardControllerTest(EventTest):
         """Asserts that all keys defined for the base keyboard interface are
         defined for the current platform"""
         from pynput.keyboard._base import Key
+
         for key in Key:
             self.assertTrue(
                 hasattr(pynput.keyboard.Key, key.name),
-                '%s is not defined for the current platform' % key.name)
+                '%s is not defined for the current platform' % key.name,
+            )
 
     def test_press_invalid(self):
         with self.assertRaises(self.controller.InvalidKeyException):
@@ -116,10 +121,7 @@ class KeyboardControllerTest(EventTest):
         with self.capture() as collect:
             self.controller.tap(pynput.keyboard.Key.space)
 
-        self.assertIn(
-            u' ',
-            collect(),
-            'Failed to press and release space')
+        self.assertIn(' ', collect(), 'Failed to press and release space')
 
     def test_touch(self):
         """Asserts that the touch shortcut behaves as expected"""
@@ -127,177 +129,158 @@ class KeyboardControllerTest(EventTest):
             self.controller.touch(pynput.keyboard.Key.space, True)
             self.controller.touch(pynput.keyboard.Key.space, False)
 
-        self.assertIn(
-            u' ',
-            collect(),
-            'Failed to press and release space')
+        self.assertIn(' ', collect(), 'Failed to press and release space')
 
     def test_touch_dead(self):
         """Asserts that pressing dead keys generate combined characters"""
         with self.capture() as collect:
-            dead = pynput.keyboard.KeyCode.from_dead(u'~')
+            dead = pynput.keyboard.KeyCode.from_dead('~')
             self.controller.tap(dead)
-            self.controller.tap(u'a')
+            self.controller.tap('a')
 
-        self.assertIn(
-            u'ã',
-            collect(),
-            'Failed to apply dead key')
+        self.assertIn('ã', collect(), 'Failed to apply dead key')
 
     def test_touch_dead_space(self):
         """Asserts that pressing dead keys followed by space yields the
         non-dead version"""
         with self.capture() as collect:
-            dead = pynput.keyboard.KeyCode.from_dead(u'~')
+            dead = pynput.keyboard.KeyCode.from_dead('~')
             self.controller.tap(dead)
             self.controller.tap(pynput.keyboard.Key.space)
 
-        self.assertIn(
-            u'~',
-            collect(),
-            'Failed to apply dead key')
+        self.assertIn('~', collect(), 'Failed to apply dead key')
 
     def test_touch_dead_twice(self):
         """Asserts that pressing dead keys twice yields the non-dead version"""
         with self.capture() as collect:
-            dead = pynput.keyboard.KeyCode.from_dead(u'~')
+            dead = pynput.keyboard.KeyCode.from_dead('~')
             self.controller.tap(dead)
             self.controller.tap(dead)
 
-        self.assertIn(
-            u'~',
-            collect(),
-            'Failed to apply dead key')
+        self.assertIn('~', collect(), 'Failed to apply dead key')
 
     def test_alt_pressed(self):
         """Asserts that alt_pressed works"""
         # We do not test alt_r, since that does not necessarily exist on the
         # keyboard
-        for key in (
-                pynput.keyboard.Key.alt,
-                pynput.keyboard.Key.alt_l):
+        for key in (pynput.keyboard.Key.alt, pynput.keyboard.Key.alt_l):
             self.controller.press(key)
             self.assertTrue(
                 self.controller.alt_pressed,
-                'alt_pressed was not set with %s down' % key.name)
+                'alt_pressed was not set with %s down' % key.name,
+            )
             self.controller.release(key)
             self.assertFalse(
-                self.controller.alt_pressed,
-                'alt_pressed was incorrectly set')
+                self.controller.alt_pressed, 'alt_pressed was incorrectly set'
+            )
 
     def test_ctrl_pressed(self):
         """Asserts that ctrl_pressed works"""
         for key in (
-                pynput.keyboard.Key.ctrl,
-                pynput.keyboard.Key.ctrl_l,
-                pynput.keyboard.Key.ctrl_r):
+            pynput.keyboard.Key.ctrl,
+            pynput.keyboard.Key.ctrl_l,
+            pynput.keyboard.Key.ctrl_r,
+        ):
             self.controller.press(key)
             self.assertTrue(
                 self.controller.ctrl_pressed,
-                'ctrl_pressed was not set with %s down' % key.name)
+                'ctrl_pressed was not set with %s down' % key.name,
+            )
             self.controller.release(key)
             self.assertFalse(
-                self.controller.ctrl_pressed,
-                'ctrl_pressed was incorrectly set')
+                self.controller.ctrl_pressed, 'ctrl_pressed was incorrectly set'
+            )
 
     def test_shift_pressed(self):
         """Asserts that shift_pressed works with normal presses"""
         for key in (
-                pynput.keyboard.Key.shift,
-                pynput.keyboard.Key.shift_l,
-                pynput.keyboard.Key.shift_r):
+            pynput.keyboard.Key.shift,
+            pynput.keyboard.Key.shift_l,
+            pynput.keyboard.Key.shift_r,
+        ):
             self.controller.press(key)
             self.assertTrue(
                 self.controller.shift_pressed,
-                'shift_pressed was not set with %s down' % key.name)
+                'shift_pressed was not set with %s down' % key.name,
+            )
             self.controller.release(key)
             self.assertFalse(
                 self.controller.shift_pressed,
-                'shift_pressed was incorrectly set')
+                'shift_pressed was incorrectly set',
+            )
 
     def test_shift_pressed_caps_lock(self):
         """Asserts that shift_pressed is True when caps lock is toggled"""
         self.controller.tap(pynput.keyboard.Key.caps_lock)
         self.assertTrue(
             self.controller.shift_pressed,
-            'shift_pressed was not set with caps lock toggled')
+            'shift_pressed was not set with caps lock toggled',
+        )
 
         self.controller.tap(pynput.keyboard.Key.caps_lock)
         self.assertFalse(
             self.controller.shift_pressed,
-            'shift_pressed was not deactivated with caps lock toggled')
+            'shift_pressed was not deactivated with caps lock toggled',
+        )
 
     def test_pressed_shift(self):
         """Asserts that pressing and releasing a Latin character while pressing
         shift causes it to shift to upper case"""
         with self.capture() as collect:
             with self.controller.pressed(pynput.keyboard.Key.shift):
-                self.controller.tap(u'a')
+                self.controller.tap('a')
 
                 with self.controller.modifiers as modifiers:
-                    self.assertIn(
-                        pynput.keyboard.Key.shift,
-                        modifiers)
+                    self.assertIn(pynput.keyboard.Key.shift, modifiers)
 
-        self.assertIn(
-            u'A',
-            collect(),
-            'shift+a did not yield "A"')
+        self.assertIn('A', collect(), 'shift+a did not yield "A"')
 
     def test_pressed_is_release(self):
         """Asserts that pressed actually releases the key"""
         with self.capture() as collect:
             with self.controller.pressed(pynput.keyboard.Key.shift):
-                self.controller.tap(u'a')
+                self.controller.tap('a')
 
-            self.controller.tap(u'a')
+            self.controller.tap('a')
 
             with self.controller.pressed(pynput.keyboard.Key.shift):
-                self.controller.tap(u'a')
+                self.controller.tap('a')
 
-
-        self.assertIn(
-            u'AaA',
-            collect(),
-            'Keys were not properly released')
+        self.assertIn('AaA', collect(), 'Keys were not properly released')
 
     def test_type_latin(self):
         """Asserts that type works for a Latin string"""
-        self.assert_input(
-            'Failed to type latin string',
-            u'Hello World')
+        self.assert_input('Failed to type latin string', 'Hello World')
 
     def test_type_ascii(self):
         """Asserts that type works for an ascii string"""
-        self.assert_input(
-            'Failed to type ascii string',
-            u'abc123, "quoted!"')
+        self.assert_input('Failed to type ascii string', 'abc123, "quoted!"')
 
     def test_type_nonascii(self):
         """Asserts that type works for a non-ascii strings"""
         self.assert_input(
-            'Failed to type Spanish string',
-            u'Teclado (informática)')
+            'Failed to type Spanish string', 'Teclado (informática)'
+        )
         self.assert_input(
-            'Failed to type Russian string',
-            u'Компьютерная клавиатура')
+            'Failed to type Russian string', 'Компьютерная клавиатура'
+        )
 
     def test_type_control_codes(self):
         """Asserts that type works for a string containing control codes"""
-        self.assert_input(
-            'Failed to type latin string',
-            u'Hello\tworld')
+        self.assert_input('Failed to type latin string', 'Hello\tworld')
 
     def test_controller_events(self):
         """Tests that events sent by a controller are received correctly"""
         with self.assert_event(
-                'Failed to send press',
-                on_press=lambda k: getattr(k, 'char', None) == u'a'):
-            self.controller.press(u'a')
+            'Failed to send press',
+            on_press=lambda k, injected: getattr(k, 'char', None) == 'a',
+        ):
+            self.controller.press('a')
         with self.assert_event(
-                'Failed to send release',
-                on_release=lambda k: getattr(k, 'char', None) == u'a'):
-            self.controller.release(u'a')
+            'Failed to send release',
+            on_release=lambda k, injected: getattr(k, 'char', None) == 'a',
+        ):
+            self.controller.release('a')
 
         self.controller.tap(pynput.keyboard.Key.enter)
         input()

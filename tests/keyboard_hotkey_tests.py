@@ -52,33 +52,21 @@ class KeyboardHotKeyTest(unittest.TestCase):
         self.assertEqual(e.exception.args, ('<ctrl>+a+A',))
 
     def test_parse_valid(self):
+        self.assertSequenceEqual(HotKey.parse('a'), [kc.from_char('a')])
+        self.assertSequenceEqual(HotKey.parse('A'), [kc.from_char('a')])
         self.assertSequenceEqual(
-            HotKey.parse('a'),
-            [
-                kc.from_char('a')])
+            HotKey.parse('<ctrl>+a'), [k.ctrl, kc.from_char('a')]
+        )
         self.assertSequenceEqual(
-            HotKey.parse('A'),
-            [
-                kc.from_char('a')])
+            HotKey.parse('<ctrl>+<alt>+a'), [k.ctrl, k.alt, kc.from_char('a')]
+        )
         self.assertSequenceEqual(
-            HotKey.parse('<ctrl>+a'),
-            [
-                k.ctrl,
-                kc.from_char('a')])
-        self.assertSequenceEqual(
-            HotKey.parse('<ctrl>+<alt>+a'),
-            [
-                k.ctrl,
-                k.alt,
-                kc.from_char('a')])
-        self.assertSequenceEqual(
-            HotKey.parse('<ctrl>+<123456>'),
-            [
-                k.ctrl,
-                kc.from_vk(123456)])
+            HotKey.parse('<ctrl>+<123456>'), [k.ctrl, kc.from_vk(123456)]
+        )
 
     def test_activate_single(self):
         activations = []
+
         def on_activate():
             activations.append(True)
 
@@ -103,6 +91,7 @@ class KeyboardHotKeyTest(unittest.TestCase):
 
     def test_activate_combo(self):
         activations = []
+
         def on_activate():
             activations.append(True)
 
@@ -139,10 +128,13 @@ class KeyboardHotKeyTest(unittest.TestCase):
     def test_hotkeys(self):
         q = queue.Queue()
 
-        with GlobalHotKeys({
+        with GlobalHotKeys(
+            {
                 '<ctrl>+<shift>+a': lambda: q.put('a'),
                 '<ctrl>+<shift>+b': lambda: q.put('b'),
-                '<ctrl>+<shift>+c': lambda: q.put('c')}):
+                '<ctrl>+<shift>+c': lambda: q.put('c'),
+            }
+        ):
             notify('Press <ctrl>+<shift>+a')
             self.assertEqual('a', q.get())
 

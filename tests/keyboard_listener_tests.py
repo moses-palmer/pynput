@@ -31,7 +31,8 @@ from six.moves import input
 class KeyboardListenerTest(EventTest):
     NOTIFICATION = (
         'This test case is interactive, so you must follow the instructions '
-        'on screen')
+        'on screen'
+    )
     LISTENER_CLASS = pynput.keyboard.Listener
 
     @contextlib.contextmanager
@@ -46,6 +47,7 @@ class KeyboardListenerTest(EventTest):
 
         :param timeout: The number of seconds to wait for a key event.
         """
+
         def generator(q):
             while True:
                 try:
@@ -57,8 +59,9 @@ class KeyboardListenerTest(EventTest):
         # Yield the generator and allow the client to capture events
         q = queue.Queue()
         with self.listener(
-                on_press=lambda k: q.put((k, True)),
-                on_release=lambda k: q.put((k, False))):
+            on_press=lambda k: q.put((k, True)),
+            on_release=lambda k: q.put((k, False)),
+        ):
             yield generator(q)
 
     def assert_keys(self, failure_message, *args):
@@ -75,6 +78,7 @@ class KeyboardListenerTest(EventTest):
             The tuple may only be a tuple of tuples, in which case any of the
             values will be accepted.
         """
+
         def normalize(event):
             if not isinstance(event[0], tuple):
                 return normalize(((event[0],), event[1]))
@@ -83,10 +87,13 @@ class KeyboardListenerTest(EventTest):
                 tuple(
                     pynput.keyboard.KeyCode.from_char(key)
                     if isinstance(key, six.string_types)
-                    else key.value if key in pynput.keyboard.Key
+                    else key.value
+                    if key in pynput.keyboard.Key
                     else key
-                    for key in event[0]),
-                is_pressed)
+                    for key in event[0]
+                ),
+                is_pressed,
+            )
 
         original_expected = [normalize(arg) for arg in args]
         remaining = list(original_expected)
@@ -106,14 +113,14 @@ class KeyboardListenerTest(EventTest):
                     self.assertIn(
                         current[0][0],
                         expected[0],
-                        '%s was not found in %s' % (
-                            expected[0],
-                            current[0][0]))
+                        '%s was not found in %s' % (expected[0], current[0][0]),
+                    )
                     self.assertEqual(
                         current[1],
                         expected[1],
-                        'Pressed state for %s was incorrect' % (
-                            str(current[0][0])))
+                        'Pressed state for %s was incorrect'
+                        % (str(current[0][0])),
+                    )
 
                     if not remaining:
                         break
@@ -122,10 +129,13 @@ class KeyboardListenerTest(EventTest):
             self.assertSequenceEqual(
                 [],
                 remaining,
-                '%s ([%s] != [%s])' % (
+                '%s ([%s] != [%s])'
+                % (
                     failure_message,
                     ' '.join(str(e) for e in original_expected),
-                    ' '.join(str(a) for a in actual)))
+                    ' '.join(str(a) for a in actual),
+                ),
+            )
 
         finally:
             self.notify('Press <enter> to continue...', delay=0)
@@ -145,35 +155,34 @@ class KeyboardListenerTest(EventTest):
     def test_tap(self):
         """Tests that a single key can be tapped"""
         self.notify('Press and release "a"')
-        self.assert_keys(
-            'Failed to register event',
-            ('a', True), ('a', False))
+        self.assert_keys('Failed to register event', ('a', True), ('a', False))
 
     def test_enter(self):
         """Tests that the enter key can be tapped"""
         self.notify('Press <enter>')
         self.assert_keys(
-            'Failed to register event',
-            (pynput.keyboard.Key.enter, True))
+            'Failed to register event', (pynput.keyboard.Key.enter, True)
+        )
 
     def test_modifier(self):
         """Tests that the modifier keys can be tapped"""
         from pynput.keyboard import Key
+
         for key in (
-                (Key.alt, Key.alt_l, Key.alt_r),
-                (Key.ctrl, Key.ctrl_l, Key.ctrl_r),
-                (Key.shift, Key.shift_l, Key.shift_r)):
+            (Key.alt, Key.alt_l, Key.alt_r),
+            (Key.ctrl, Key.ctrl_l, Key.ctrl_r),
+            (Key.shift, Key.shift_l, Key.shift_r),
+        ):
             self.notify('Press <%s>' % key[0].name)
-            self.assert_keys(
-                'Failed to register event',
-                (key, True))
+            self.assert_keys('Failed to register event', (key, True))
 
     def test_order(self):
         """Tests that the order of key events is correct"""
         self.notify('Type "hello world"')
         self.assert_keys(
             'Failed to register event',
-            *tuple(self.string_to_events('hello world')))
+            *tuple(self.string_to_events('hello world')),
+        )
 
     def test_shift(self):
         """Tests that <shift> yields capital letters"""
@@ -184,13 +193,17 @@ class KeyboardListenerTest(EventTest):
                 (
                     pynput.keyboard.Key.shift,
                     pynput.keyboard.Key.shift_l,
-                    pynput.keyboard.Key.shift_r),
-                True),
-            *tuple(self.string_to_events('TEST')))
+                    pynput.keyboard.Key.shift_r,
+                ),
+                True,
+            ),
+            *tuple(self.string_to_events('TEST')),
+        )
 
     def test_modifier_and_normal(self):
         """Tests that the modifier keys do not stick"""
         from pynput.keyboard import Key
+
         self.notify('Press a, <ctrl>, a')
         self.assert_keys(
             'Failed to register event',
@@ -199,7 +212,8 @@ class KeyboardListenerTest(EventTest):
             ((Key.ctrl, Key.ctrl_l, Key.ctrl_r), True),
             ((Key.ctrl, Key.ctrl_l, Key.ctrl_r), False),
             ('a', True),
-            ('a', False))
+            ('a', False),
+        )
 
     def test_suppress(self):
         """Tests that passing ``suppress`` prevents events from propagating"""
@@ -209,18 +223,21 @@ class KeyboardListenerTest(EventTest):
             '',
             self.assert_keys(
                 'Failed to register event',
-                *tuple(self.string_to_events('hello world'))).strip())
+                *tuple(self.string_to_events('hello world')),
+            ).strip(),
+        )
 
     def test_reraise(self):
         """Tests that exception are reraised"""
-        class MyException(Exception): pass
+
+        class MyException(Exception):
+            pass
 
         def on_press(key):
             raise MyException()
 
         with self.assertRaises(MyException):
-            with pynput.keyboard.Listener(
-                    on_press=on_press) as l:
+            with pynput.keyboard.Listener(on_press=on_press) as l:
                 self.notify('Press any key')
                 l.join()
 
@@ -229,46 +246,46 @@ class KeyboardListenerTest(EventTest):
         self.notify('Do not touch the keyboard')
 
         with pynput.keyboard.Listener() as l:
+
             def runner():
                 time.sleep(1)
                 l.stop()
 
             threading.Thread(target=runner).start()
             l.join(2.0)
-            self.assertFalse(
-                l.is_alive(),
-                'Listener did not stop')
+            self.assertFalse(l.is_alive(), 'Listener did not stop')
 
     @darwin
     def test_options_darwin(self):
         """Tests that options are correctly set on OSX"""
         self.assertTrue(
             pynput.keyboard.Listener(
-                darwin_test=True,
-                win32_test=False,
-                xorg_test=False)._options['test'])
+                darwin_test=True, win32_test=False, xorg_test=False
+            )._options['test']
+        )
 
     @win32
     def test_options_win32(self):
         """Tests that options are correctly set on Windows"""
         self.assertTrue(
             pynput.keyboard.Listener(
-                darwin_test=False,
-                win32_test=True,
-                xorg_test=False)._options['test'])
+                darwin_test=False, win32_test=True, xorg_test=False
+            )._options['test']
+        )
 
     @xorg
     def test_options_xorg(self):
         """Tests that options are correctly set on Linux"""
         self.assertTrue(
             pynput.keyboard.Listener(
-                darwin_test=False,
-                win32_test=False,
-                xorg_test=True)._options['test'])
+                darwin_test=False, win32_test=False, xorg_test=True
+            )._options['test']
+        )
 
     def test_events(self):
         """Tests that events are correctly yielded"""
         from pynput.keyboard import Key, KeyCode, Events
+
         self.notify('Press a, b, a, <esc>')
 
         with Events() as events:
@@ -288,7 +305,8 @@ class KeyboardListenerTest(EventTest):
                 Events.Release(KeyCode.from_char('b')),
                 Events.Press(KeyCode.from_char('a')),
                 Events.Release(KeyCode.from_char('a')),
-            ])
+            ],
+        )
 
         self.notify('Do not touch the keyboard', delay=2.0)
         with Events() as events:
