@@ -98,6 +98,10 @@ def _find_mask(display, symbol):
         Xlib.XK.string_to_keysym(symbol)
     )
 
+    if modifier_keycode == 0:
+        # No such modifier key defined in the display
+        return 0
+
     for index, keycodes in enumerate(display.get_modifier_mapping()):
         for keycode in keycodes:
             if keycode == modifier_keycode:
@@ -332,8 +336,13 @@ def keyboard_mapping(display):
         if not normalized:
             continue
 
+        group_states = [False, True]
+        if group_mask == 0:
+            # No altgr keysyms, so we can skip this group
+            group_states = [False]
+        
         # Iterate over the groups to extract the shift and modifier state
-        for groups, group in zip(normalized, (False, True)):
+        for groups, group in zip(normalized, group_states):
             for keysym, shift in zip(groups, (False, True)):
                 if not keysym:
                     continue
