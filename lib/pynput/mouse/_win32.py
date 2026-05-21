@@ -141,6 +141,10 @@ class Controller(NotifierMixin, _base.Controller):
             ctypes.sizeof(INPUT),
         )
 
+    def _size(self):
+        return ctypes.windll.user32.GetSystemMetrics(0), \
+            ctypes.windll.user32.GetSystemMetrics(1)
+
 
 @Controller._receiver
 class Listener(ListenerMixin, _base.Listener):
