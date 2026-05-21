@@ -28,7 +28,7 @@ Use ``pynput.mouse.Controller`` like this::
     mouse.click(Button.left, 2)
 
     # Scroll two steps down
-    mouse.scroll(0, 2)
+    mouse.scroll(0, -2)
 
 
 Monitoring the mouse
