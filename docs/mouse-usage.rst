@@ -156,12 +156,14 @@ To iterate over mouse events, use the following code::
 
     from pynput import mouse
 
-    # The event listener will be running in this block
     with mouse.Events() as events:
         for event in events:
-            if event.button == mouse.Button.right:
-                break
-            else:
+            try:
+                if event.button == mouse.Button.right:
+                    print('Right button clicked!')
+                    break
+            except: pass
+            finally:
                 print('Received event {}'.format(event))
 
 Please note that the iterator method does not support non-blocking operation,
