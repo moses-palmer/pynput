@@ -26,6 +26,12 @@ Use ``pynput.keyboard.Controller`` like this::
     # Type 'Hello World' using the shortcut type method
     keyboard.type('Hello World')
 
+    # To add an interval between each key press and release while typing, provide the interval time in seconds like this
+    keyboard.type('Hello World', interval=0.05)
+
+    # To hold each key for n seconds, provide the seconds n as float like this 
+    keyboard.type('Hello World', hold=0.2)
+
 
 Monitoring the keyboard
 -----------------------
