@@ -140,12 +140,15 @@ class KeyboardHotKeyTest(unittest.TestCase):
         q = queue.Queue()
 
         with GlobalHotKeys({
+                '<ctrl>+a': lambda: q.put('x'),
                 '<ctrl>+<shift>+a': lambda: q.put('a'),
                 '<ctrl>+<shift>+b': lambda: q.put('b'),
                 '<ctrl>+<shift>+c': lambda: q.put('c')}):
+            
             notify('Press <ctrl>+<shift>+a')
+            self.assertNotEqual('x', q.get())
             self.assertEqual('a', q.get())
-
+            
             notify('Press <ctrl>+<shift>+b')
             self.assertEqual('b', q.get())
 
