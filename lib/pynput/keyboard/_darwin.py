@@ -347,6 +347,17 @@ class Listener(ListenerMixin, _base.Listener):
         if key in self._SPECIAL_KEYS:
             return self._SPECIAL_KEYS[key]
 
+        flags = Quartz.CGEventGetFlags(event)
+
+        shift_down = bool(flags & Quartz.kCGEventFlagMaskShift)
+        ctrl_down = bool(flags & Quartz.kCGEventFlagMaskControl)
+        option_down = bool(flags & Quartz.kCGEventFlagMaskAlternate)
+        cmd_down = bool(flags & Quartz.kCGEventFlagMaskCommand)
+
+        # ...checking for non-unicode chars pressed to get raw char pressed...
+        if option_down and any([shift_down, ctrl_down, cmd_down]):
+            return KeyCode.from_char(SYMBOLS[vk], vk=vk)
+        
         # ...then try characters...
         length, chars = CGEventKeyboardGetUnicodeString(event, 100, None, None)
         try:
