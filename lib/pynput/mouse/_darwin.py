@@ -52,13 +52,26 @@ def _button_value(base_name, mouse_button):
     )
 
 
-class Button(enum.Enum):
-    """The various buttons."""
+_BUTTON_NAMES = [
+    'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten',
+    'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen',
+    'seventeen', 'eighteen', 'nineteen', 'twenty', 'twenty_one',
+    'twenty_two', 'twenty_three', 'twenty_four', 'twenty_five',
+    'twenty_six', 'twenty_seven', 'twenty_eight', 'twenty_nine',
+    'thirty', 'thirty_one', 'thirty_two'
+]
 
-    unknown = None
-    left = _button_value('kCGEventLeft', 0)
-    middle = _button_value('kCGEventOther', 2)
-    right = _button_value('kCGEventRight', 1)
+_names = [
+    ('unknown', None),
+    ('left', _button_value('kCGEventLeft', 0)),
+    ('middle', _button_value('kCGEventOther', 2)),
+    ('right', _button_value('kCGEventRight', 1)),
+]
+for i, name in enumerate(_BUTTON_NAMES, start=3):
+    _names.append((name, _button_value('kCGEventOther', i)))
+
+Button = enum.Enum('Button', _names, module=__name__)
+Button.__doc__ = "The various buttons."
 
 
 class Controller(_base.Controller):
@@ -190,16 +203,21 @@ class Listener(ListenerMixin, _base.Listener):
             self.on_scroll(px, py, dx, dy, injected)
 
         else:
+            button_number = Quartz.CGEventGetIntegerValueField(
+                event, Quartz.kCGMouseEventButtonNumber)
             for button in Button:
                 try:
-                    (press, release, drag), _ = button.value
+                    (press, release, drag), btn_num = button.value
                 except TypeError:
                     # Button.unknown cannot be enumerated
                     continue
 
                 # Press and release generate click events, and drag
                 # generates move events
-                if event_type in (press, release):
-                    self.on_click(px, py, button, event_type == press, injected)
-                elif event_type == drag:
-                    self.on_move(px, py, injected)
+                if button_number == btn_num:
+                    if event_type in (press, release):
+                        self.on_click(px, py, button, event_type == press, injected)
+                        break
+                    elif event_type == drag:
+                        self.on_move(px, py, injected)
+                        break
