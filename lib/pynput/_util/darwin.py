@@ -30,12 +30,13 @@ import six
 import objc
 import HIServices
 
-from CoreFoundation import CFRelease
+from CoreFoundation import CFMachPortInvalidate, CFRelease
 
 from Quartz import (
     CFMachPortCreateRunLoopSource,
     CFRunLoopAddSource,
     CFRunLoopGetCurrent,
+    CFRunLoopRemoveSource,
     CFRunLoopRunInMode,
     CFRunLoopStop,
     CGEventGetIntegerValueField,
@@ -221,6 +222,8 @@ class ListenerMixin(object):
             )
 
         self._loop = None
+        tap = None
+        loop_source = None
         try:
             tap = self._create_event_tap()
             if tap is None:
@@ -252,6 +255,33 @@ class ListenerMixin(object):
             # pylint: enable=W0702
 
         finally:
+            # Each cleanup step is guarded independently: as in the loop
+            # above, these calls may fail during teardown of the virtual
+            # machine, and a step failing during teardown must not prevent
+            # the tap from being invalidated below
+            try:
+                if loop_source is not None and self._loop is not None:
+                    CFRunLoopRemoveSource(
+                        self._loop, loop_source, kCFRunLoopDefaultMode
+                    )
+            except AttributeError:
+                pass
+            try:
+                if tap is not None:
+                    CGEventTapEnable(tap, False)
+            except AttributeError:
+                pass
+            try:
+                if tap is not None:
+                    # CoreGraphics retains the CFMachPort returned by
+                    # CGEventTapCreate, so dropping our reference never
+                    # deallocates it; without an explicit invalidate, the
+                    # window server keeps the (disabled) event tap
+                    # registration until the process exits, leaking one
+                    # registration per listener stop
+                    CFMachPortInvalidate(tap)
+            except AttributeError:
+                pass
             self._loop = None
 
     def _stop_platform(self):
