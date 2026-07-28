@@ -260,15 +260,15 @@ class ListenerMixin(object):
             # machine, and a step failing during teardown must not prevent
             # the tap from being invalidated below
             try:
+                if tap is not None:
+                    CGEventTapEnable(tap, False)
+            except AttributeError:
+                pass
+            try:
                 if loop_source is not None and self._loop is not None:
                     CFRunLoopRemoveSource(
                         self._loop, loop_source, kCFRunLoopDefaultMode
                     )
-            except AttributeError:
-                pass
-            try:
-                if tap is not None:
-                    CGEventTapEnable(tap, False)
             except AttributeError:
                 pass
             try:
