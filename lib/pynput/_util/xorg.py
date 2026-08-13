@@ -27,6 +27,7 @@ import itertools
 import operator
 import Xlib.display
 import Xlib.keysymdef
+import Xlib.keysymdef.xkb
 import Xlib.threaded
 import Xlib.XK
 
@@ -94,9 +95,21 @@ def _find_mask(display, symbol):
     :return: the modifier mask
     """
     # Get the key code for the symbol
-    modifier_keycode = display.keysym_to_keycode(
-        Xlib.XK.string_to_keysym(symbol)
-    )
+    keysym = Xlib.XK.string_to_keysym(symbol)
+    if not keysym:
+        # pylint: disable=W0702; we want to ignore errors
+        try:
+            keysym = getattr(Xlib.keysymdef.xkb, 'XK_' + symbol, 0)
+        except:
+            pass
+        # pylint: enable=W0702
+
+    if not keysym:
+        return 0
+
+    modifier_keycode = display.keysym_to_keycode(keysym)
+    if not modifier_keycode:
+        return 0
 
     for index, keycodes in enumerate(display.get_modifier_mapping()):
         for keycode in keycodes:
@@ -132,7 +145,10 @@ def alt_gr_mask(display):
     :return: the modifier mask
     """
     if not hasattr(display, '__altgr_mask'):
-        display.__altgr_mask = _find_mask(display, 'Mode_switch')
+        mask = _find_mask(display, 'Mode_switch')
+        if not mask:
+            mask = _find_mask(display, 'ISO_Level3_Shift')
+        display.__altgr_mask = mask
     return display.__altgr_mask
 
 
