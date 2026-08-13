@@ -208,6 +208,16 @@ class Controller(NotifierMixin, _base.Controller):
         self.ALT_GR_MASK = alt_gr_mask(self._display)
         # pylint: enable=C0103
 
+        if Key.alt_gr.value.vk:
+            try:
+                import Xlib.keysymdef.xkb as _xkb
+                if not self._display.keysym_to_keycode(Key.alt_gr.value.vk):
+                    iso_vk = getattr(_xkb, 'XK_ISO_Level3_Shift', 0)
+                    if iso_vk and self._display.keysym_to_keycode(iso_vk):
+                        Key.alt_gr.value.vk = iso_vk
+            except:
+                pass
+
     def __del__(self):
         if hasattr(self, '_display'):
             self._display.close()
@@ -518,6 +528,12 @@ class Listener(ListenerMixin, _base.Listener):
 
     #: A mapping from keysym to special key
     _SPECIAL_KEYS = {key.value.vk: key for key in Key}
+    try:
+        import Xlib.keysymdef.xkb as _xkb
+        if hasattr(_xkb, 'XK_ISO_Level3_Shift'):
+            _SPECIAL_KEYS[_xkb.XK_ISO_Level3_Shift] = Key.alt_gr
+    except (ImportError, AttributeError):
+        pass
 
     #: A mapping from numeric keypad keys to keys
     _KEYPAD_KEYS = {
@@ -565,6 +581,17 @@ class Listener(ListenerMixin, _base.Listener):
             super(Listener, self)._run()
 
     def _initialize(self, display):
+        # Ensure Key.alt_gr.value.vk matches the active system keysym for AltGr
+        if Key.alt_gr.value.vk:
+            try:
+                import Xlib.keysymdef.xkb as _xkb
+                if not display.keysym_to_keycode(Key.alt_gr.value.vk):
+                    iso_vk = getattr(_xkb, 'XK_ISO_Level3_Shift', 0)
+                    if iso_vk and display.keysym_to_keycode(iso_vk):
+                        Key.alt_gr.value.vk = iso_vk
+            except:
+                pass
+
         # Get the keyboard mapping to be able to translate event details to
         # key codes
         min_keycode = display.display.info.min_keycode
@@ -624,6 +651,15 @@ class Listener(ListenerMixin, _base.Listener):
 
         :return: a keysym
         """
+        if index & 0x2 and self._keyboard_mapping is not None:
+            try:
+                min_keycode = display.display.info.min_keycode
+                keysyms = self._keyboard_mapping[keycode - min_keycode]
+                if len(keysyms) >= 6 and keysyms[index + 2] != 0:
+                    return keysyms[index + 2]
+            except (IndexError, TypeError):
+                pass
+
         keysym = display.keycode_to_keysym(keycode, index)
         if keysym:
             return keysym
