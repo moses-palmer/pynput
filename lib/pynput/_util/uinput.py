@@ -53,6 +53,7 @@ class ListenerMixin(object):
             self._dev.grab()
 
     def _run(self):
+        self._mark_ready()
         for event in self._dev.read_loop():
             if event.type in self._EVENTS:
                 self._handle_message(event)
