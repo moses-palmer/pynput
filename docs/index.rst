@@ -32,6 +32,9 @@ Available backends are:
 
 *  ``darwin``, the default for *macOS*.
 *  ``win32``, the default for *Windows*.
+*  ``libei``, the default under *Wayland*. This requires a compositor
+   providing the ``org.freedesktop.portal.RemoteDesktop`` portal, and supports
+   controlling the mouse and keyboard but not monitoring them.
 *  ``uinput``, an optional backend for *Linux* requiring *root* privileges and
    supporting only keyboards.
 *  ``xorg``, the default for other operating systems.
