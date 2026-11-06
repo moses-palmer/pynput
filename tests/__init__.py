@@ -89,6 +89,9 @@ win32 = functools.partial(_backend, 'win32')
 #: A decorator to make a test run only on Linux
 xorg = functools.partial(_backend, 'xorg')
 
+#: A decorator to make a test run only on Wayland
+libei = functools.partial(_backend, 'libei')
+
 
 class EventTest(unittest.TestCase):
     #: The message displayed when this test suite is started
