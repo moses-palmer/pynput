@@ -42,6 +42,9 @@ from six.moves import queue
 RESOLUTIONS = {
     'darwin': 'Please make sure that you have Python bindings for the '
     'system frameworks installed',
+    'libei': 'Please make sure that you are running a Wayland compositor '
+    'providing the RemoteDesktop portal, and that the packages jeepney and '
+    'python-libei are installed',
     'uinput': 'Please make sure that you are running as root, and that '
     'the utility dumpkeys is installed',
     'xorg': 'Please make sure that you have an X server running, and that '
@@ -65,7 +68,10 @@ def backend(package):
     elif sys.platform == 'win32':
         modules = ['win32']
     else:
-        modules = ['xorg']
+        # libei first: under Wayland it is the only backend able to reach
+        # native clients, and it raises ImportError on X, where XTEST reaches
+        # everything and the portal is usually absent
+        modules = ['libei', 'xorg']
 
     errors = []
     resolutions = []
