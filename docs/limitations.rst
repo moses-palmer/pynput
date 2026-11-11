@@ -8,7 +8,7 @@ cases, however, that is not entirely possible.
 Linux
 ~~~~~
 
-On *Linux*, *pynput* uses *X* or *uinput*.
+On *Linux*, *pynput* uses *libei*, *X* or *uinput*.
 
 When running under *X*, the following must be true:
 
@@ -34,9 +34,59 @@ Please note that the value ``DISPLAY=:0`` is just an example. To find the
 actual value, please launch a terminal application from your desktop
 environment and issue the command ``echo $DISPLAY``.
 
-When running under *Wayland*, the *X server* emulator ``Xwayland`` will usually
-run, providing limited functionality. Notably, you will only receive input
-events from applications running under this emulator.
+When running under *Wayland*, the ``libei`` backend is used. It requires the
+following:
+
+*  The compositor must provide the ``org.freedesktop.portal.RemoteDesktop``
+   portal. *KDE* and *GNOME* do; *wlroots* based compositors such as *sway*
+   and *river*, and others such as *niri*, currently do not, and there the
+   ``xorg`` backend is used instead.
+
+*  The packages ``jeepney`` and ``python-libei`` must be installed, along with
+   the system library *libei*. Installing *pynput* as ``pynput[libei]`` pulls
+   these in.
+
+*  The user must grant permission, in a dialog the compositor itself presents.
+   The grant is remembered, so this happens once rather than on every run; see
+   ``$PYNPUT_LIBEI_RESTORE_TOKEN`` below.
+
+This backend has the following limitations:
+
+*  **Input cannot be monitored.** The portal used here grants the right to
+   inject input, not to observe it; monitoring requires the separate
+   ``org.freedesktop.portal.InputCapture`` portal, which is not implemented.
+   Creating a listener succeeds, but starting it raises
+   ``NotImplementedError``.
+
+*  **The pointer position cannot be read** unless this process set it. There is
+   no way to ask the compositor where the pointer is, and reporting a
+   plausible but wrong coordinate would be worse than refusing, so
+   :attr:`pynput.mouse.Controller.position` raises ``NotImplementedError``
+   until it has been assigned. :meth:`pynput.mouse.Controller.move` does not
+   need it, since it sends a relative motion.
+
+*  **Coordinates are logical pixels**, which is the space the compositor works
+   in. On a display scaled by 125%, a screen 2560 pixels wide is 2048 logical
+   pixels wide, and a coordinate outside that range raises ``ValueError``
+   rather than being clamped.
+
+*  **Typing characters requires the ``xkbcommon`` package.** *libei*, like the
+   kernel, identifies keys by position rather than by the character they
+   produce. The compositor supplies its keyboard layout, but interpreting it
+   needs *libxkbcommon*; without it, keys such as :attr:`pynput.keyboard.Key`
+   members still work and characters raise ``InvalidKeyException``.
+
+Also please note that the ``injected`` flag is not supported for ``libei``,
+since there is no listener to report it.
+
+The environment variable ``$PYNPUT_LIBEI_RESTORE_TOKEN`` sets the file in which
+the permission grant is stored, which defaults to
+``$XDG_DATA_HOME/pynput/libei-restore-token``. Setting it to an empty value
+stops the grant being stored, at the cost of a permission dialog on every run.
+
+To use ``Xwayland`` instead, which provides limited functionality, force the
+``xorg`` backend. Note that you will then only exchange input events with
+applications running under that emulator.
 
 
 macOS

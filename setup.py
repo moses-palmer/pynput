@@ -35,6 +35,13 @@ EXTRA_PACKAGES = {
     ':"linux" in sys_platform': [
         'evdev >= 1.3',
         'python-xlib >= 0.17'],
+    # The Wayland backend; optional, since it is useful only under Wayland
+    # and the Xorg backend remains the fallback everywhere else
+    'libei': [
+        'jeepney >= 0.7',
+        'python-libei >= 0.8',
+        # Only needed to type characters rather than key positions
+        'xkbcommon >= 1.0'],
     ':python_version == "2.7"': [
         'enum34']}
 

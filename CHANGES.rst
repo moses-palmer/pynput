@@ -1,6 +1,16 @@
 Release Notes
 =============
 
+v1.9.0 - Add a Wayland backend
+------------------------------
+*  Add the ``libei`` backend, injecting input through the
+   ``org.freedesktop.portal.RemoteDesktop`` portal and *libei*. Unlike the
+   ``xorg`` backend, this reaches native *Wayland* clients, and unlike the
+   ``uinput`` backend it requires no elevated privileges. It is selected
+   automatically under *Wayland*, with ``xorg`` remaining the fallback.
+   Thanks to *Overdr0ne*!
+
+
 v1.8.2 (2026-05-12) - Include missing ``injected`` parameter on *macOS*
 -----------------------------------------------------------------------
 *  Add the ``injected`` argument where missing on *macOS*. Thanks to

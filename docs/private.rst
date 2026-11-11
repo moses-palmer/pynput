@@ -25,6 +25,11 @@ Utility Modules
     :private-members:
     :special-members:
 
+.. automodule:: pynput._util.libei
+    :members:
+    :private-members:
+    :special-members:
+
 .. automodule:: pynput._util.xorg
     :members:
     :private-members:
@@ -59,6 +64,11 @@ Keyboard Modules
     :special-members:
 
 .. automodule:: pynput.keyboard._win32
+    :members:
+    :private-members:
+    :special-members:
+
+.. automodule:: pynput.keyboard._libei
     :members:
     :private-members:
     :special-members:
